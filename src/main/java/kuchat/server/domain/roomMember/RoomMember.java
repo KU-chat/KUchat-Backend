@@ -3,7 +3,7 @@ package kuchat.server.domain.roomMember;
 import jakarta.persistence.*;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.room.Room;
+import kuchat.server.domain.chatroom.Chatroom;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,5 +25,5 @@ public class RoomMember extends BaseTime {
 
     @ManyToOne
     @JoinColumn(name = "room_id")
-    private Room room;
+    private Chatroom chatroom;
 }

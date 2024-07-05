@@ -1,4 +1,4 @@
-package kuchat.server.domain.room;
+package kuchat.server.domain.chatroom;
 
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.enums.Status;
@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "room")
+@Table(name = "chatroom")
 @Getter
 @NoArgsConstructor
-public class Room extends BaseTime {
+public class Chatroom extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class Room extends BaseTime {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @OneToMany(mappedBy = "room")
+    @OneToMany(mappedBy = "chatroom")
     private List<RoomMember> roomMember = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "room")
