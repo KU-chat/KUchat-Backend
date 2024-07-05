@@ -1,30 +1,28 @@
 package kuchat.server.common.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.w3c.dom.Text;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
 
-//    private final ObjectMapper objectMapper;
-//    private final Set<WebSocketSession> sessions = new HashSet<>();         // 현재 연결된 세션들
-//    private final Map<Long, Set<WebSocketSession>> chatroomSessions = new HashMap<>();          //
+    private final ObjectMapper objectMapper;
+
+    private final Set<WebSocketSession> sessions = new HashSet<>();         // 현재 연결된 세션들
+    private final Map<Long, Set<WebSocketSession>> chatroomSessions = new HashMap<>();          // chatroom id - session 매핑
 //
 //    // CLIENT 변수에 session을 저장
 //    private static final ConcurrentHashMap<String, WebSocketSession> CLIENTS
@@ -44,7 +42,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     // 웹소켓 서버가 사용자의 메세지를 받을 때 동작을 구현
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception{
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 //        String id = session.getId();        // 메세지를 보낸 사람의 세션 아이디
         String text = message.getPayload();
         log.info("[handleTextMessage] 메시지의 payload : {}", text);
@@ -63,4 +61,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 //        });
     }
 
+    public boolean addSession(WebSocketSession session) {
+        return sessions.add(session);
+    }
 }

@@ -11,13 +11,16 @@ import kuchat.server.domain.blockMember.BlockMember;
 import kuchat.server.domain.enums.*;
 import kuchat.server.domain.friendship.Friendship;
 import kuchat.server.domain.member.dto.SignupRequest;
-import kuchat.server.domain.roomMember.RoomMember;
+import kuchat.server.domain.chatroomMember.ChatroomMember;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.web.socket.WebSocketSession;
 
+import java.net.http.WebSocket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Entity
@@ -72,15 +75,16 @@ public class Member extends BaseTime {
 
     private String profileImage;
 
+
     @OneToMany(mappedBy = "member")
     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
-    private List<RoomMember> roomMembers = new ArrayList<>();
+    private List<ChatroomMember> chatroomMembers = new ArrayList<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
 
     @OneToMany(mappedBy = "member")
-    private List<BlockMember> blockMembers = new ArrayList<>();
+    private List<BlockMember> blockMembers = new ArrayList<>();         // 차단한 사람 목록
 
     @OneToMany(mappedBy = "friend")
-    private List<Friendship> friendships = new ArrayList<>();
+    private List<Friendship> friendships = new ArrayList<>();        // 친구목록
 
     @Enumerated(EnumType.STRING)
     private Role role;
