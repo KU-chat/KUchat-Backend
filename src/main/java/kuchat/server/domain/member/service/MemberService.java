@@ -1,6 +1,6 @@
 package kuchat.server.domain.member.service;
 
-import kuchat.server.common.exception.notfound.NotFoundMemberException;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static kuchat.server.common.exception.BaseResponse.MEMBER_NOTFOUND;
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -21,11 +23,11 @@ public class MemberService {
     private final JwtTokenService jwtTokenService;
 
     @Transactional
-    public SignupResponse signup(String value, String attributeName, SignupRequest signupRequest) {
+    public SignupResponse signup(SignupRequest signupRequest) {
 
-        Platform platform = Platform.of(value);
-        Member member = memberRepository.findByPlatformAndAttributeName(platform, attributeName)
-                .orElseThrow(() -> new NotFoundMemberException());
+        Platform platform = Platform.of(signupRequest.getPlatform());
+        Member member = memberRepository.findByPlatformAndAttributeName(platform, signupRequest.getAttributeName())
+                .orElseThrow(() -> new KuchatException(MEMBER_NOTFOUND));
         member.updateInfo(signupRequest);
 
         // 엑세스 토큰, 리프레시 토큰 발급
@@ -46,6 +48,6 @@ public class MemberService {
 
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(() -> new KuchatException(MEMBER_NOTFOUND));
     }
 }

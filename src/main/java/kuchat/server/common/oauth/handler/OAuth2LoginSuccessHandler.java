@@ -4,7 +4,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import kuchat.server.common.exception.unauthorized.OAuth2Exception;
+import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.oauth.CustomOAuth2User;
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.jwt.JwtTokenService;
@@ -36,7 +37,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             if (customOAuth2User.getRole() == Role.GUEST) {
 
                 String accessToken = jwtTokenService.generateAccessToken(customOAuth2User.getEmail());
-                log.info("accessToken : " + accessToken);
+                log.info("[onAuthenticationSuccess] accessToken : " + accessToken);
                 response.addHeader(jwtTokenService.getAccessHeader(), "Bearer " + accessToken);
                 jwtTokenService.sendAccessAndRefreshToken(response, accessToken, null);
                 log.info("[onAuthenticationSuccess] sendAccessAndRefreshToken 이후");
@@ -45,6 +46,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String redirectUrl = "/member/signup?platform=" + platform + "&attributeName=" + attributeName;
                 response.sendRedirect(redirectUrl);
                 log.info("[sendAccessAndRefreshToken] send redirect 이후");
+                return;
             }
 
             // 기존 회원인 경우 (Role = STUDENT)
@@ -64,7 +66,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 response.sendRedirect("/");
             }
         } catch (Exception e) {
-            throw new OAuth2Exception();
+            throw new KuchatException(BaseResponse.OAUTH2_FAIL);
         }
     }
 }

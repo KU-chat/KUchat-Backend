@@ -1,8 +1,12 @@
 package kuchat.server.domain.enums;
 
-import kuchat.server.common.exception.notfound.NotFoundPlatformException;
+import kuchat.server.common.exception.KuchatException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+import static kuchat.server.common.exception.BaseResponse.PLATFORM_NOTFOUND;
+
+@Slf4j
 @Getter
 public enum Platform {
     GOOGLE("google"),
@@ -15,12 +19,13 @@ public enum Platform {
         this.value = value;
     }
 
-    public static Platform of(String registrationId) {
-        for(Platform platform : Platform.values()){
-            if(platform.getValue().equals(registrationId)){
+    public static Platform of(String value) {
+        log.info("[of] platform string = {}", value);
+        for (Platform platform : Platform.values()) {
+            if (platform.getValue().equals(value)) {
                 return platform;
             }
         }
-        throw new NotFoundPlatformException();
+        throw new KuchatException(PLATFORM_NOTFOUND);
     }
 }

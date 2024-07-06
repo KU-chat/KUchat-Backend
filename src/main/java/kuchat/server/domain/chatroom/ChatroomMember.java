@@ -1,9 +1,8 @@
-package kuchat.server.domain.chatroomMember;
+package kuchat.server.domain.chatroom;
 
 import jakarta.persistence.*;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.chatroom.Chatroom;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,10 +18,15 @@ public class ChatroomMember extends BaseTime {
     private Long id;
 
     @ManyToOne              // member : roomMember = 1:다 -> roomMember에는 ManyToOne
-    @JoinColumn(name = "member_id")         // fk 이름이 member_id가 된다. 얘가 연관관계 주인
+    @JoinColumn(name = "member_id")         // fk 이름이 member_id가 된다. 얘(Member)가 연관관계 주인
     private Member member;
 
     @ManyToOne
     @JoinColumn(name = "chatroom_id")
     private Chatroom chatroom;
+
+    public ChatroomMember(Member member, Chatroom chatroom){
+        this.member = member;
+        this.chatroom = chatroom;
+    }
 }

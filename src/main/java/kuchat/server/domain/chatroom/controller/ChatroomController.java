@@ -2,9 +2,7 @@ package kuchat.server.domain.chatroom.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.domain.chatroom.dto.ChatroomResponse;
-import kuchat.server.domain.chatroom.dto.CreateChatroomRequest;
-import kuchat.server.domain.chatroom.dto.FindChatroomsResponse;
+import kuchat.server.domain.chatroom.dto.*;
 import kuchat.server.domain.chatroom.service.ChatroomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +28,7 @@ public class ChatroomController {
 
     @Operation(summary = "채팅방 이름 혹은 구성원 이름으로 채팅방 목록 조회")
     @GetMapping("")
-    public ResponseEntity<FindChatroomsResponse> search(@RequestParam String name) {
+    public ResponseEntity<FindChatroomsResponse> search(@RequestParam("name") String name) {
         log.info("[findChatrooms] 검색어 : {}", name);
         FindChatroomsResponse response = chatroomService.findChatrooms(name);
         return ResponseEntity.ok(response);
@@ -38,16 +36,35 @@ public class ChatroomController {
 
     @Operation(summary = "채팅방 이름 변경 (단체 톡방만 가능)")
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateName(@PathVariable Long id,
+    public ResponseEntity<Void> updateName(@PathVariable("id") Long chatroomId,
                                            @RequestBody UpdateChatroomRequest request) {
-        chatroomService.updateName(id, request.getNewName());
+        chatroomService.updateName(chatroomId, request.getNewName());
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "채팅방 제거")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ChatroomResponse> delete(@PathVariable Long id) {
-        ChatroomResponse response = chatroomService.delete(id);
+    public ResponseEntity<ChatroomResponse> delete(@PathVariable("id") Long chatroomId) {
+        ChatroomResponse response = chatroomService.delete(chatroomId);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary = "채팅방에 멤버 추가하기")
+    @PostMapping("/{id}/join")
+    public ResponseEntity<ChatroomResponse> join(@PathVariable("id") Long chatroomId,
+                                                 @RequestBody JoinMemberRequest request){
+        log.info("[join] id가 {} 번인 채팅방에 {} 번 member 추가하기", chatroomId, request.getJoinMembers().toString());
+        ChatroomResponse response = chatroomService.join(chatroomId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "채팅방에서 나가기")
+    @DeleteMapping("/{chatroomId}/memberId/{memberId}/leave")
+    public ResponseEntity<ChatroomResponse> leave(@PathVariable("chatroomId") Long chatroomId,
+                                                  @PathVariable("memberId") Long memberId){
+        log.info("[leave] id가 {} 번인 채팅방에서 {} 번 member가 나감", chatroomId, memberId);
+        ChatroomResponse response = chatroomService.leave(chatroomId, memberId);
         return ResponseEntity.ok(response);
     }
 

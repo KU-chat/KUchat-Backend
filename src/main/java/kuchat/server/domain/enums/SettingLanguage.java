@@ -1,9 +1,11 @@
 package kuchat.server.domain.enums;
 
-import kuchat.server.common.exception.notfound.NotFoundLanguageException;
+import kuchat.server.common.exception.KuchatException;
 import lombok.Getter;
 
 import java.util.Arrays;
+
+import static kuchat.server.common.exception.BaseResponse.LANGUAGE_NOTFOUND;
 
 @Getter
 public enum SettingLanguage {
@@ -11,7 +13,8 @@ public enum SettingLanguage {
     KOREAN("한국어");
 
     private String value;
-    SettingLanguage(String value){
+
+    SettingLanguage(String value) {
         this.value = value;
     }
 
@@ -20,7 +23,7 @@ public enum SettingLanguage {
         return Arrays.stream(values())
                 .filter(language -> value.equals(language.getValue()))
                 .findFirst()
-                .orElseThrow(NotFoundLanguageException::new);
+                .orElseThrow(() -> new KuchatException(LANGUAGE_NOTFOUND));
     }
 
 

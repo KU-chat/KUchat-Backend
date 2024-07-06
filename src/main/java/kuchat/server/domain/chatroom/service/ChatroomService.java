@@ -1,24 +1,29 @@
 package kuchat.server.domain.chatroom.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kuchat.server.common.exception.notfound.NotFoundMemberException;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.socket.WebSocketHandler;
 import kuchat.server.domain.chatroom.Chatroom;
-import kuchat.server.domain.chatroom.dto.ChatroomResponse;
-import kuchat.server.domain.chatroom.dto.CreateChatroomRequest;
-import kuchat.server.domain.chatroom.dto.FindChatroomResponse;
-import kuchat.server.domain.chatroom.dto.FindChatroomsResponse;
+import kuchat.server.domain.chatroom.ChatroomMember;
+import kuchat.server.domain.chatroom.dto.*;
+import kuchat.server.domain.chatroom.repository.ChatroomMemberRepository;
 import kuchat.server.domain.chatroom.repository.ChatroomRepository;
 import kuchat.server.domain.enums.MessageType;
+import kuchat.server.domain.member.Member;
+import kuchat.server.domain.member.repository.MemberRepository;
 import kuchat.server.domain.message.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static kuchat.server.common.exception.BaseResponse.*;
 
 
 @Slf4j
@@ -28,9 +33,12 @@ import java.util.stream.Collectors;
 public class ChatroomService {
 
     private final ChatroomRepository chatroomRepository;
+    private final ChatroomMemberRepository chatroomMemberRepository;
+    private final MemberRepository memberRepository;
     private final WebSocketHandler webSocketHandler;
     private final ObjectMapper objectMapper;
 
+    @Transactional
     public void handlerActions(WebSocketSession session, ChatMessage chatMessage) {
         if (chatMessage.getMessageType() == MessageType.ENTER) {
             if (webSocketHandler.addSession(session)) {
@@ -73,19 +81,54 @@ public class ChatroomService {
     }
 
     @Transactional
-    public ChatroomResponse delete(Long id) {
-        Chatroom chatroom = chatroomRepository.findById(id)
-                .orElseThrow(NotFoundMemberException::new);
+    public ChatroomResponse delete(Long chatroomId) {
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
         ChatroomResponse response = new ChatroomResponse(chatroom.getId());
         chatroomRepository.delete(chatroom);
         return response;
     }
 
     @Transactional
-    public void updateName(Long id, String newName) {
-
-        Chatroom chatroom = chatroomRepository.findById(id)
-                .orElseThrow(NotFoundMemberException::new);
+    public void updateName(Long chatroomId, String newName) {
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
         chatroom.updateName(newName);
+    }
+
+    @Transactional
+    public ChatroomResponse join(Long chatroomId, JoinMemberRequest request) {
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
+
+        List<Long> joinMembersId = request.getJoinMembers();
+        List<Member> joinMembers = memberRepository.findAllById(joinMembersId);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
+        if (joinMembersId.size() != joinMembers.size()) {
+            throw new KuchatException(MEMBER_NOTFOUND);
+        }
+
+        ArrayList<ChatroomMember> chatroomMembers = new ArrayList<>();
+        for (Member member : joinMembers) {
+            ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
+            chatroomMembers.add(chatroomMember);
+        }
+
+        try {
+            chatroomMemberRepository.saveAll(chatroomMembers);      // for문 안에서 한개씩 저장하는 대신 arraylist를 한번에 저장
+        } catch (DataAccessException e) {
+            throw new KuchatException(DB_SAVE_FAIL);
+        }
+
+        return new ChatroomResponse(chatroom.getId());
+    }
+
+    public ChatroomResponse leave(Long chatroomId, Long memberId) {
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new KuchatException(MEMBER_NOTFOUND));
+        ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
+        chatroomMemberRepository.delete(chatroomMember);
+        return new ChatroomResponse(chatroom.getId());
     }
 }

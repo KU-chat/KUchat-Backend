@@ -1,4 +1,4 @@
-package kuchat.server.domain.chatroom.controller;
+package kuchat.server.domain.chatroom.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

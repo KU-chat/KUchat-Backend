@@ -5,24 +5,24 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import kuchat.server.common.exception.badrequest.EmailBadRequestException;
+import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.blockMember.BlockMember;
+import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.*;
 import kuchat.server.domain.friendship.Friendship;
 import kuchat.server.domain.member.dto.SignupRequest;
-import kuchat.server.domain.chatroomMember.ChatroomMember;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.web.socket.WebSocketSession;
+import lombok.extern.slf4j.Slf4j;
 
-import java.net.http.WebSocket;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
+@Slf4j
 @Entity
 @Table(name = "member")
 @Getter
@@ -75,7 +75,6 @@ public class Member extends BaseTime {
 
     private String profileImage;
 
-
     @OneToMany(mappedBy = "member")
     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
     private List<ChatroomMember> chatroomMembers = new ArrayList<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
@@ -123,18 +122,24 @@ public class Member extends BaseTime {
         this.studentId = request.getStudentId();
         this.gender = Gender.of(request.getGender());
         this.birthday = request.getBirthday();
-        if(validateEmail(email)){
+        this.email = request.getEmail();
+
+        if (validateEmail(email)) {
             this.email = request.getEmail();
         }
         this.role = Role.STUDENT;           // 추가정보 받은 후
     }
 
     private boolean validateEmail(String email) {
-        if(!email.contains("@konkuk.ac.kr")){
-            throw new EmailBadRequestException();
-        } else{
+        if (!email.contains("@konkuk.ac.kr")) {
+            log.info("[validateEmail] email = {}", email);
+            throw new KuchatException(BaseResponse.EMAIL_BADREQUEST);
+        } else {
             return true;
         }
     }
 
+    public void addChatroom(ChatroomMember chatroomMember) {
+        chatroomMembers.add(chatroomMember);
+    }
 }
