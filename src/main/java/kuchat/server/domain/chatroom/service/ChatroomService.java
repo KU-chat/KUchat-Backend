@@ -130,6 +130,5 @@ public class ChatroomService {
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
         chatroomMemberRepository.delete(chatroomMember);
         return new ChatroomResponse(chatroom.getId());
-
     }
 }
