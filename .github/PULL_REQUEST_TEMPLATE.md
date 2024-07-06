@@ -1,3 +1,12 @@
+---
+name: 'pull request'
+about: pull request 탬플릿
+title: "[Closes #] feat: 구현/수정한 기능에 대해 적어주세요."
+labels: ''
+assignees: ''
+
+---
+
 ## 이슈 번호
 Close #
 
@@ -10,4 +19,4 @@ Close #
 ## 주의사항
 - PR 제목의 형식은 커밋 메시지의 제목 형식과 동일하다.
 - 제목에는 이 PR이 무엇을 했는지 명시해주기
-- ex) feat: 로그인 토큰 발행 기능 추가
+- ex) [Closes #] feat: 로그인 토큰 발행 기능 추가
