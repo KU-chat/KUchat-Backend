@@ -29,7 +29,6 @@ public class Chatroom extends BaseTime {
     @OneToMany(mappedBy = "chatroom")
     private HashSet<ChatroomMember> chatroomMembers = new HashSet<>();       // 채팅방에 속한 클라이언트들 리스트
 
-
 //    @OneToMany(mappedBy = "room")
 //    private List<Message> messages = new ArrayList<>();
 

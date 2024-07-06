@@ -18,8 +18,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-
+import java.net.http.WebSocket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -74,6 +75,7 @@ public class Member extends BaseTime {
 //    private String fcmToken;
 
     private String profileImage;
+
 
     @OneToMany(mappedBy = "member")
     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
