@@ -8,8 +8,14 @@ import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
 
 @Slf4j
 @Tag(name = "Member", description = "회원")
@@ -20,20 +26,20 @@ public class MemberController {
 
     private final MemberService memberService;
 
+
     // 회원가입 처리하기
     @Operation(summary = "회원가입")
     @SecurityRequirement(name = "JWT")
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@RequestParam String platform,
-                                                 @RequestParam String attributeName,
-                                                 @RequestBody SignupRequest signupRequest) {
-        log.info("[signup] parameter : platform = {}, attributeName = {}", platform, attributeName);
-        log.info("[signup] request : {}", signupRequest.toString());
+    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest signupRequest) {
+        log.info("[signup] signupRequest = {}", signupRequest.toString());
         if (memberService.duplicateStudentId(signupRequest.getStudentId())) {
             System.out.println("[error] 이미 존재하는 학번입니다.");
         }
-
-        SignupResponse response = memberService.signup(platform, attributeName, signupRequest);
+        SignupResponse response = memberService.signup(signupRequest);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(URI.create("/"));
+//        return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);     // 리다이렉트를 하려면 status를 SEE_OTHER(303)로 설정해야한다
         return ResponseEntity.ok(response);
     }
 

@@ -2,13 +2,9 @@ package kuchat.server.domain.chatroom.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
-
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
-@ToString
-public class JoinMemberRequest {
-    private List<Long> joinMembers;
+public class UpdateChatroomRequest {
+    private String newName;
 }

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,23 +35,22 @@ public class OAuth2Service implements OAuth2UserService<OAuth2UserRequest, OAuth
 
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();      // 구글/카카오/네이버에서 사용자의 pk (id) = attributeValue
         Platform platform = Platform.of(registrationId);
-        String attributeName = userRequest.getClientRegistration()
+        String attributeKey = userRequest.getClientRegistration()      // 구글의 경우 attributeKey 가 "sub"이다.
                 .getProviderDetails()
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
+        String attributeValue = oAuth2User.getAttribute(attributeKey);       // 구글/카카오/네이버에서 사용자의 pk (id)
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(platform, attributeName, oAuth2User.getAttributes());
-
+        OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(platform, attributeKey, oAuth2User.getAttributes());
+        log.info("[loadUser] member saveOrUpdate 전 oAuth2Attribute = {}", oAuth2Attribute.toString());
         Member member = saveOrUpdate(oAuth2Attribute);
-        log.info("[loadUser] member : "+member.toString());
-        memberRepository.save(member);
 
         return new CustomOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(member.getRole().getKey())),
                 attributes,
-                oAuth2Attribute.getNameAttributeKey(),
+                attributeKey,
                 member.getEmail(),
                 member.getRole(),
                 member.getPlatform()
@@ -59,8 +59,18 @@ public class OAuth2Service implements OAuth2UserService<OAuth2UserRequest, OAuth
 
     private Member saveOrUpdate(OAuth2Attribute oAuth2Attribute) {
         Platform platform = oAuth2Attribute.getPlatform();
-        String attributeName = oAuth2Attribute.getNameAttributeKey();
-        return memberRepository.findByPlatformAndAttributeName(platform, attributeName)
-                .orElse(oAuth2Attribute.toMember(platform, oAuth2Attribute.getOAuth2UserInfo()));
+        String attributeValue = oAuth2Attribute.getAttributeValue();
+
+        Optional<Member> optionalMember = memberRepository.findByPlatformAndAttributeName(platform, attributeValue);
+
+        if(optionalMember.isPresent()){
+            Member member = optionalMember.get();
+            log.info("[loadUser] 기존에 있던 member : "+member.toString());
+            return member;
+        }
+
+        Member member = oAuth2Attribute.toMember(platform, attributeValue, oAuth2Attribute.getOAuth2UserInfo());
+        log.info("[loadUser] 새로 만든 member : "+member.toString());
+        return memberRepository.save(member);
     }
 }

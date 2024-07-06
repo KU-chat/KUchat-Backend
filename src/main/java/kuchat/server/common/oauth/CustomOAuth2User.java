@@ -2,6 +2,7 @@ package kuchat.server.common.oauth;
 
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.enums.Role;
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -15,6 +16,7 @@ public class CustomOAuth2User extends DefaultOAuth2User {
     private Role role;
     private Platform platform;
 
+    @Builder
     public CustomOAuth2User(Collection<? extends GrantedAuthority> authorities,
                             Map<String, Object> attributes, String nameAttributeKey,
                             String email, Role role, Platform platform) {

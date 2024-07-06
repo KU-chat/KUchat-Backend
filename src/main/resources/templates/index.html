@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>KUchat localhost</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+<!--layout/header-->
+<h1> KUchat localhost </h1>
+
+<div id="user-info">
+    <!-- 사용자가 로그인했을 경우, Thymeleaf 조건문 사용 -->
+<!--    <div th:if="${id}">-->
+        <p th:text="'id is : ' + ${id}"></p>
+        <p>Logged in as: <span th:text="'ID : ' + ${id} + ' 회원이 로그인 된 상태입니다.'"></span></p>
+        <a href="/logout" class="btn btn-info active" role="button">Logout</a>
+        <a href="/ws/message" class="btn btn-primary active" role="button">채팅 참여하기</a>
+<!--    </div>-->
+
+    <!-- 사용자가 로그인하지 않았을 경우 -->
+<!--    <div th:unless="${id}">-->
+        <a href="/oauth2/authorization/google" class="btn btn-sm btn-success active" role="button">Google Login</a>
+<!--    </div>-->
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+    // 이 스크립트는 클라이언트 사이드에서 id를 확인하지 않습니다.
+    // 모든 서버 사이드 렌더링은 Thymeleaf를 통해 처리됩니다.
+    var jsonData = [[${jsonData}]]; // 서버로부터 받은 JSON 데이터
+    console.log(jsonData);
+</script>
+</body>
+</html>

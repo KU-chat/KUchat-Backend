@@ -6,8 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kuchat.server.common.exception.notfound.NotFoundMemberException;
-import kuchat.server.common.exception.unauthorized.MalformedTokenException;
+import kuchat.server.common.exception.KuchatException;
+import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Optional;
+
+import static kuchat.server.common.exception.BaseResponse.MALFORMED_TOKEN;
+import static kuchat.server.common.exception.BaseResponse.MEMBER_NOTFOUND;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -87,6 +90,7 @@ public class JwtTokenService {
         log.info("[sendAccessAndRefreshToken] access token, refresh token 헤더에 추가 완료");
     }
 
+
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(accessHeader))
                 .filter(str -> str.startsWith("Bearer "))
@@ -106,7 +110,7 @@ public class JwtTokenService {
                     .get("email")
                     .toString();
         } catch (Exception e) {
-            throw new MalformedTokenException();
+            throw new KuchatException(MALFORMED_TOKEN);
         }
     }
 
@@ -137,7 +141,7 @@ public class JwtTokenService {
         memberRepository.findByEmail(email)
                 .ifPresentOrElse(
                         member -> member.updateRefreshToken(refreshToken),
-                        () -> new NotFoundMemberException()
+                        () -> new KuchatException(MEMBER_NOTFOUND)
                 );
         log.info("[updateRefreshToken] refresh token 업데이트 완료!");
     }
