@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MESSAGE;
 
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

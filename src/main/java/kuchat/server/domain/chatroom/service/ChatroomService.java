@@ -86,6 +86,7 @@ public class ChatroomService {
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
+
         messageService.sendEnterMessage(joinMembers, chatroom);
     }
 
@@ -106,6 +107,7 @@ public class ChatroomService {
         } else {
             chatroomMemberRepository.delete(chatroomMember);
         }
+
     }
 
     @Transactional
@@ -118,5 +120,6 @@ public class ChatroomService {
     public void enter(Long chatroomId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
+        messageService.findRecentMessages(chatroomId);
     }
 }
