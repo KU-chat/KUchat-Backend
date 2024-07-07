@@ -12,6 +12,7 @@ import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import kuchat.server.domain.message.dto.ChatMessage;
+import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,8 +37,8 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
     private final ChatroomMemberRepository chatroomMemberRepository;
     private final MemberRepository memberRepository;
+    private final MessageService messageService;
     private final WebSocketHandler webSocketHandler;
-    private final ObjectMapper objectMapper;
 
     @Transactional
     public void handlerActions(WebSocketSession session, ChatMessage chatMessage) {
@@ -81,15 +83,6 @@ public class ChatroomService {
     }
 
     @Transactional
-    public ChatroomResponse delete(Long chatroomId) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
-        ChatroomResponse response = new ChatroomResponse(chatroom.getId());
-        chatroomRepository.delete(chatroom);
-        return response;
-    }
-
-    @Transactional
     public void updateName(Long chatroomId, String newName) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
@@ -97,7 +90,7 @@ public class ChatroomService {
     }
 
     @Transactional
-    public ChatroomResponse join(Long chatroomId, JoinMemberRequest request) {
+    public void join(Long chatroomId, JoinMemberRequest request) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
 
@@ -118,17 +111,36 @@ public class ChatroomService {
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
-
-        return new ChatroomResponse(chatroom.getId());
     }
 
-    public ChatroomResponse leave(Long chatroomId, Long memberId) {
+    @Transactional
+    public void leave(Long chatroomId, Long memberId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(MEMBER_NOTFOUND));
+
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
-        chatroomMemberRepository.delete(chatroomMember);
-        return new ChatroomResponse(chatroom.getId());
+        int memberNum = chatroom.deleteChatroomMember(chatroomMember);
+
+        // 만약 채팅방에 더 이상 남아있는 사람이 없으면 해당 채팅방은 삭제된다.
+        if (memberNum == 0) {
+            delete(chatroom);
+        } else {
+            chatroomMemberRepository.delete(chatroomMember);
+        }
+    }
+
+    @Transactional
+    protected void delete(Chatroom chatroom) {
+        HashSet<ChatroomMember> chatroomMembers = chatroom.getChatroomMembers();
+        chatroomMemberRepository.deleteAll(chatroomMembers);
+        chatroomRepository.delete(chatroom);
+    }
+
+    public void enter(Long chatroomId) {
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
+        messageService.findRecentMessages(chatroomId);
     }
 }

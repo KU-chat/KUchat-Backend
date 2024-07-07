@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "room_member")
+@Table(name = "chatroom_member")
 @Getter
 @NoArgsConstructor
 public class ChatroomMember extends BaseTime {
