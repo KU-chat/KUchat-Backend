@@ -1,5 +1,6 @@
 package kuchat.server.domain.message;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Embeddable
 public class MessageId implements Serializable {
+
     private Long messageId;
     private Long chatroomId;        // @MapsId("chatroomId") 로 매핑
 
