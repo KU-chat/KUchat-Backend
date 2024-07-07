@@ -60,19 +60,19 @@ public class ChatroomService {
     @Transactional
     public void updateName(Long chatroomId, String newName) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         chatroom.updateName(newName);
     }
 
     @Transactional
     public void join(Long chatroomId, JoinMemberRequest request) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
 
         List<Long> joinMembersId = request.getJoinMembers();
         List<Member> joinMembers = memberRepository.findAllById(joinMembersId);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
         if (joinMembersId.size() != joinMembers.size()) {
-            throw new KuchatException(NOTFOUND_MEMBER);
+            throw new KuchatException(NOT_FOUND_MEMBER);
         }
 
         ArrayList<ChatroomMember> chatroomMembers = new ArrayList<>();
@@ -93,9 +93,9 @@ public class ChatroomService {
     @Transactional
     public void leave(Long chatroomId, Long memberId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new KuchatException(NOTFOUND_MEMBER));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
         messageService.sendLeaveMessage(member, chatroom);
 
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
@@ -119,7 +119,7 @@ public class ChatroomService {
 
     public void enter(Long chatroomId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         messageService.findRecentMessages(chatroomId);
     }
 }

@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static kuchat.server.common.exception.BaseResponse.MALFORMED_TOKEN;
-import static kuchat.server.common.exception.BaseResponse.NOTFOUND_MEMBER;
+import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -140,7 +140,7 @@ public class JwtTokenService {
         memberRepository.findByEmail(email)
                 .ifPresentOrElse(
                         member -> member.updateRefreshToken(refreshToken),
-                        () -> new KuchatException(NOTFOUND_MEMBER)
+                        () -> new KuchatException(NOT_FOUND_MEMBER)
                 );
         log.info("[updateRefreshToken] refresh token 업데이트 완료!");
     }

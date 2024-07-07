@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chatroom.service.ChatroomService;
-import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.message.ChatMessageEvent;
 import kuchat.server.domain.message.dto.ChatMessage;
 import kuchat.server.domain.message.service.MessageService;
@@ -67,7 +66,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         chatroomSessions.get(chatroomId).remove(session);
     }
 
-    // 웹소켓 서버가 클라이언트의 메세지를 받을 때 동작을 구현
+    // 클라이언트 -> (웹소켓)서버 로 온 메세지를 처리
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String sessionId = session.getId();        // 메세지를 보낸 사람의 세션 아이디
@@ -77,15 +76,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         messageService.handleReceivedMessage(chatMessage);
     }
 
-    private ChatMessage toChatMessage(TextMessage message) {
-        try {
-            return objectMapper.readValue(message.getPayload(), ChatMessage.class);
-        } catch (IOException e) {
-            throw new KuchatException(CONVERT_TO_OBJECT_FAIL);
-        }
-    }
-
-    // 서버 -> 클라이언트    로 전송할 메시지 (MessageService에서 생성한 ChatMessage를 전송)
+    // 서버 -> 클라이언트 로 전송할 메시지를 처리  (MessageService에서 생성한 ChatMessage를 전송)
     @EventListener
     public void onChatMessageEvent(ChatMessageEvent event) {
         ChatMessage chatMessage = event.getChatMessage();
@@ -102,6 +93,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    private ChatMessage toChatMessage(TextMessage message) {
+        try {
+            return objectMapper.readValue(message.getPayload(), ChatMessage.class);
+        } catch (IOException e) {
+            throw new KuchatException(CONVERT_TO_OBJECT_FAIL);
+        }
+    }
+
     private TextMessage toTextMessage(ChatMessage chatMessage) {
         try {
             return new TextMessage(objectMapper.writeValueAsString(chatMessage));
@@ -111,7 +110,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     private static void sendMessage(WebSocketSession session, TextMessage message) {
-        try{
+        try {
             session.sendMessage(message);
         } catch (IOException e) {
             throw new KuchatException(MESSAGE_SEND_FAIL);

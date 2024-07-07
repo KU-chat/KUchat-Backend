@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static kuchat.server.common.exception.BaseResponse.NOTFOUND_MEMBER;
+import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class MemberService {
 
         Platform platform = Platform.of(signupRequest.getPlatform());
         Member member = memberRepository.findByPlatformAndAttributeName(platform, signupRequest.getAttributeName())
-                .orElseThrow(() -> new KuchatException(NOTFOUND_MEMBER));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
         member.updateInfo(signupRequest);
 
         // 엑세스 토큰, 리프레시 토큰 발급
@@ -48,6 +48,6 @@ public class MemberService {
 
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new KuchatException(NOTFOUND_MEMBER));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 }
