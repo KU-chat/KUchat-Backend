@@ -2,12 +2,18 @@ package kuchat.server.domain.chatroom.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.domain.chatroom.dto.*;
 import kuchat.server.domain.chatroom.service.ChatroomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+
+import static kuchat.server.common.exception.BaseResponse.*;
 
 @Slf4j
 @Tag(name = "Chatroom", description = "채팅방")
@@ -23,10 +29,17 @@ public class ChatroomController {
     public ResponseEntity<ChatroomResponse> createChatroom(@RequestBody CreateChatroomRequest request) {
         ChatroomResponse response = chatroomService.createChatroom(request);
         log.info("[createChatroom] 생성된 채팅방 id : {}", response.getId());
-        return ResponseEntity.ok(response);
+
+        URI location = ServletUriComponentsBuilder      // 새롭게 생성된 채팅방의 uri를 알려주는 용도
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);     // 201 created
     }
 
-    @Operation(summary = "채팅방 이름 혹은 구성원 이름으로 채팅방 목록 조회")
+    @Operation(summary = "채팅방 이름으로 채팅방 목록 조회")
     @GetMapping("")
     public ResponseEntity<FindChatroomsResponse> search(@RequestParam("name") String name) {
         log.info("[findChatrooms] 검색어 : {}", name);
@@ -42,30 +55,30 @@ public class ChatroomController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "채팅방 제거")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ChatroomResponse> delete(@PathVariable("id") Long chatroomId) {
-        ChatroomResponse response = chatroomService.delete(chatroomId);
-        return ResponseEntity.ok(response);
-    }
-
 
     @Operation(summary = "채팅방에 멤버 추가하기")
     @PostMapping("/{id}/join")
-    public ResponseEntity<ChatroomResponse> join(@PathVariable("id") Long chatroomId,
+    public ResponseEntity<BaseResponse> join(@PathVariable("id") Long chatroomId,
                                                  @RequestBody JoinMemberRequest request){
         log.info("[join] id가 {} 번인 채팅방에 {} 번 member 추가하기", chatroomId, request.getJoinMembers().toString());
-        ChatroomResponse response = chatroomService.join(chatroomId, request);
-        return ResponseEntity.ok(response);
+        chatroomService.join(chatroomId, request);
+        return ResponseEntity.ok(CHATROOM_SUCCESS);
     }
 
-    @Operation(summary = "채팅방에서 나가기")
+    @Operation(summary = "채팅방 나가기")
     @DeleteMapping("/{chatroomId}/memberId/{memberId}/leave")
-    public ResponseEntity<ChatroomResponse> leave(@PathVariable("chatroomId") Long chatroomId,
-                                                  @PathVariable("memberId") Long memberId){
+    public ResponseEntity<BaseResponse> leave(@PathVariable("chatroomId") Long chatroomId,
+                                              @PathVariable("memberId") Long memberId){
         log.info("[leave] id가 {} 번인 채팅방에서 {} 번 member가 나감", chatroomId, memberId);
-        ChatroomResponse response = chatroomService.leave(chatroomId, memberId);
-        return ResponseEntity.ok(response);
+        chatroomService.leave(chatroomId, memberId);
+        return ResponseEntity.ok(CHATROOM_SUCCESS);
+    }
+
+    @Operation(summary = "채팅 화면으로 들어가기")
+    @GetMapping("/{id}")
+    public ResponseEntity<Void> enter(@PathVariable("id") Long chatroomId){
+        log.info("{}번 채팅방 화면으로 이동", chatroomId);
+        chatroomService.enter(chatroomId);
     }
 
 }
