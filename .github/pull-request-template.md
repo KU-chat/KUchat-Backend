@@ -1,11 +1,4 @@
----
-name: 'pull request'
-about: pull request 탬플릿
-title: "[Closes #] feat: 구현/수정한 기능에 대해 적어주세요."
-labels: ''
-assignees: ''
-
----
+[//]: # (title: "[Closes #] feat: 구현/수정한 기능에 대해 적어주세요.")
 
 ## 이슈 번호
 Close #
