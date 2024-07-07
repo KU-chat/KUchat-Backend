@@ -18,9 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import java.net.http.WebSocket;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -135,7 +134,7 @@ public class Member extends BaseTime {
     private boolean validateEmail(String email) {
         if (!email.contains("@konkuk.ac.kr")) {
             log.info("[validateEmail] email = {}", email);
-            throw new KuchatException(BaseResponse.EMAIL_BADREQUEST);
+            throw new KuchatException(BaseResponse.EMAIL_BAD_REQUEST);
         } else {
             return true;
         }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.enums.MessageType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -33,14 +34,22 @@ public class Message extends BaseTime {
             @JoinColumn(name="parent_message_id", referencedColumnName="message_id"),
             @JoinColumn(name="parent_chatroom_id", referencedColumnName="chatroom_id"/*, insertable=false, updatable=false*/)
     })
-    private Message parent;       // chatroomId 없이 messageId만 가지면 된다.
+    private Message parent = null;       // chatroomId 없이 messageId만 가지면 된다.
 
     @Column(name = "sender_id")
-    private Long sender;
+    private Long senderId;
 
     @Column(name = "message_type")
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
     private String text;
+
+    @Builder
+    public Message(Chatroom chatroom, Long senderId, MessageType messageType, String text){
+        this.chatroom = chatroom;
+        this.senderId = senderId;
+        this.messageType = messageType;
+        this.text = text;
+    }
 }

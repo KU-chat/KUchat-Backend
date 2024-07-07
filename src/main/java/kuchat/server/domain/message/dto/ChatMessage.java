@@ -5,12 +5,13 @@ import lombok.*;
 
 
 @Getter
+@Builder
 @AllArgsConstructor
 @ToString
 public class ChatMessage {
+    private Long messageId;
+    private Long chatroomId;
     private MessageType messageType;
-    private Long roomId;
-    private Long sender;
-    @Setter
+    private Long senderId;
     private String text;
 }
