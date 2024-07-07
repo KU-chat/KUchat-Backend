@@ -76,9 +76,10 @@ public class ChatroomController {
 
     @Operation(summary = "채팅 화면으로 들어가기")
     @GetMapping("/{id}")
-    public ResponseEntity<Void> enter(@PathVariable("id") Long chatroomId){
+    public ResponseEntity<BaseResponse> enter(@PathVariable("id") Long chatroomId){
         log.info("{}번 채팅방 화면으로 이동", chatroomId);
         chatroomService.enter(chatroomId);
+        return ResponseEntity.ok(CHATROOM_SUCCESS);
     }
 
 }

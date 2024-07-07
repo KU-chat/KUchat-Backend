@@ -1,5 +1,5 @@
 package kuchat.server.domain.enums;
 
 public enum MessageType {
-    ENTER, TALK, EXIT;
+    ENTER, TALK, REPLY, EXIT;
 }
