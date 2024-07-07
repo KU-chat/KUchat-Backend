@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import java.util.UUID;
 
-import static kuchat.server.common.exception.BaseResponse.PLATFORM_NOTFOUND;
+import static kuchat.server.common.exception.BaseResponse.NOTFOUND_PLATFORM;
 
 @Slf4j
 @Getter
@@ -44,7 +44,7 @@ public class OAuth2Attribute {
         if (platform == Platform.GOOGLE) {
             return ofGoogle(attributeKey, attributes);
         }
-        throw new KuchatException(PLATFORM_NOTFOUND);
+        throw new KuchatException(NOTFOUND_PLATFORM);
     }
 
     private static OAuth2Attribute ofGoogle(String attributeKey, Map<String, Object> attributes) {

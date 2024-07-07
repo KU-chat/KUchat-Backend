@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-import static kuchat.server.common.exception.BaseResponse.LANGUAGE_NOTFOUND;
+import static kuchat.server.common.exception.BaseResponse.NOTFOUND_LANGUAGE;
 
 @Getter
 public enum LearnLanguage {
@@ -29,6 +29,6 @@ public enum LearnLanguage {
         return Arrays.stream(values())
                 .filter(language -> value.equals(language.getValue()))
                 .findFirst()
-                .orElseThrow(() -> new KuchatException(LANGUAGE_NOTFOUND));
+                .orElseThrow(() -> new KuchatException(NOTFOUND_LANGUAGE));
     }
 }

@@ -1,24 +1,19 @@
 package kuchat.server.domain.chatroom.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.socket.WebSocketHandler;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.chatroom.dto.*;
 import kuchat.server.domain.chatroom.repository.ChatroomMemberRepository;
 import kuchat.server.domain.chatroom.repository.ChatroomRepository;
-import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
-import kuchat.server.domain.message.dto.ChatMessage;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,27 +33,7 @@ public class ChatroomService {
     private final ChatroomMemberRepository chatroomMemberRepository;
     private final MemberRepository memberRepository;
     private final MessageService messageService;
-    private final WebSocketHandler webSocketHandler;
 
-    @Transactional
-    public void handlerActions(WebSocketSession session, ChatMessage chatMessage) {
-        if (chatMessage.getMessageType() == MessageType.ENTER) {
-            if (webSocketHandler.addSession(session)) {
-                chatMessage.setText("👋🏻 " + chatMessage.getSender() + " 님이 입장했습니다.");
-            }
-        }
-        sendMessage(session, chatMessage);
-    }
-
-    //    @Transactional
-    private <T> void sendMessage(WebSocketSession session, ChatMessage chatMessage) {
-//        try{
-//            session.sendMessage(chatMessage);
-
-//        } catch (IOException e){
-
-//        }
-    }
 
     @Transactional
     public ChatroomResponse createChatroom(CreateChatroomRequest request) {
@@ -85,19 +60,19 @@ public class ChatroomService {
     @Transactional
     public void updateName(Long chatroomId, String newName) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
+                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
         chatroom.updateName(newName);
     }
 
     @Transactional
     public void join(Long chatroomId, JoinMemberRequest request) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
+                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
 
         List<Long> joinMembersId = request.getJoinMembers();
         List<Member> joinMembers = memberRepository.findAllById(joinMembersId);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
         if (joinMembersId.size() != joinMembers.size()) {
-            throw new KuchatException(MEMBER_NOTFOUND);
+            throw new KuchatException(NOTFOUND_MEMBER);
         }
 
         ArrayList<ChatroomMember> chatroomMembers = new ArrayList<>();
@@ -111,14 +86,17 @@ public class ChatroomService {
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
+
+        messageService.sendEnterMessage(joinMembers, chatroom);
     }
 
     @Transactional
     public void leave(Long chatroomId, Long memberId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
+                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new KuchatException(MEMBER_NOTFOUND));
+                .orElseThrow(() -> new KuchatException(NOTFOUND_MEMBER));
+        messageService.sendLeaveMessage(member, chatroom);
 
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
         int memberNum = chatroom.deleteChatroomMember(chatroomMember);
@@ -129,6 +107,7 @@ public class ChatroomService {
         } else {
             chatroomMemberRepository.delete(chatroomMember);
         }
+
     }
 
     @Transactional
@@ -140,7 +119,7 @@ public class ChatroomService {
 
     public void enter(Long chatroomId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(CHATROOM_NOTFOUND));
+                .orElseThrow(() -> new KuchatException(NOTFOUND_CHATROOM));
         messageService.findRecentMessages(chatroomId);
     }
 }

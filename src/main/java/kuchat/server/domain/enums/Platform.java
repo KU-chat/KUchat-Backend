@@ -4,7 +4,7 @@ import kuchat.server.common.exception.KuchatException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import static kuchat.server.common.exception.BaseResponse.PLATFORM_NOTFOUND;
+import static kuchat.server.common.exception.BaseResponse.NOTFOUND_PLATFORM;
 
 @Slf4j
 @Getter
@@ -26,6 +26,6 @@ public enum Platform {
                 return platform;
             }
         }
-        throw new KuchatException(PLATFORM_NOTFOUND);
+        throw new KuchatException(NOTFOUND_PLATFORM);
     }
 }
