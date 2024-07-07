@@ -19,8 +19,8 @@ public class Message extends BaseTime {
 
     @EmbeddedId
     @AttributeOverrides({
-            @AttributeOverride(name="messageId", column=@Column(name="message_id")),
-            @AttributeOverride(name="chatroomId", column=@Column(name="chatroom_id", insertable=false, updatable=false))
+            @AttributeOverride(name = "messageId", column = @Column(name = "message_id")),
+            @AttributeOverride(name = "chatroomId", column = @Column(name = "chatroom_id", insertable = false, updatable = false))
     })
     private MessageId messageId;
 
@@ -32,8 +32,8 @@ public class Message extends BaseTime {
 
     @ManyToOne
     @JoinColumns({
-            @JoinColumn(name="parent_message_id", referencedColumnName="message_id"),
-            @JoinColumn(name="parent_chatroom_id", referencedColumnName="chatroom_id"/*, insertable=false, updatable=false*/)
+            @JoinColumn(name = "parent_message_id", referencedColumnName = "message_id"),
+            @JoinColumn(name = "parent_chatroom_id", referencedColumnName = "chatroom_id"/*, insertable=false, updatable=false*/)
     })
     private Message parent = null;       // chatroomId 없이 messageId만 가지면 된다.
 
@@ -47,7 +47,7 @@ public class Message extends BaseTime {
     private String text;
 
     @Builder
-    public Message(Chatroom chatroom, Long senderId, MessageType messageType, String text){
+    public Message(Chatroom chatroom, Long senderId, MessageType messageType, String text) {
         this.chatroom = chatroom;
         this.senderId = senderId;
         this.messageType = messageType;

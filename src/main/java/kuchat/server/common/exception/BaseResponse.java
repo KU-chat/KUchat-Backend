@@ -22,12 +22,10 @@ public enum BaseResponse {
 
     //- 4000번대 : 채팅방(chatroom) 관련 코드
     CHATROOM_SUCCESS(4000, HttpStatus.ACCEPTED, "채팅방 생성/수정 성공"),
-//    JOIN_CHATROOM_SUCCESS(4001, HttpStatus.OK, "채팅방에 새로운 멤버 추가 성공"),
-//    EXIT_CHATROOM_SUCCESS(4002, HttpStatus.OK, "채팅방 나오기 성공"),
-//    DELETE_CHATROOM_SUCCESS()
     NOT_FOUND_CHATROOM(4001, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     EXIT_CHATROOM_FAIL(4002, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),
     MALFORMED_CHATROOM_ID(4003, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
+
 
     //- 5000번대 : 메시지(message) 관련 코드
     MESSAGE_SEND_SUCCESS(5000, HttpStatus.OK, "메세지 전송 성공"),

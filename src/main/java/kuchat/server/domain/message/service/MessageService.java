@@ -91,7 +91,7 @@ public class MessageService {
                 .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_CHATROOM));
 
         Message message;
-        if(chatMessage.getParentId() != null){
+        if (chatMessage.getParentId() != null) {
             Message parent = messageRepository.findById(chatMessage.getParentId())
                     .orElseThrow(() -> new KuchatException(NOT_FOUND_MESSAGE));
             message = new Message(chatMessage, chatroom, parent);
