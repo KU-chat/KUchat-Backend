@@ -16,11 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MESSAGE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,8 +66,8 @@ public class MessageService {
 
     // 멤버 1명이 나갈 때, 나갔음을 알리는 메시지를 보내는 메서드
     public void sendLeaveMessage(Member member, Chatroom chatroom) {
-        ChatMessage enterMessage = createLeaveMessage(member, chatroom);
-        ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, enterMessage);
+        ChatMessage leaveMessage = createLeaveMessage(member, chatroom);
+        ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, leaveMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
 
     }
@@ -84,8 +84,22 @@ public class MessageService {
                 .build();
     }
 
-    // 서버가 받은 메세지를 처리하는 부분 (DB에 저장 및 전달)
+    // 서버가 클라이언트로부터 받은 메세지를 처리하는 부분 (DB에 저장 및 전달)
     @Transactional
     public void handleReceivedMessage(ChatMessage chatMessage) {
+        Chatroom chatroom = chatroomRepository.findById(chatMessage.getChatroomId())
+                .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_CHATROOM));
+
+        Message message;
+        if(chatMessage.getParentId() != null){
+            Message parent = messageRepository.findById(chatMessage.getParentId())
+                    .orElseThrow(() -> new KuchatException(NOT_FOUND_MESSAGE));
+            message = new Message(chatMessage, chatroom, parent);
+        }
+        message = new Message(chatMessage, chatroom);
+
+        messageRepository.save(message);
+        ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, chatMessage);
+        eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
     }
 }

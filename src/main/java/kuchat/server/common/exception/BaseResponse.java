@@ -11,13 +11,13 @@ public enum BaseResponse {
 
     //- 2000 번대 : oauth 관련 상태 코드
     OAUTH_SUCCESS(2000, HttpStatus.OK, "oauth 인증 성공"),
-    NOTFOUND_PLATFORM(2001, HttpStatus.NOT_FOUND, "존재하지 않는 플랫폼입니다."),
+    NOT_FOUND_PLATFORM(2001, HttpStatus.NOT_FOUND, "존재하지 않는 플랫폼입니다."),
     OAUTH2_FAIL(2002, HttpStatus.INTERNAL_SERVER_ERROR, "소셜로그인이 제대로 처리되지 않았습니다. 다시 시도해주세요."),
 
     //- 3000 번대 : 회원가입/멤버 관련 상태 코드
     SIGNUP_SUCCESS(3000, HttpStatus.CREATED, "회원가입 성공"),
-    NOTFOUND_LANGUAGE(3001, HttpStatus.NOT_FOUND, "존재하지 않는 언어입니다."),
-    NOTFOUND_MEMBER(3002, HttpStatus.NOT_FOUND, "존재하지 않는 회웝입니다."),
+    NOT_FOUND_LANGUAGE(3001, HttpStatus.NOT_FOUND, "존재하지 않는 언어입니다."),
+    NOT_FOUND_MEMBER(3002, HttpStatus.NOT_FOUND, "존재하지 않는 회웝입니다."),
     EMAIL_BAD_REQUEST(3003, HttpStatus.BAD_REQUEST, "건국대학교 이메일이 아닙니다."),
 
     //- 4000번대 : 채팅방(chatroom) 관련 코드
@@ -25,7 +25,7 @@ public enum BaseResponse {
 //    JOIN_CHATROOM_SUCCESS(4001, HttpStatus.OK, "채팅방에 새로운 멤버 추가 성공"),
 //    EXIT_CHATROOM_SUCCESS(4002, HttpStatus.OK, "채팅방 나오기 성공"),
 //    DELETE_CHATROOM_SUCCESS()
-    NOTFOUND_CHATROOM(4001, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
+    NOT_FOUND_CHATROOM(4001, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     EXIT_CHATROOM_FAIL(4002, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),
     MALFORMED_CHATROOM_ID(4003, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
 
@@ -34,6 +34,7 @@ public enum BaseResponse {
     CONVERT_TO_JSON_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 객체를 json 형태로 바꾸는데 실패했습니다"),
     CONVERT_TO_OBJECT_FAIL(5002, HttpStatus.INTERNAL_SERVER_ERROR, "json을 메세지 객체 형태로 바꾸는데 실패했습니다"),
     MESSAGE_SEND_FAIL(5003, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송해 실패했습니다."),
+    NOT_FOUND_MESSAGE(5004, HttpStatus.NOT_FOUND, "존재하지 않는 메세지입니다."),
 
     //- 6000번대 : 친구 관련 코드
 

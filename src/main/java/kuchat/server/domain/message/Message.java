@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.enums.MessageType;
+import kuchat.server.domain.message.dto.ChatMessage;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,5 +52,23 @@ public class Message extends BaseTime {
         this.senderId = senderId;
         this.messageType = messageType;
         this.text = text;
+    }
+
+    public Message(ChatMessage chatMessage, Chatroom chatroom) {
+        this.messageId = new MessageId(chatMessage.getMessageId(), chatMessage.getChatroomId());
+        this.chatroom = chatroom;
+        this.messageType = chatMessage.getMessageType();
+        this.senderId = chatMessage.getSenderId();
+        this.text = chatMessage.getText();
+    }
+
+    // 답장, 번역 메세지처럼 부모가 있는 메세지에 대한 생성자
+    public Message(ChatMessage chatMessage, Chatroom chatroom, Message parent) {
+        this.messageId = new MessageId(chatMessage.getMessageId(), chatMessage.getChatroomId());
+        this.chatroom = chatroom;
+        this.messageType = chatMessage.getMessageType();
+        this.senderId = chatMessage.getSenderId();
+        this.parent = parent;
+        this.text = chatMessage.getText();
     }
 }
