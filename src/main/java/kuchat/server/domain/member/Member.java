@@ -20,7 +20,9 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Entity
@@ -76,9 +78,10 @@ public class Member extends BaseTime {
     private String profileImage;
 
 
+    // 이거 필요없지 않나?
     @OneToMany(mappedBy = "member")
-    // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
-    private List<ChatroomMember> chatroomMembers = new ArrayList<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
+//     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
+    private Set<ChatroomMember> chatroomMembers = new HashSet<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
 
     @OneToMany(mappedBy = "member")
     private List<BlockMember> blockMembers = new ArrayList<>();         // 차단한 사람 목록
@@ -125,9 +128,9 @@ public class Member extends BaseTime {
         this.birthday = request.getBirthday();
         this.email = request.getEmail();
 
-        if (validateEmail(email)) {
-            this.email = request.getEmail();
-        }
+//        if (validateEmail(email)) {
+//            this.email = request.getEmail();
+//        }
         this.role = Role.STUDENT;           // 추가정보 받은 후
     }
 
@@ -140,7 +143,11 @@ public class Member extends BaseTime {
         }
     }
 
-    public void addChatroom(ChatroomMember chatroomMember) {
+    public void addChatroomMember(ChatroomMember chatroomMember) {
         chatroomMembers.add(chatroomMember);
+    }
+
+    public void deleteChatroomMember(ChatroomMember chatroomMember) {
+        chatroomMembers.remove(chatroomMember);
     }
 }

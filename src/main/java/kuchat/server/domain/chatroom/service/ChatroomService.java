@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static kuchat.server.common.exception.BaseResponse.*;
@@ -41,6 +42,8 @@ public class ChatroomService {
                 Chatroom.builder()
                         .name(request.getName())
                         .build());
+        log.info("[createChatroom] 생성된 채팅방 id = {}, name = {}", chatroom.getId(), chatroom.getName());
+        join(chatroom.getId(), request.getMemberIds());
         return new ChatroomResponse(chatroom.getId());
     }
 
@@ -65,13 +68,11 @@ public class ChatroomService {
     }
 
     @Transactional
-    public void join(Long chatroomId, JoinMemberRequest request) {
+    public void join(Long chatroomId, List<Long> memberIds) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
-
-        List<Long> joinMembersId = request.getJoinMembers();
-        List<Member> joinMembers = memberRepository.findAllById(joinMembersId);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
-        if (joinMembersId.size() != joinMembers.size()) {
+        List<Member> joinMembers = memberRepository.findAllById(memberIds);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
+        if (memberIds.size() != joinMembers.size()) {
             throw new KuchatException(NOT_FOUND_MEMBER);
         }
 
@@ -79,6 +80,7 @@ public class ChatroomService {
         for (Member member : joinMembers) {
             ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
             chatroomMembers.add(chatroomMember);
+            member.addChatroomMember(chatroomMember);
         }
 
         try {
@@ -100,19 +102,18 @@ public class ChatroomService {
 
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
         int memberNum = chatroom.deleteChatroomMember(chatroomMember);
+        member.deleteChatroomMember(chatroomMember);
 
         // 만약 채팅방에 더 이상 남아있는 사람이 없으면 해당 채팅방은 삭제된다.
         if (memberNum == 0) {
             delete(chatroom);
-        } else {
-            chatroomMemberRepository.delete(chatroomMember);
         }
-
+        chatroomMemberRepository.delete(chatroomMember);
     }
 
     @Transactional
     protected void delete(Chatroom chatroom) {
-        HashSet<ChatroomMember> chatroomMembers = chatroom.getChatroomMembers();
+        Set<ChatroomMember> chatroomMembers = chatroom.getChatroomMembers();
         chatroomMemberRepository.deleteAll(chatroomMembers);
         chatroomRepository.delete(chatroom);
     }
@@ -122,4 +123,5 @@ public class ChatroomService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         messageService.findRecentMessages(chatroomId);
     }
+
 }

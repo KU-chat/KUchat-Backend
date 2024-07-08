@@ -5,7 +5,6 @@ import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.enums.Status;
-import kuchat.server.domain.member.Member;
 import kuchat.server.domain.message.Message;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "chatroom")
@@ -31,8 +31,9 @@ public class Chatroom extends BaseTime {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
 
-    @OneToMany(mappedBy = "chatroom")
-    private HashSet<ChatroomMember> chatroomMembers = new HashSet<>();       // 채팅방에 속한 클라이언트들 리스트
+//    @OneToMany(mappedBy = "chatroom")
+    @OneToMany(mappedBy = "chatroom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ChatroomMember> chatroomMembers = new HashSet<>();       // 채팅방에 속한 클라이언트들 리스트
 
     @OneToMany(mappedBy = "chatroom")
     private List<Message> messages = new ArrayList<>();
@@ -56,9 +57,9 @@ public class Chatroom extends BaseTime {
      * ChatroomMembers HashSet에서 ChatroomMember 객체를 제거한 뒤, hashset의 size를 반환
      */
     public int deleteChatroomMember(ChatroomMember chatroomMember) {
-        if(chatroomMembers.remove(chatroomMember)) {
+        if (chatroomMembers.remove(chatroomMember)) {
             return chatroomMembers.size();
-        } else{
+        } else {
             throw new KuchatException(BaseResponse.EXIT_CHATROOM_FAIL);
         }
     }

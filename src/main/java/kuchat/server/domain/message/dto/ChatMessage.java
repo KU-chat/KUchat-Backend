@@ -22,5 +22,7 @@ public class ChatMessage {
         this.messageType = messageType;
         this.senderId = senderId;
         this.text = text;
+        this.parentId = null;
     }
+    
 }

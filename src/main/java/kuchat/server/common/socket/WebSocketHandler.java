@@ -42,7 +42,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String path = session.getUri().toString();
         String tmpPath = path.replace("/join", "");     // path 형태 : {도메인}/chatroom/{chatroomId}
         Long chatroomId = extractChatroomId(tmpPath);
-        chatroomSessions.get(chatroomId).add(session);
+        findSessionsByChatroomId(chatroomId).add(session);
     }
 
     // /chatroom/{chatroomId}로 끝나는 uri에서 chatroomId 추출하는 메서드
@@ -63,7 +63,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String path = session.getUri().toString();          // 멤버 나가기 uri : /chatroom/{chatroomId}/memberId/{memberId}/leave
         String tmpPath = path.split("/memberId")[0];        // tmpPath 형태 : /chatroom/{chatroomId}
         Long chatroomId = extractChatroomId(tmpPath);
-        chatroomSessions.get(chatroomId).remove(session);
+        findSessionsByChatroomId(chatroomId).remove(session);
     }
 
     // 클라이언트 -> (웹소켓)서버 로 온 메세지를 처리
@@ -82,7 +82,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         ChatMessage chatMessage = event.getChatMessage();
         TextMessage textMessage = toTextMessage(chatMessage);
         log.info("[send] 메시지 : {}", chatMessage.toString());
-        Set<WebSocketSession> sessions = chatroomSessions.get(chatMessage.getSenderId());
+        Set<WebSocketSession> sessions = findSessionsByChatroomId(chatMessage.getChatroomId());
 
         if (sessions != null) {
             sessions.stream()
@@ -91,6 +91,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
                         sendMessage(session, textMessage);
                     });
         }
+    }
+
+    private Set<WebSocketSession> findSessionsByChatroomId(Long chatroomId){
+        return chatroomSessions.get(chatroomId);
     }
 
     private ChatMessage toChatMessage(TextMessage message) {

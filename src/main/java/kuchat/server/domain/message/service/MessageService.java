@@ -103,4 +103,5 @@ public class MessageService {
         ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, chatMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
     }
+
 }

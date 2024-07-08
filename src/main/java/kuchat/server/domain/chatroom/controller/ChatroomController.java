@@ -27,6 +27,7 @@ public class ChatroomController {
     @Operation(summary = "채팅방 생성")
     @PostMapping("")
     public ResponseEntity<ChatroomResponse> createChatroom(@RequestBody CreateChatroomRequest request) {
+        log.info("[createChatroom] 채팅방 생성 요청 request = {}", request.toString());
         ChatroomResponse response = chatroomService.createChatroom(request);
         log.info("[createChatroom] 생성된 채팅방 id : {}", response.getId());
 
@@ -61,7 +62,7 @@ public class ChatroomController {
     public ResponseEntity<BaseResponse> join(@PathVariable("id") Long chatroomId,
                                              @RequestBody JoinMemberRequest request) {
         log.info("[join] id가 {} 번인 채팅방에 {} 번 member 추가하기", chatroomId, request.getJoinMembers().toString());
-        chatroomService.join(chatroomId, request);
+        chatroomService.join(chatroomId, request.getJoinMembers());
         return ResponseEntity.ok(CHATROOM_SUCCESS);
     }
 
