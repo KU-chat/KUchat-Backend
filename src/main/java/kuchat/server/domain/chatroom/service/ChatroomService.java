@@ -8,6 +8,7 @@ import kuchat.server.domain.chatroom.repository.ChatroomMemberRepository;
 import kuchat.server.domain.chatroom.repository.ChatroomRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
+import kuchat.server.domain.message.dto.RecentMessagesResponse;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,9 @@ public class ChatroomService {
                         .name(request.getName())
                         .build());
         log.info("[createChatroom] 생성된 채팅방 id = {}, name = {}", chatroom.getId(), chatroom.getName());
-        join(chatroom.getId(), request.getMemberIds());
+        if(request.getMemberIds().size() != 0){
+            join(chatroom.getId(), request.getMemberIds());
+        }
         return new ChatroomResponse(chatroom.getId());
     }
 
@@ -64,7 +67,8 @@ public class ChatroomService {
     public void updateName(Long chatroomId, String newName) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
-        chatroom.updateName(newName);
+        chatroom.setName(newName);
+        log.info("[updateName] id = {}, 바뀐 채팅방 이름 = {}", chatroom.getId(), chatroom.getName());
     }
 
     @Transactional
@@ -77,6 +81,11 @@ public class ChatroomService {
         }
 
         ArrayList<ChatroomMember> chatroomMembers = new ArrayList<>();
+        log.info("[join] 지금 추가한 멤버 목록 = [{}]", chatroomMembers.stream()
+                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
+                .collect(Collectors.joining(", "))
+        );
+
         for (Member member : joinMembers) {
             ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
             chatroomMembers.add(chatroomMember);
@@ -88,6 +97,11 @@ public class ChatroomService {
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
+
+        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}}]", chatroom.getChatroomMembers().stream()
+                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
+                .collect(Collectors.joining(", "))
+        );
 
         messageService.sendEnterMessage(joinMembers, chatroom);
     }
@@ -118,10 +132,10 @@ public class ChatroomService {
         chatroomRepository.delete(chatroom);
     }
 
-    public void enter(Long chatroomId) {
+    public RecentMessagesResponse enter(Long chatroomId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
-        messageService.findRecentMessages(chatroomId);
+        return messageService.findRecentMessages(chatroom);       // 최근 20개 톡 가져오기
     }
 
 }

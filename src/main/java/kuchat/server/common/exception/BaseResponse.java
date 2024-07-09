@@ -1,9 +1,13 @@
 package kuchat.server.common.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public enum BaseResponse {
     //- 1000 번대 : jwt 관련 상태 코드
     TOKEN_PROVIDE_SUCCESS(1000, HttpStatus.OK, "jwt 토큰 발급 성공"),
@@ -46,11 +50,4 @@ public enum BaseResponse {
     private int code;
     private HttpStatus httpStatus;
     private String message;
-
-
-    BaseResponse(int code, HttpStatus httpStatus, String message){
-        this.code = code;
-        this.httpStatus = httpStatus;
-        this.message = message;
-    }
 }

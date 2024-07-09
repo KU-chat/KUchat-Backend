@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.domain.chatroom.dto.*;
 import kuchat.server.domain.chatroom.service.ChatroomService;
+import kuchat.server.domain.message.dto.RecentMessagesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class ChatroomController {
     @Operation(summary = "채팅방 이름으로 채팅방 목록 조회")
     @GetMapping("")
     public ResponseEntity<FindChatroomsResponse> search(@RequestParam("name") String name) {
-        log.info("[findChatrooms] 검색어 : {}", name);
+        log.info("[search] 검색어 : {}", name);
         FindChatroomsResponse response = chatroomService.findChatrooms(name);
         return ResponseEntity.ok(response);
     }
@@ -52,8 +53,14 @@ public class ChatroomController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateName(@PathVariable("id") Long chatroomId,
                                            @RequestBody UpdateChatroomRequest request) {
+        String newName = request.getNewName();
+        log.info("[updateName] 채팅방 번호 = {}, 바꿀 이름 = {}", chatroomId, newName);
+        if(newName == null){
+            log.info("[updateName] 이름 안바꿉니다~~");
+            return ResponseEntity.ok().build();
+        }
         chatroomService.updateName(chatroomId, request.getNewName());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.accepted().build();
     }
 
 
@@ -75,12 +82,12 @@ public class ChatroomController {
         return ResponseEntity.ok(CHATROOM_SUCCESS);
     }
 
-    @Operation(summary = "채팅 화면으로 들어가기")
+    @Operation(summary = "채팅 화면으로 들어가기 (최근 20개 톡 가져오기)")
     @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse> enter(@PathVariable("id") Long chatroomId) {
+    public ResponseEntity<RecentMessagesResponse> enter(@PathVariable("id") Long chatroomId) {
         log.info("{}번 채팅방 화면으로 이동", chatroomId);
-        chatroomService.enter(chatroomId);
-        return ResponseEntity.ok(CHATROOM_SUCCESS);
+        RecentMessagesResponse response = chatroomService.enter(chatroomId);        // 최근 20개 톡 가져오기
+        return ResponseEntity.ok().body(response);
     }
 
 }

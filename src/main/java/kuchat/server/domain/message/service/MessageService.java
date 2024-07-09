@@ -10,10 +10,13 @@ import kuchat.server.domain.member.repository.MemberRepository;
 import kuchat.server.domain.message.ChatMessageEvent;
 import kuchat.server.domain.message.Message;
 import kuchat.server.domain.message.dto.ChatMessage;
+import kuchat.server.domain.message.dto.RecentMessagesResponse;
 import kuchat.server.domain.message.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +38,10 @@ public class MessageService {
     private final ApplicationEventPublisher eventPublisher;
 
 
-    public void findRecentMessages(Long chatroomId) {
+    public RecentMessagesResponse findRecentMessages(Chatroom chatroom) {
+        Pageable pageable = PageRequest.of(0, 20);
+        List<Message> messages = messageRepository.findRecent20MessagesByChatroomId(chatroom, pageable);
+        return new RecentMessagesResponse(messages);
     }
 
     // Message 객체 생성 후 DB에 저장

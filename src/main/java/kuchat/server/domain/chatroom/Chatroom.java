@@ -9,6 +9,7 @@ import kuchat.server.domain.message.Message;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class Chatroom extends BaseTime {
     @Column(name = "room_id")
     private Long id;
 
+    @Setter
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -43,10 +45,6 @@ public class Chatroom extends BaseTime {
     public Chatroom(String name) {
         this.name = name;
         status = Status.ACTIVE;
-    }
-
-    public void updateName(String newName) {
-        this.name = newName;
     }
 
     public void addMember(ChatroomMember chatroomMember) {
