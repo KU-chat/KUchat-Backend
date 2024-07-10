@@ -48,7 +48,8 @@ public enum BaseResponse {
 
     //- 8000번대 : DB 관련 코드
     DB_SUCCESS(8000, HttpStatus.ACCEPTED,"DB에 성공적으로 반영되었습니다."),
-    DB_SAVE_FAIL(8001, HttpStatus.INTERNAL_SERVER_ERROR, "DB 저장에 실패했습니다.");
+    DB_SAVE_FAIL(8001, HttpStatus.INTERNAL_SERVER_ERROR, "DB 저장에 실패했습니다."),
+    REDIS_FIND_FAIL(8002, HttpStatus.INTERNAL_SERVER_ERROR, "레디스에서 정보를 조회하는데 실패했습니다.");
 
     private int code;
     private HttpStatus httpStatus;
