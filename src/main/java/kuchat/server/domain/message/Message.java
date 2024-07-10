@@ -22,11 +22,6 @@ public class Message extends BaseTime {
     })
     private MessageId messageId;
 
-    @Column(name = "generated_message_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_id_seq")
-    @SequenceGenerator(name = "message_id_seq", sequenceName = "message_id_seq", allocationSize = 1)
-    private Long generatedMessageId;
-
     // 메시지는 하나의 채팅방 안에서만 고유하도록 id 생성
     @MapsId("chatroomId")       // MessageId 클래스에 있는 chatroomId 변수와 매핑
     @ManyToOne
@@ -49,16 +44,8 @@ public class Message extends BaseTime {
 
     private String text;
 
-    @Builder
-    public Message(Chatroom chatroom, Long senderId, MessageType messageType, String text) {
-        this.chatroom = chatroom;
-        this.senderId = senderId;
-        this.messageType = messageType;
-        this.text = text;
-    }
 
     public Message(ChatMessage chatMessage, Chatroom chatroom) {
-        this.messageId = new MessageId(generatedMessageId, chatMessage.getChatroomId());
         this.chatroom = chatroom;
         this.messageType = chatMessage.getMessageType();
         this.senderId = chatMessage.getSenderId();
