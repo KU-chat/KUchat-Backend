@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.domain.enums.MessageType;
+import kuchat.server.common.redis.RedisController;
 import kuchat.server.domain.message.ChatMessageEvent;
 import kuchat.server.domain.message.dto.ChatMessage;
+import kuchat.server.domain.message.dto.ChatroomJoinRequest;
+import kuchat.server.domain.message.dto.ChatroomLeaveRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -35,6 +37,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper;
     private final MessageService messageService;
+    private final RedisController redisController;
 
     private ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();         // member id - webSocketSession
     private ConcurrentHashMap<Long, Set<WebSocketSession>> chatroomSessions = new ConcurrentHashMap<>();          // chatroom id - session 매핑
@@ -43,9 +46,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         String query = session.getUri().getQuery();     // ws://localhost:9000/ws/message?memberId={id}
-        Map<String, String> queryParams =  parseQueryParam(query);
+        Map<String, String> queryParams = parseQueryParam(query);
         Long memberId = Long.parseLong(queryParams.get("memberId"));
         sessions.put(memberId, session);
+        redisController.putMemberSession(memberId, session.getId());
         log.info("[afterConnectionEstablished] websocket 서버에 접속을 시도한 클라이언트의 세션 id = {}, member id = {}",
                 session.getId(), memberId);
         TextMessage welcomeMessage = new TextMessage("web socket 서버 접속에 성공했습니다.");
@@ -54,7 +58,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     private Map<String, String> parseQueryParam(String query) {
         Map<String, String> queryParams = new HashMap<>();
-        if(query != null && !query.isEmpty()){
+        if (query != null && !query.isEmpty()) {
             String[] pairs = query.split("&");
             for (String pair : pairs) {
                 int idx = pair.indexOf("=");
@@ -74,7 +78,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String query = session.getUri().getQuery();     // ws://localhost:9000/ws/message?memberId={id}
-        Map<String, String> queryParams =  parseQueryParam(query);
+        Map<String, String> queryParams = parseQueryParam(query);
         Long memberId = Long.parseLong(queryParams.get("memberId"));
         log.info("[afterConnectionClosed] websocket 서버와의 연결을 종료한 클라이언트의 세션 id = {}, member id = {}",
                 session.getId(), memberId);
@@ -87,6 +91,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         log.info("[handleTextMessage] 메세지를 전송한 클라이언트의 세션 id = {}, 메세지의 payload = {}", session.getId(), message.getPayload());
         ChatMessage chatMessage = toChatMessage(message);
+        log.info("[toChatMessage] textMessage 를 chatMessage 로 바꾸는데 성공. chatMessage = {}", chatMessage.toString());
+
         if (messageService.handleReceivedMessage(chatMessage)) {
             sendMessageToClients(chatMessage.getChatroomId(), message);
         }
@@ -97,21 +103,31 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @EventListener
     public void onChatMessageEvent(ChatMessageEvent event) {
         ChatMessage chatMessage = event.getChatMessage();
-
-        if(chatMessage.getMessageType() == JOIN){
-            WebSocketSession webSocketSession = sessions.get(chatMessage.getSenderId());
-            Set<WebSocketSession> chatroomSessions = this.chatroomSessions.get(chatMessage.getChatroomId());
+        if (chatMessage.getMessageType() == JOIN) {
+            ChatroomJoinRequest joinRequest = (ChatroomJoinRequest) chatMessage;
+            WebSocketSession webSocketSession = getSession(joinRequest.getMemberId());
+            log.info("[onChatMessageEvent : JOIN] 세션을 추가할 멤버의 id = {}, session id = {}",
+                    joinRequest.getMemberId(), webSocketSession.getId());
+            Set<WebSocketSession> chatroomSessions = getSessionSet(joinRequest.getChatroomId());
+            log.info("[onChatMessageEvent : JOIN] 세션을 추가하기 전 set = {}", chatroomSessions.toString());
             chatroomSessions.add(webSocketSession);
+            log.info("[onChatMessageEvent : JOIN] 세션을 추가한 후 set = {}", chatroomSessions.toString());
+
+            redisController.putChatroomSession(chatMessage.getChatroomId(),
+                    chatMessage.getSenderId(), webSocketSession.getId());
             return;
         }
 
-        if(chatMessage.getMessageType() == LEAVE){
-            WebSocketSession webSocketSession = sessions.get(chatMessage.getSenderId());
-            Set<WebSocketSession> chatroomSessions = this.chatroomSessions.get(chatMessage.getChatroomId());
+        if (chatMessage.getMessageType() == LEAVE) {
+            ChatroomLeaveRequest joinRequest = (ChatroomLeaveRequest) chatMessage;
+            WebSocketSession webSocketSession = getSession(joinRequest.getMemberId());
+            Set<WebSocketSession> chatroomSessions = this.chatroomSessions.get(joinRequest.getChatroomId());
             chatroomSessions.remove(webSocketSession);
+            redisController.deleteChatroomSession(joinRequest.getChatroomId(), joinRequest.getSenderId());
         }
 
-        if(chatMessage.getText() == null){
+        if (chatMessage.getText() == null) {
+            log.info("[onChatMessageEvent] 메세지의 payload 가 비어있어 전송하지 않음. chatMessage = {}", chatMessage.toString());
             return;
         }
 
@@ -119,29 +135,38 @@ public class WebSocketHandler extends TextWebSocketHandler {
         sendMessageToClients(chatMessage.getChatroomId(), textMessage);
     }
 
-    private void sendMessageToClients(Long chatroomId, TextMessage textMessage) {
-        log.info("[send] 메시지 : {}", textMessage.getPayload());
-        Set<WebSocketSession> sessions = findSessionsByChatroomId(chatroomId);
-
-        if (sessions != null) {
-            sessions.stream()
-                    .filter(WebSocketSession::isOpen)
-                    .forEach(session -> {
-                        sendMessage(session, textMessage, MESSAGE_SEND_FAIL);
-                    });
+    private WebSocketSession getSession(Long memberId) {
+        log.info("[getSession] member id로 web socket session 찾기. member id  = {}", memberId);
+        WebSocketSession webSocketSession = sessions.get(memberId);
+        log.info("[getSession] member id로 web socket session 찾기. web socket session id = {}", webSocketSession.getId());
+        if (webSocketSession == null) {
+            throw new KuchatException(NOT_FOUND_SESSION);
         }
+        return webSocketSession;
     }
 
-    private Set<WebSocketSession> findSessionsByChatroomId(Long chatroomId) {
-        return chatroomSessions.get(chatroomId);
+    private void sendMessageToClients(Long chatroomId, TextMessage textMessage) {
+        log.info("[sendMessageToClients] 메시지 = {}", textMessage.getPayload());
+        Set<WebSocketSession> sessions = getSessionSet(chatroomId);
+
+        sessions.stream()
+                .filter(WebSocketSession::isOpen)
+                .forEach(session -> {
+                    sendMessage(session, textMessage, MESSAGE_SEND_FAIL);
+                });
+
+    }
+
+    private Set<WebSocketSession> getSessionSet(Long chatroomId) {
+        return chatroomSessions.computeIfAbsent(chatroomId, key -> ConcurrentHashMap.newKeySet());
     }
 
     private ChatMessage toChatMessage(TextMessage textMessage) {
         log.info("[toChatMessage] textMessage를 ChatMessage로 바꿔주는 메서드, textMessage = {}", textMessage.getPayload());
         try {
-//            return new ChatMessage(textMessage);
             return objectMapper.readValue(textMessage.getPayload(), ChatMessage.class);
         } catch (Exception e) {
+            log.info("[toChatMessage] textMessage 를 chatMessage 로 바꾸는데 실패함");
             throw new KuchatException(CONVERT_TO_OBJECT_FAIL);
         }
     }
@@ -159,6 +184,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
             session.sendMessage(message);
         } catch (IOException e) {
             throw new KuchatException(response);
+        } catch (IllegalStateException e){
+            throw new KuchatException(WEBSOCKET_DISCONNECT);
         }
     }
 

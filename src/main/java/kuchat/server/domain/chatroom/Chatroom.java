@@ -6,17 +6,14 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.enums.Status;
 import kuchat.server.domain.message.Message;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity
+@Entity @ToString
 @Table(name = "chatroom")
 @Getter
 @NoArgsConstructor
@@ -60,5 +57,9 @@ public class Chatroom extends BaseTime {
         } else {
             throw new KuchatException(BaseResponse.EXIT_CHATROOM_FAIL);
         }
+    }
+
+    public void addChatroomMember(ChatroomMember chatroomMember) {
+        chatroomMembers.add(chatroomMember);
     }
 }

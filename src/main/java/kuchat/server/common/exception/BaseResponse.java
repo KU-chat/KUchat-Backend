@@ -31,7 +31,7 @@ public enum BaseResponse {
     MALFORMED_CHATROOM_ID(4003, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
     DUPLICATED_JOIN(4004, HttpStatus.BAD_REQUEST, "이미 참여하고 있는 회원은 초대할 수 없습니다."),
 
-    //- 5000번대 : 메시지(message) 관련 코드
+    //- 5000번대 : 메시지(message)/소켓 관련 코드
     MESSAGE_SEND_SUCCESS(5000, HttpStatus.OK, "메세지 전송 성공"),
     WEBSOCKET_CONNECTION_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버 접속에 실패했습니다."),
     WEBSOCKET_CLOSE_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결 종료에 실패했습니다."),
@@ -40,6 +40,8 @@ public enum BaseResponse {
     MESSAGE_SEND_FAIL(5004, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송해 실패했습니다."),
     NOT_FOUND_MESSAGE(5005, HttpStatus.NOT_FOUND, "존재하지 않는 메세지입니다."),
     MESSAGE_LENGTH_UNMATCH(5006, HttpStatus.BAD_REQUEST, "메세지의 payload 길이가 일치하지 않습니다."),
+    NOT_FOUND_SESSION(5007, HttpStatus.NOT_FOUND, "사용자의 웹소켓 세션이 존재하지 않습니다. 다시 연결을 시도해주세요."),
+    WEBSOCKET_DISCONNECT(5008, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결이 끊겼습니다. 다시 연결을 시도해주세요."),
 
     //- 6000번대 : 친구 관련 코드
 

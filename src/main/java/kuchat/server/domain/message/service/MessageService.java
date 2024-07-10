@@ -8,11 +8,11 @@ import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.message.ChatMessageEvent;
 import kuchat.server.domain.message.Message;
-import kuchat.server.domain.message.MessageId;
 import kuchat.server.domain.message.dto.ChatMessage;
+import kuchat.server.domain.message.dto.ChatroomJoinRequest;
+import kuchat.server.domain.message.dto.ChatroomLeaveRequest;
 import kuchat.server.domain.message.dto.RecentMessagesResponse;
 import kuchat.server.domain.message.repository.MessageRepository;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -35,7 +35,7 @@ import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MESSAGE;
 @Service
 public class MessageService {
 
-    private static final Long SERVER_ID = (long) -1;
+    public static final Long SERVER_ID = (long) -1;
     private final MessageRepository messageRepository;
     private final ChatroomRepository chatroomRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -51,20 +51,27 @@ public class MessageService {
 
     // 멤버 1명 이상이 들어올 때, 서버가 채팅방 속 모든 클라이언트들에게 환영 메시지를 톡방에 보내는 메서드
     @Transactional
-    public void sendEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
-        ChatMessage enterMessage = createEnterMessage(joinMembers, chatroom);
-        saveMessage(new Message(enterMessage, chatroom));
-        ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, enterMessage);
-        eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
+    public void sendJoinMessage(List<Member> joinMembers, Chatroom chatroom) {
 
+        // 1. 해당 채팅방에 web socket session 을 추가하기 위한 join request를 전송 (JOIN)
         joinMembers.stream()
-                .map(member -> new ChatMessageEvent(this, ChatMessage.builder()
+                .map(member -> new ChatMessageEvent(this, ChatroomJoinRequest.builder()
+                        .memberId(member.getId())
                         .chatroomId(chatroom.getId())
-                        .messageType(MessageType.JOIN)
-                        .senderId(SERVER_ID)
-                        .text(null)
                         .build()))
                 .forEach(eventPublisher::publishEvent);
+
+        // 2. 다른 클라이언트에게도 입장을 알리기 위해 환영 문자를 전송 (TALK)
+        log.info("[sendEnterMessage] join members = {}, chatroom = {}", joinMembers.toString(), chatroom.toString());
+        ChatMessage enterMessage = createEnterMessage(joinMembers, chatroom);
+        log.info("[sendEnterMessage] 생성된 enterMessage = {}", enterMessage.toString());
+        messageRepository.save(new Message(enterMessage, chatroom));
+        log.info("[sendEnterMessage] 11111");
+        ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, enterMessage);
+        log.info("[sendEnterMessage] 22222");
+        eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
+        log.info("[sendEnterMessage] 끝!!!");
+
     }
 
     private ChatMessage createEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
@@ -72,31 +79,25 @@ public class MessageService {
                 .map(member -> member.getName())
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
 
-        return ChatMessage.builder()
-                .chatroomId(chatroom.getId())
-                .messageType(MessageType.TALK)
-                .senderId(SERVER_ID)
-                .text(text)
-                .build();
+        return new ChatMessage(chatroom.getId(), MessageType.TALK, SERVER_ID, text);
     }
 
     // 멤버 1명이 나갈 때, 나갔음을 알리는 메시지를 보내는 메서드
     @Transactional
     public void sendLeaveMessage(Member member, Chatroom chatroom) {
-        ChatMessage leaveMessage = createLeaveMessage(member, chatroom);
-        saveMessage(new Message(leaveMessage, chatroom));
+        ChatroomLeaveRequest leaveMessage = createLeaveMessage(member, chatroom);
+        messageRepository.save(new Message(leaveMessage, chatroom));
         ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, leaveMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
 
     }
 
-    private ChatMessage createLeaveMessage(Member member, Chatroom chatroom) {
+    private ChatroomLeaveRequest createLeaveMessage(Member member, Chatroom chatroom) {
         String text = "👋🏻" + member.getName() + " 님이 채팅방을 나갔습니다.";
 
-        return ChatMessage.builder()
+        return ChatroomLeaveRequest.builder()
                 .chatroomId(chatroom.getId())
-                .messageType(MessageType.LEAVE)
-                .senderId(SERVER_ID)
+                .memberId(member.getId())
                 .text(text)
                 .build();
     }
@@ -118,19 +119,11 @@ public class MessageService {
         try {
             // 이렇게 하면 generatedMessageId 는 모든 채팅방에 있는 메세지들에 대해서 1씩 증가하도록 설정된다.
             // 한 채팅방에 대해서만 generatedMessageId 가 1씩 증가하도록 만들고 싶은데, 이걸 어떻게 구현해야할까..
-            saveMessage(message);
-
+            messageRepository.save(message);
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
         return true;
-    }
-
-    private void saveMessage(Message message) {
-        Message savedMessage = messageRepository.save(message);
-        MessageId messageId = new MessageId(savedMessage.getMessageId().getMessageId(), savedMessage.getChatroom().getId());
-        log.info("[saveMessage] 저장된 메세지의 message id = {}, text = {}", savedMessage.getMessageId().getMessageId(), savedMessage.getText());
-        savedMessage.setMessageId(messageId);
     }
 
 }

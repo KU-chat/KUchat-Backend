@@ -79,6 +79,7 @@ public class ChatroomService {
         if (memberIds.size() != joinMembers.size()) {
             throw new KuchatException(NOT_FOUND_MEMBER);
         }
+        messageService.sendJoinMessage(joinMembers, chatroom);
 
         ArrayList<ChatroomMember> chatroomMembers = new ArrayList<>();
         log.info("[join] 지금 추가한 멤버 목록 = [{}]", chatroomMembers.stream()
@@ -90,6 +91,7 @@ public class ChatroomService {
             ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
             chatroomMembers.add(chatroomMember);
             member.addChatroomMember(chatroomMember);
+            chatroom.addChatroomMember(chatroomMember);
         }
 
         try {
@@ -98,12 +100,10 @@ public class ChatroomService {
             throw new KuchatException(DB_SAVE_FAIL);
         }
 
-        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}}]", chatroom.getChatroomMembers().stream()
+        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}]", chatroom.getChatroomMembers().stream()
                 .map(chatroomMember -> chatroomMember.getMember().getId().toString())
                 .collect(Collectors.joining(", "))
         );
-
-        messageService.sendEnterMessage(joinMembers, chatroom);
     }
 
     @Transactional

@@ -17,7 +17,6 @@ public class ChatMessage {
     private String text;
     private Long parentId;
 
-    @Builder
     public ChatMessage(Long chatroomId, MessageType messageType, Long senderId, String text) {
         this.chatroomId = chatroomId;
         this.messageType = messageType;
@@ -27,11 +26,11 @@ public class ChatMessage {
     }
 
     public ChatMessage(Message message) {
-        this.chatroomId = message.getMessageId().getChatroomId();
+        this.chatroomId = message.getMessageId();
         this.messageType = message.getMessageType();
         this.senderId = message.getSenderId();
         this.text = message.getText();
-        this.parentId = message.getParent().getMessageId().getMessageId();
+        this.parentId = message.getParent().getMessageId();
     }
 
 }
