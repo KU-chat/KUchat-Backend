@@ -10,7 +10,7 @@ public class ChatMessageEvent extends ApplicationEvent {
     private WebSocketSession session;
     private ChatMessage chatMessage;
 
-    public ChatMessageEvent(Object source,ChatMessage chatMessage) {
+    public ChatMessageEvent(Object source, ChatMessage chatMessage) {
         super(source);
         this.chatMessage = chatMessage;
     }

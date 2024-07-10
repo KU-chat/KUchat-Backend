@@ -11,7 +11,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
-import java.util.UUID;
 
 import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_PLATFORM;
 
@@ -41,6 +40,7 @@ public class OAuth2Attribute {
                                      Map<String, Object> attributes) {
         log.info("[of] platform = {}, attributeKey = {}, attributes = {}",
                 platform, attributeKey, attributes.toString());
+        // platform = GOOGLE, attributeKey = sub, attributes = {sub=구글에서 부여한 id, name=lys, given_name=lys, picture=구글프로필url, email=구글메일, email_verified=true}
         if (platform == Platform.GOOGLE) {
             return ofGoogle(attributeKey, attributes);
         }
@@ -59,9 +59,10 @@ public class OAuth2Attribute {
 
     public Member toMember(Platform platform, String attributeName, OAuth2UserInfo oAuth2UserInfo) {
         return Member.builder()
-                .email(UUID.randomUUID() + "@socialUser.com")
+                .email(oAuth2UserInfo.getEmail())
                 .platform(platform)
                 .attributeName(attributeName)
+                .profileImage(oAuth2UserInfo.getImageUrl())
                 .build();
     }
 }

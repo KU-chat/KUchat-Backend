@@ -1,6 +1,6 @@
 package kuchat.server.common.config;
 
-import kuchat.server.common.socket.WebSocketHandler;
+import kuchat.server.domain.message.service.WebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

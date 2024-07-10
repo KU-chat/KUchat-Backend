@@ -33,10 +33,13 @@ public enum BaseResponse {
 
     //- 5000번대 : 메시지(message) 관련 코드
     MESSAGE_SEND_SUCCESS(5000, HttpStatus.OK, "메세지 전송 성공"),
-    CONVERT_TO_JSON_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 객체를 json 형태로 바꾸는데 실패했습니다"),
-    CONVERT_TO_OBJECT_FAIL(5002, HttpStatus.INTERNAL_SERVER_ERROR, "json을 메세지 객체 형태로 바꾸는데 실패했습니다"),
-    MESSAGE_SEND_FAIL(5003, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송해 실패했습니다."),
-    NOT_FOUND_MESSAGE(5004, HttpStatus.NOT_FOUND, "존재하지 않는 메세지입니다."),
+    WEBSOCKET_CONNECTION_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버 접속에 실패했습니다."),
+    WEBSOCKET_CLOSE_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결 종료에 실패했습니다."),
+    CONVERT_TO_JSON_FAIL(5002, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 객체를 json 형태로 바꾸는데 실패했습니다"),
+    CONVERT_TO_OBJECT_FAIL(5003, HttpStatus.INTERNAL_SERVER_ERROR, "json을 메세지 객체 형태로 바꾸는데 실패했습니다"),
+    MESSAGE_SEND_FAIL(5004, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송해 실패했습니다."),
+    NOT_FOUND_MESSAGE(5005, HttpStatus.NOT_FOUND, "존재하지 않는 메세지입니다."),
+    MESSAGE_LENGTH_UNMATCH(5006, HttpStatus.BAD_REQUEST, "메세지의 payload 길이가 일치하지 않습니다."),
 
     //- 6000번대 : 친구 관련 코드
 

@@ -18,18 +18,34 @@
                 <!--                    <input type="text" class="form-control" id="setLanguage" placeholder="사이트 설정 언어를 입력하세요.">-->
                 <input type="text" class="form-control" id="setLanguage" placeholder="Please enter the site language.">
             </div>
+
+            <div class="form-group">
+                <!--                    <label for="firstLanguage">1지망 학습언어</label>-->
+                <label for="firstLanguage">1st learning language</label>
+                <!--                    <input class="form-control" id="firstLanguage" placeholder="첫번째로 학습하고 싶은 언어를 입력하세요.">-->
+                <input class="form-control" id="firstLanguage" placeholder="Enter the first language you want to learn.">
+            </div>
+            <div class="form-group">
+                <!--                    <label for="secondLanguage">2지망 학습언어</label>-->
+                <label for="secondLanguage">2nd earning language</label>
+                <!--                    <input class="form-control" id="secondLanguage" placeholder="두번째로 학습하고 싶은 언어를 입력하세요.">-->
+                <input class="form-control" id="secondLanguage" placeholder="Enter the second language you want to learn.">
+            </div>
+
+            <div class="form-group">
+                <!--                    <label for="hometown">출신 국가</label>-->
+                <label for="hometown">home town</label>
+                <!--                    <input class="form-control" id="hometown" placeholder="출신 국가를 입력하세요.">-->
+                <input class="form-control" id="hometown" placeholder="Enter your country of origin.">
+            </div>
+
             <div class="form-group">
                 <!--                    <label for="name">이름</label>-->
                 <label for="name">name</label>
                 <!--                    <input type="text" class="form-control" id="name" placeholder="이름을 입력하세요.">-->
                 <input type="text" class="form-control" id="name" placeholder="Please enter your name.">
             </div>
-            <div class="form-group">
-                <!--                    <label for="gender">성별</label>-->
-                <label for="gender">gender</label>
-                <!--                    <input type="text" class="form-control" id="gender" placeholder="성별을 입력하세요. (남/녀)">-->
-                <input type="text" class="form-control" id="gender" placeholder="Enter gender. (Male/Female)">
-            </div>
+
             <div class="form-group">
                 <!--                    <label for="birthday">생년월일</label>-->
                 <label for="birthday">birthday</label>
@@ -48,29 +64,14 @@
                 <!--                    <input type="text" class="form-control" id="studentId" placeholder="학번을 입력하세요. (ex. 202212368)">-->
                 <input type="text" class="form-control" id="studentId" placeholder="Enter your student ID. (ex. 202212368)">
             </div>
+
             <div class="form-group">
-                <!--                    <label for="hometown">출신 국가</label>-->
-                <label for="hometown">home town</label>
-                <!--                    <input class="form-control" id="hometown" placeholder="출신 국가를 입력하세요.">-->
-                <input class="form-control" id="hometown" placeholder="Enter your country of origin.">
+                <!--                    <label for="gender">성별</label>-->
+                <label for="gender">gender</label>
+                <!--                    <input type="text" class="form-control" id="gender" placeholder="성별을 입력하세요. (남/녀)">-->
+                <input type="text" class="form-control" id="gender" placeholder="Enter gender. (Male/Female)">
             </div>
-            <div class="form-group">
-                <!--                    <label for="firstLanguage">1지망 학습언어</label>-->
-                <label for="firstLanguage">1st learning language</label>
-                <!--                    <input class="form-control" id="firstLanguage" placeholder="첫번째로 학습하고 싶은 언어를 입력하세요.">-->
-                <input class="form-control" id="firstLanguage" placeholder="Enter the first language you want to learn.">
-            </div>
-            <div class="form-group">
-                <!--                    <label for="secondLanguage">2지망 학습언어</label>-->
-                <label for="secondLanguage">2nd earning language</label>
-                <!--                    <input class="form-control" id="secondLanguage" placeholder="두번째로 학습하고 싶은 언어를 입력하세요.">-->
-                <input class="form-control" id="secondLanguage" placeholder="Enter the second language you want to learn.">
-            </div>
-            <div class="form-group">
-                <label for="firstLanguage">email</label>
-                <!--                    <input class="form-control" id="firstLanguage" placeholder="첫번째로 학습하고 싶은 언어를 입력하세요.">-->
-                <input class="form-control" id="email" placeholder="Enter your email.">
-            </div>
+
 
             <button type="submit" class="btn btn-sm btn-success active">sign up</button>
             <a href="/" role="button" class="btn btn-secondary">cancel</a>
@@ -114,11 +115,10 @@
                 secondLanguage: $('#secondLanguage').val(),
                 hometown: $('#hometown').val(),
                 name: $('#name').val(),
+                birthday: $('#birthday').val(),
                 department: $('#department').val(),
                 studentId: $('#studentId').val(),
-                gender: $('#gender').val(),
-                birthday: $('#birthday').val(),
-                email: $('#email').val()
+                gender: $('#gender').val()
             };
 
             $.ajax({

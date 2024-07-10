@@ -5,8 +5,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import kuchat.server.common.exception.BaseResponse;
-import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.blockMember.BlockMember;
 import kuchat.server.domain.chatroom.ChatroomMember;
@@ -105,10 +103,11 @@ public class Member extends BaseTime {
     private String refreshToken;
 
     @Builder
-    public Member(String email, Platform platform, String attributeName) {
+    public Member(String email, Platform platform, String attributeName, String profileImage) {
         this.email = email;
         this.platform = platform;
         this.attributeName = attributeName;
+        this.profileImage = profileImage;
         role = Role.GUEST;
     }
 
@@ -122,26 +121,27 @@ public class Member extends BaseTime {
         this.secondLanguage = LearnLanguage.of(request.getSecondLanguage());
         this.hometown = request.getHometown();
         this.name = request.getName();
+        this.birthday = request.getBirthday();
         this.department = request.getDepartment();
         this.studentId = request.getStudentId();
         this.gender = Gender.of(request.getGender());
-        this.birthday = request.getBirthday();
-        this.email = request.getEmail();
 
+        this.role = Role.STUDENT;           // 추가정보 받은 후
+
+//        this.email = request.getEmail();
 //        if (validateEmail(email)) {
 //            this.email = request.getEmail();
 //        }
-        this.role = Role.STUDENT;           // 추가정보 받은 후
     }
 
-    private boolean validateEmail(String email) {
-        if (!email.contains("@konkuk.ac.kr")) {
-            log.info("[validateEmail] email = {}", email);
-            throw new KuchatException(BaseResponse.EMAIL_BAD_REQUEST);
-        } else {
-            return true;
-        }
-    }
+//    private boolean validateEmail(String email) {
+//        if (!email.contains("@konkuk.ac.kr")) {
+//            log.info("[validateEmail] email = {}", email);
+//            throw new KuchatException(BaseResponse.EMAIL_BAD_REQUEST);
+//        } else {
+//            return true;
+//        }
+//    }
 
     public void addChatroomMember(ChatroomMember chatroomMember) {
         chatroomMembers.add(chatroomMember);

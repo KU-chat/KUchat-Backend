@@ -60,6 +60,7 @@ public class OAuth2Service implements OAuth2UserService<OAuth2UserRequest, OAuth
     private Member saveOrUpdate(OAuth2Attribute oAuth2Attribute) {
         Platform platform = oAuth2Attribute.getPlatform();
         String attributeValue = oAuth2Attribute.getAttributeValue();
+//        String email = oAuth2Attribute.getOAuth2UserInfo().get
 
         Optional<Member> optionalMember = memberRepository.findByPlatformAndAttributeName(platform, attributeValue);
 
