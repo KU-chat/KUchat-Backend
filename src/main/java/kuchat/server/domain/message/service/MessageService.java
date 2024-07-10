@@ -51,7 +51,7 @@ public class MessageService {
     @Transactional
     public void sendEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
         ChatMessage enterMessage = createEnterMessage(joinMembers, chatroom);
-        messageRepository.save(new Message(enterMessage, chatroom));
+        saveMessage(new Message(enterMessage, chatroom));
         ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, enterMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
     }
@@ -74,7 +74,7 @@ public class MessageService {
     @Transactional
     public void sendLeaveMessage(Member member, Chatroom chatroom) {
         ChatMessage leaveMessage = createLeaveMessage(member, chatroom);
-        messageRepository.save(new Message(leaveMessage, chatroom));
+        saveMessage(new Message(leaveMessage, chatroom));
         ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, leaveMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
     }
@@ -108,15 +108,19 @@ public class MessageService {
         try {
             // 이렇게 하면 generatedMessageId 는 모든 채팅방에 있는 메세지들에 대해서 1씩 증가하도록 설정된다.
             // 한 채팅방에 대해서만 generatedMessageId 가 1씩 증가하도록 만들고 싶은데, 이걸 어떻게 구현해야할까..
-            Message savedMessage = messageRepository.save(message);
-            MessageId messageId = new MessageId(savedMessage.getGeneratedMessageId(), savedMessage.getChatroom().getId());
-            log.info("저장된 메세지의 id = {}, text = {}", savedMessage.getGeneratedMessageId(), savedMessage.getText());
-            savedMessage.setMessageId(messageId);
+            saveMessage(message);
 
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
         return true;
+    }
+
+    private void saveMessage(Message message) {
+        Message savedMessage = messageRepository.save(message);
+        MessageId messageId = new MessageId(savedMessage.getMessageId().getMessageId(), savedMessage.getChatroom().getId());
+        log.info("[saveMessage] 저장된 메세지의 message id = {}, text = {}", savedMessage.getMessageId().getMessageId(), savedMessage.getText());
+        savedMessage.setMessageId(messageId);
     }
 
 }

@@ -14,7 +14,7 @@ import java.util.Objects;
 @Embeddable
 public class MessageId implements Serializable {
 
-    private Long messageId;
+    private Long messageId;         // SQL 문으로 AUTO_INCREMENT 설정 해줌
     private Long chatroomId;        // @MapsId("chatroomId") 로 매핑
 
     @Override
