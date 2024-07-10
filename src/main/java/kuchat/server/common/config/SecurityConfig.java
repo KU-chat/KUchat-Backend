@@ -12,9 +12,9 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity          // spring security 기능을 활성화시키는 어노테이션
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final OAuth2Service oAuth2Service;

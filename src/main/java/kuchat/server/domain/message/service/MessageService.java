@@ -12,6 +12,7 @@ import kuchat.server.domain.message.MessageId;
 import kuchat.server.domain.message.dto.ChatMessage;
 import kuchat.server.domain.message.dto.RecentMessagesResponse;
 import kuchat.server.domain.message.repository.MessageRepository;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,6 +35,7 @@ import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MESSAGE;
 @Service
 public class MessageService {
 
+    private static final Long SERVER_ID = (long) -1;
     private final MessageRepository messageRepository;
     private final ChatroomRepository chatroomRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -54,6 +56,15 @@ public class MessageService {
         saveMessage(new Message(enterMessage, chatroom));
         ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, enterMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
+
+        joinMembers.stream()
+                .map(member -> new ChatMessageEvent(this, ChatMessage.builder()
+                        .chatroomId(chatroom.getId())
+                        .messageType(MessageType.JOIN)
+                        .senderId(SERVER_ID)
+                        .text(null)
+                        .build()))
+                .forEach(eventPublisher::publishEvent);
     }
 
     private ChatMessage createEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
@@ -62,10 +73,9 @@ public class MessageService {
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
 
         return ChatMessage.builder()
-                .messageId(null)
                 .chatroomId(chatroom.getId())
-                .messageType(MessageType.JOIN)
-                .senderId(null)
+                .messageType(MessageType.TALK)
+                .senderId(SERVER_ID)
                 .text(text)
                 .build();
     }
@@ -77,16 +87,16 @@ public class MessageService {
         saveMessage(new Message(leaveMessage, chatroom));
         ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, leaveMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
+
     }
 
     private ChatMessage createLeaveMessage(Member member, Chatroom chatroom) {
         String text = "👋🏻" + member.getName() + " 님이 채팅방을 나갔습니다.";
 
         return ChatMessage.builder()
-                .messageId(null)
                 .chatroomId(chatroom.getId())
                 .messageType(MessageType.LEAVE)
-                .senderId(null)
+                .senderId(SERVER_ID)
                 .text(text)
                 .build();
     }

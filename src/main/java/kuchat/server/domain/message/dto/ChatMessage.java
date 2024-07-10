@@ -18,8 +18,7 @@ public class ChatMessage {
     private Long parentId;
 
     @Builder
-    public ChatMessage(Long messageId, Long chatroomId, MessageType messageType, Long senderId, String text) {
-//        this.messageId = messageId;
+    public ChatMessage(Long chatroomId, MessageType messageType, Long senderId, String text) {
         this.chatroomId = chatroomId;
         this.messageType = messageType;
         this.senderId = senderId;
@@ -28,7 +27,6 @@ public class ChatMessage {
     }
 
     public ChatMessage(Message message) {
-//        this.messageId = message.getMessageId().getMessageId();
         this.chatroomId = message.getMessageId().getChatroomId();
         this.messageType = message.getMessageType();
         this.senderId = message.getSenderId();

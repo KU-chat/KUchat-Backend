@@ -17,10 +17,16 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static kuchat.server.common.exception.BaseResponse.*;
+import static kuchat.server.domain.enums.MessageType.JOIN;
+import static kuchat.server.domain.enums.MessageType.LEAVE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,36 +34,52 @@ import static kuchat.server.common.exception.BaseResponse.*;
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper;
-    private final ConcurrentHashMap<Long, Set<WebSocketSession>> chatroomSessions = new ConcurrentHashMap<>();          // chatroom id - session 매핑
     private final MessageService messageService;
 
-    // 클라이언트가 WebSocket 서버에 접속/연결할 때 호출되는 메서드 (join하는 chatroom에 클라이언트의 세션 추가하기)
+    private ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();         // member id - webSocketSession
+    private ConcurrentHashMap<Long, Set<WebSocketSession>> chatroomSessions = new ConcurrentHashMap<>();          // chatroom id - session 매핑
+
+    // 클라이언트가 WebSocket 서버에 접속/연결할 때 호출되는 메서드
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        log.info("[afterConnectionEstablished] websocket 서버에 접속을 시도한 클라이언트의 세션 id = {}", session.getId());
+        String query = session.getUri().getQuery();     // ws://localhost:9000/ws/message?memberId={id}
+        Map<String, String> queryParams =  parseQueryParam(query);
+        Long memberId = Long.parseLong(queryParams.get("memberId"));
+        sessions.put(memberId, session);
+        log.info("[afterConnectionEstablished] websocket 서버에 접속을 시도한 클라이언트의 세션 id = {}, member id = {}",
+                session.getId(), memberId);
         TextMessage welcomeMessage = new TextMessage("web socket 서버 접속에 성공했습니다.");
         sendMessage(session, welcomeMessage, WEBSOCKET_CONNECTION_FAIL);
     }
 
-    // /chatroom/{chatroomId}로 끝나는 uri에서 chatroomId 추출하는 메서드
-    private Long extractChatroomId(String path) {
-        try {
-            // path 형태 : {도메인}/chatroom/{chatroomId}/join
-            Long chatroomId = Long.parseLong(path.split("/chatroom")[1]);
-            return chatroomId;
-        } catch (NumberFormatException e) {
-            log.error("uri의 채팅방 id가 올바르지 않습니다. uri = {}", path);
-            throw new KuchatException(BaseResponse.MALFORMED_CHATROOM_ID);
+    private Map<String, String> parseQueryParam(String query) {
+        Map<String, String> queryParams = new HashMap<>();
+        if(query != null && !query.isEmpty()){
+            String[] pairs = query.split("&");
+            for (String pair : pairs) {
+                int idx = pair.indexOf("=");
+                if (idx != -1) {     // '='이 포함된 경우
+                    String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+                    String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+                    queryParams.put(key, value);
+                } else {            // '=' 없이 키만 있는 경우
+                    queryParams.put(URLDecoder.decode(pair, StandardCharsets.UTF_8), null);
+                }
+            }
         }
+        return queryParams;
     }
 
     // 클라이언트가 WebSocket 서버와의 연결을 종료할 때 호출되는 메서드 (leave 하는 chatroom에 클라이언트의 세션 제거하기)
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        log.info("[afterConnectionClosed] websocket 서버와의 연결을 종료한 클라이언트의 세션 id = {}", session.getId());
+        String query = session.getUri().getQuery();     // ws://localhost:9000/ws/message?memberId={id}
+        Map<String, String> queryParams =  parseQueryParam(query);
+        Long memberId = Long.parseLong(queryParams.get("memberId"));
+        log.info("[afterConnectionClosed] websocket 서버와의 연결을 종료한 클라이언트의 세션 id = {}, member id = {}",
+                session.getId(), memberId);
         TextMessage farewellMessage = new TextMessage("web socket 서버와의 연결을 종료합니다.");
         sendMessage(session, farewellMessage, WEBSOCKET_CLOSE_FAIL);
-
     }
 
     // 클라이언트가 WebSocket 서버로 메시지를 전송할 때 호출되는 메서드
@@ -75,6 +97,24 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @EventListener
     public void onChatMessageEvent(ChatMessageEvent event) {
         ChatMessage chatMessage = event.getChatMessage();
+
+        if(chatMessage.getMessageType() == JOIN){
+            WebSocketSession webSocketSession = sessions.get(chatMessage.getSenderId());
+            Set<WebSocketSession> chatroomSessions = this.chatroomSessions.get(chatMessage.getChatroomId());
+            chatroomSessions.add(webSocketSession);
+            return;
+        }
+
+        if(chatMessage.getMessageType() == LEAVE){
+            WebSocketSession webSocketSession = sessions.get(chatMessage.getSenderId());
+            Set<WebSocketSession> chatroomSessions = this.chatroomSessions.get(chatMessage.getChatroomId());
+            chatroomSessions.remove(webSocketSession);
+        }
+
+        if(chatMessage.getText() == null){
+            return;
+        }
+
         TextMessage textMessage = toTextMessage(chatMessage);
         sendMessageToClients(chatMessage.getChatroomId(), textMessage);
     }
