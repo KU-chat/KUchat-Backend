@@ -29,6 +29,7 @@ public class MessageController {
     @Operation(summary = "/pub/message 으로 들어오는 메세지 처리")
     @MessageMapping("/message")
     public void handleMessage(ChatMessage message){
+        log.info("[handleMessage] 들어온 메세제 = {}", message);
         if(MessageType.JOIN == message.getMessageType()){
             ChatroomJoinRequest joinRequest = (ChatroomJoinRequest) message;
              chatroomService.join(joinRequest.getChatroomId(), joinRequest.getMemberIds());
@@ -37,5 +38,4 @@ public class MessageController {
         ChannelTopic topic = chatroomService.getTopic(message.getChatroomId());
         messageService.handleReceivedMessage(topic, message);
     }
-
 }

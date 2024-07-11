@@ -22,10 +22,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static kuchat.server.common.exception.BaseResponse.*;
@@ -44,7 +41,7 @@ public class ChatroomService {
     private final RedisMessageListenerContainer redisMessageListenerContainer;
     private final RedisSubscriber redisSubscriber;
 
-    private Map<Long, ChannelTopic> topics;
+    private Map<Long, ChannelTopic> topics = new HashMap<>();
 
 
     @Transactional

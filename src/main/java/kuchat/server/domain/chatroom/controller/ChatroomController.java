@@ -36,9 +36,8 @@ public class ChatroomController {
             throw new KuchatException(EMPTY_CHATROOM);
         }
 
-        log.info("[createChatroom] 채팅방 생성 요청 request = {}", request.toString());
+        log.info("[create] 채팅방 생성 요청 request = {}", request.toString());
         ChatroomResponse response = chatroomService.create(request);
-        log.info("[createChatroom] 생성된 채팅방 id : {}", response.getId());
 
         URI location = ServletUriComponentsBuilder      // 새롭게 생성된 채팅방의 uri를 알려주는 용도
                 .fromCurrentRequest()

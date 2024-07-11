@@ -54,20 +54,20 @@ public class MessageService {
     @Transactional
     public void sendJoinMessage(List<Member> joinMembers, Chatroom chatroom, ChannelTopic topic) {
         ChatroomJoinRequest joinMessage = createEnterMessage(joinMembers, chatroom);
-        log.info("[sendEnterMessage] 서버에서 새로 만든 enterMessage = {}", joinMessage.toString());
+        log.info("[sendJoinMessage] 서버에서 새로 만든 enterMessage = {}", joinMessage.toString());
         messageRepository.save(new Message(joinMessage, chatroom));
-        redisPublisher.publish(topic, joinMessage);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
+        redisPublisher.publish(topic, new ChatMessage(joinMessage));
     }
 
     private ChatroomJoinRequest createEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
-        String text = "👋🏻" + joinMembers.stream()
+        String text = joinMembers.stream()
                 .map(Member::getName)
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
 
         List<Long> memberIds = joinMembers.stream()
                 .map(Member::getId).toList();
 
-        return new ChatroomJoinRequest(chatroom.getId(),memberIds, text);
+        return new ChatroomJoinRequest(chatroom.getId(), memberIds, text);
     }
 
     // 멤버 1명이 나갈 때, 나갔음을 알리는 메시지를 보내는 메서드
@@ -80,7 +80,7 @@ public class MessageService {
     }
 
     private ChatMessage createLeaveMessage(Member member, Chatroom chatroom) {
-        String text = "👋🏻" + member.getName() + " 님이 채팅방을 나갔습니다.";
+        String text = member.getName() + " 님이 채팅방을 나갔습니다.";
 
         return ChatMessage.builder()
                 .chatroomId(chatroom.getId())
