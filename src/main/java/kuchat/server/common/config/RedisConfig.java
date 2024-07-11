@@ -7,6 +7,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -31,6 +32,15 @@ public class RedisConfig {
         return new LettuceConnectionFactory(configuration);
     }
 
+    // 레디스의 pub/sub 메세지를 처리하는 listener 컨테이너 설정
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory factory) {
+        RedisMessageListenerContainer messageListener = new RedisMessageListenerContainer();
+        messageListener.setConnectionFactory(factory);
+        return messageListener;
+    }
+
+  
     // Redis 데이터를 저장, 조회하는데 사용되는 redisTemplate 객체 생성
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
@@ -40,4 +50,5 @@ public class RedisConfig {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
+
 }
