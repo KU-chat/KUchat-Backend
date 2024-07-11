@@ -95,8 +95,6 @@ public class ChatroomService {
         if (memberIds.size() != joinMembers.size()) {
             throw new KuchatException(NOT_FOUND_MEMBER);
         }
-        messageService.sendJoinMessage(joinMembers, chatroom);
-
         List<ChatroomMember> chatroomMembers = new ArrayList<>();
 
         for (Member member : joinMembers) {
