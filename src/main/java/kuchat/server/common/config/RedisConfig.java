@@ -40,6 +40,7 @@ public class RedisConfig {
         return messageListener;
     }
 
+  
     // Redis 데이터를 저장, 조회하는데 사용되는 redisTemplate 객체 생성
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {

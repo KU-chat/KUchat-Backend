@@ -109,7 +109,6 @@ public class MessageService {
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
-
         redisPublisher.publish(topic, chatMessage);
     }
 
