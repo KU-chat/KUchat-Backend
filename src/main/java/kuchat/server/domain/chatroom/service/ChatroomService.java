@@ -97,10 +97,7 @@ public class ChatroomService {
         }
 
         List<ChatroomMember> chatroomMembers = new ArrayList<>();
-//        log.info("[join] 지금 추가한 멤버 목록 = [{}]", chatroomMembers.stream()
-//                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
-//                .collect(Collectors.joining(", "))
-//        );
+
         for (Member member : joinMembers) {
             ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
             chatroomMembers.add(chatroomMember);
@@ -129,7 +126,8 @@ public class ChatroomService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-        messageService.sendLeaveMessage(member, chatroom);
+        ChannelTopic topic = getTopic(chatroom.getId());
+        messageService.sendLeaveMessage(member, chatroom, topic);
 
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
         int memberNum = chatroom.deleteMember(chatroomMember);

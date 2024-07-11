@@ -29,11 +29,15 @@ public class MessageController {
     @Operation(summary = "/pub/message 으로 들어오는 메세지 처리")
     @MessageMapping("/message")
     public void handleMessage(ChatMessage message){
-        log.info("[handleMessage] 들어온 메세제 = {}", message);
+        log.info("[handleMessage] 들어온 메세지 = {}", message);
         if(MessageType.JOIN == message.getMessageType()){
             ChatroomJoinRequest joinRequest = (ChatroomJoinRequest) message;
-             chatroomService.join(joinRequest.getChatroomId(), joinRequest.getMemberIds());
-             return;
+            chatroomService.join(joinRequest.getChatroomId(), joinRequest.getMemberIds());
+            return;
+        }
+        if(MessageType.LEAVE == message.getMessageType()){
+            chatroomService.leave(message.getChatroomId(), message.getSenderId());
+            return;
         }
         ChannelTopic topic = chatroomService.getTopic(message.getChatroomId());
         messageService.handleReceivedMessage(topic, message);

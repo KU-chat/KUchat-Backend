@@ -44,7 +44,6 @@ public class ChatroomController {
                 .path("/{id}")
                 .buildAndExpand(response.getId())
                 .toUri();
-        chatroomService.join(response.getId(), request.getMemberIds());
         return ResponseEntity.created(location).body(response);     // 201 created
     }
 

@@ -3,7 +3,6 @@ package kuchat.server.common.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -35,7 +34,7 @@ public class RedisConfig {
 
     // 레디스의 pub/sub 메세지를 처리하는 listener 컨테이너 설정
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory factory){
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory factory) {
         RedisMessageListenerContainer messageListener = new RedisMessageListenerContainer();
         messageListener.setConnectionFactory(factory);
         return messageListener;

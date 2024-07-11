@@ -72,11 +72,10 @@ public class MessageService {
 
     // 멤버 1명이 나갈 때, 나갔음을 알리는 메시지를 보내는 메서드
     @Transactional
-    public void sendLeaveMessage(Member member, Chatroom chatroom) {
+    public void sendLeaveMessage(Member member, Chatroom chatroom, ChannelTopic topic) {
         ChatMessage leaveMessage = createLeaveMessage(member, chatroom);
         messageRepository.save(new Message(leaveMessage, chatroom));
-        ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, leaveMessage);
-        eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
+        redisPublisher.publish(topic, leaveMessage);
     }
 
     private ChatMessage createLeaveMessage(Member member, Chatroom chatroom) {
@@ -110,7 +109,6 @@ public class MessageService {
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
-//        return true;
 
         redisPublisher.publish(topic, chatMessage);
     }
