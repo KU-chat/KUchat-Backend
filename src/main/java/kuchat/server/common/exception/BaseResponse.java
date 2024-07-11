@@ -30,6 +30,7 @@ public enum BaseResponse {
     EXIT_CHATROOM_FAIL(4002, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),
     MALFORMED_CHATROOM_ID(4003, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
     DUPLICATED_JOIN(4004, HttpStatus.BAD_REQUEST, "이미 참여하고 있는 회원은 초대할 수 없습니다."),
+    EMPTY_CHATROOM(4005, HttpStatus.BAD_REQUEST, "채팅방 참여 인원이 없어 채팅방을 만들 수 없습니다."),
 
     //- 5000번대 : 메시지(message)/소켓 관련 코드
     MESSAGE_SEND_SUCCESS(5000, HttpStatus.OK, "메세지 전송 성공"),

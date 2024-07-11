@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -13,5 +13,5 @@ import java.util.ArrayList;
 @ToString
 public class CreateChatroomRequest {
     private String name;
-    private ArrayList<Long> memberIds;
+    private List<Long> memberIds;
 }

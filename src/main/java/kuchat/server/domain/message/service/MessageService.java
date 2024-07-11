@@ -2,15 +2,14 @@ package kuchat.server.domain.message.service;
 
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.common.redis.RedisPublisher;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.repository.ChatroomRepository;
-import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.message.ChatMessageEvent;
 import kuchat.server.domain.message.Message;
 import kuchat.server.domain.message.dto.ChatMessage;
 import kuchat.server.domain.message.dto.ChatroomJoinRequest;
-import kuchat.server.domain.message.dto.ChatroomLeaveRequest;
 import kuchat.server.domain.message.dto.RecentMessagesResponse;
 import kuchat.server.domain.message.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +18,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +39,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatroomRepository chatroomRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final RedisPublisher redisPublisher;
 
 
     public RecentMessagesResponse findRecentMessages(Chatroom chatroom) {
@@ -51,60 +52,46 @@ public class MessageService {
 
     // 멤버 1명 이상이 들어올 때, 서버가 채팅방 속 모든 클라이언트들에게 환영 메시지를 톡방에 보내는 메서드
     @Transactional
-    public void sendJoinMessage(List<Member> joinMembers, Chatroom chatroom) {
-
-        // 1. 해당 채팅방에 web socket session 을 추가하기 위한 join request를 전송 (JOIN)
-        joinMembers.stream()
-                .map(member -> new ChatMessageEvent(this, ChatroomJoinRequest.builder()
-                        .memberId(member.getId())
-                        .chatroomId(chatroom.getId())
-                        .build()))
-                .forEach(eventPublisher::publishEvent);
-
-        // 2. 다른 클라이언트에게도 입장을 알리기 위해 환영 문자를 전송 (TALK)
-        log.info("[sendEnterMessage] join members = {}, chatroom = {}", joinMembers.toString(), chatroom.toString());
-        ChatMessage enterMessage = createEnterMessage(joinMembers, chatroom);
-        log.info("[sendEnterMessage] 생성된 enterMessage = {}", enterMessage.toString());
-        messageRepository.save(new Message(enterMessage, chatroom));
-        log.info("[sendEnterMessage] 11111");
-        ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, enterMessage);
-        log.info("[sendEnterMessage] 22222");
-        eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
-        log.info("[sendEnterMessage] 끝!!!");
-
+    public void sendJoinMessage(List<Member> joinMembers, Chatroom chatroom, ChannelTopic topic) {
+        ChatroomJoinRequest joinMessage = createEnterMessage(joinMembers, chatroom);
+        log.info("[sendEnterMessage] 서버에서 새로 만든 enterMessage = {}", joinMessage.toString());
+        messageRepository.save(new Message(joinMessage, chatroom));
+        redisPublisher.publish(topic, joinMessage);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
     }
 
-    private ChatMessage createEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
+    private ChatroomJoinRequest createEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
         String text = "👋🏻" + joinMembers.stream()
-                .map(member -> member.getName())
+                .map(Member::getName)
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
 
-        return new ChatMessage(chatroom.getId(), MessageType.TALK, SERVER_ID, text);
+        List<Long> memberIds = joinMembers.stream()
+                .map(Member::getId).toList();
+
+        return new ChatroomJoinRequest(chatroom.getId(),memberIds, text);
     }
 
     // 멤버 1명이 나갈 때, 나갔음을 알리는 메시지를 보내는 메서드
     @Transactional
     public void sendLeaveMessage(Member member, Chatroom chatroom) {
-        ChatroomLeaveRequest leaveMessage = createLeaveMessage(member, chatroom);
+        ChatMessage leaveMessage = createLeaveMessage(member, chatroom);
         messageRepository.save(new Message(leaveMessage, chatroom));
         ChatMessageEvent chatMessageEvent = new ChatMessageEvent(this, leaveMessage);
         eventPublisher.publishEvent(chatMessageEvent);      // WebSocketHandler 의 onChatMessageEvent 메서드가 실행됨
-
     }
 
-    private ChatroomLeaveRequest createLeaveMessage(Member member, Chatroom chatroom) {
+    private ChatMessage createLeaveMessage(Member member, Chatroom chatroom) {
         String text = "👋🏻" + member.getName() + " 님이 채팅방을 나갔습니다.";
 
-        return ChatroomLeaveRequest.builder()
+        return ChatMessage.builder()
                 .chatroomId(chatroom.getId())
-                .memberId(member.getId())
+                .senderId(member.getId())
                 .text(text)
                 .build();
     }
 
     // 서버가 클라이언트로부터 받은 메세지를 처리하는 부분 (DB에 저장 및 전달)
     @Transactional
-    public boolean handleReceivedMessage(ChatMessage chatMessage) {
+    public void handleReceivedMessage(ChannelTopic topic, ChatMessage chatMessage) {
         Chatroom chatroom = chatroomRepository.findById(chatMessage.getChatroomId())
                 .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_CHATROOM));
 
@@ -123,7 +110,9 @@ public class MessageService {
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
-        return true;
+//        return true;
+
+        redisPublisher.publish(topic, chatMessage);
     }
 
 }

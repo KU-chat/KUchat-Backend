@@ -143,11 +143,11 @@ public class Member extends BaseTime {
 //        }
 //    }
 
-    public void addChatroomMember(ChatroomMember chatroomMember) {
+    public void addChatroom(ChatroomMember chatroomMember) {
         chatroomMembers.add(chatroomMember);
     }
 
-    public void deleteChatroomMember(ChatroomMember chatroomMember) {
+    public void deleteChatroom(ChatroomMember chatroomMember) {
         chatroomMembers.remove(chatroomMember);
     }
 }

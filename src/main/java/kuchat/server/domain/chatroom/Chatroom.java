@@ -44,14 +44,10 @@ public class Chatroom extends BaseTime {
         status = Status.ACTIVE;
     }
 
-    public void addMember(ChatroomMember chatroomMember) {
-        chatroomMembers.add(chatroomMember);
-    }
-
     /**
      * ChatroomMembers HashSet에서 ChatroomMember 객체를 제거한 뒤, hashset의 size를 반환
      */
-    public int deleteChatroomMember(ChatroomMember chatroomMember) {
+    public int deleteMember(ChatroomMember chatroomMember) {
         if (chatroomMembers.remove(chatroomMember)) {
             return chatroomMembers.size();
         } else {
@@ -59,7 +55,7 @@ public class Chatroom extends BaseTime {
         }
     }
 
-    public void addChatroomMember(ChatroomMember chatroomMember) {
+    public void addMember(ChatroomMember chatroomMember) {
         chatroomMembers.add(chatroomMember);
     }
 }
