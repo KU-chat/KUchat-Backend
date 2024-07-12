@@ -5,6 +5,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.redis.RedisPublisher;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.repository.ChatroomRepository;
+import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.message.ChatMessageEvent;
 import kuchat.server.domain.message.Message;
@@ -25,8 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static kuchat.server.common.exception.BaseResponse.DB_SAVE_FAIL;
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MESSAGE;
+import static kuchat.server.common.exception.BaseResponse.*;
 
 
 @Slf4j
@@ -41,25 +41,34 @@ public class MessageService {
     private final ApplicationEventPublisher eventPublisher;
     private final RedisPublisher redisPublisher;
 
+    public RecentMessagesResponse enter(Long chatroomId) {
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
+        return findRecentMessages(chatroom);       // 최근 20개 톡 가져오기
+    }
 
     public RecentMessagesResponse findRecentMessages(Chatroom chatroom) {
         log.info("[findRecentMessages] 클라이언트가 접속한 채팅방 id = {}", chatroom.getId());
         Pageable pageable = PageRequest.of(0, 20);
         List<Message> messages = messageRepository.findRecent20MessagesByChatroomId(chatroom, pageable);
-        log.info("[findRecentMessages] 조회한 20개 이하 메세지 = {}", messages.toString());
+        if(messages.isEmpty()){
+            log.info("{} 번 채팅방에 메세지가 존재하지 않음.", chatroom.getId());
+            return new RecentMessagesResponse();
+        }
+        log.info("[findRecentMessages] 20개 이하 메세지 조회");
         return new RecentMessagesResponse(messages);
     }
 
     // 멤버 1명 이상이 들어올 때, 서버가 채팅방 속 모든 클라이언트들에게 환영 메시지를 톡방에 보내는 메서드
     @Transactional
     public void sendJoinMessage(List<Member> joinMembers, Chatroom chatroom, ChannelTopic topic) {
-        ChatroomJoinRequest joinMessage = createEnterMessage(joinMembers, chatroom);
+        ChatMessage joinMessage = createEnterMessage(joinMembers, chatroom);
         log.info("[sendJoinMessage] 서버에서 새로 만든 enterMessage = {}", joinMessage.toString());
         messageRepository.save(new Message(joinMessage, chatroom));
-        redisPublisher.publish(topic, new ChatMessage(joinMessage));
+        redisPublisher.publish(topic, joinMessage);
     }
 
-    private ChatroomJoinRequest createEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
+    private ChatMessage createEnterMessage(List<Member> joinMembers, Chatroom chatroom) {
         String text = joinMembers.stream()
                 .map(Member::getName)
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
@@ -67,7 +76,7 @@ public class MessageService {
         List<Long> memberIds = joinMembers.stream()
                 .map(Member::getId).toList();
 
-        return new ChatroomJoinRequest(chatroom.getId(), memberIds, text);
+        return new ChatMessage(chatroom.getId(), MessageType.TALK, SERVER_ID, text);
     }
 
     // 멤버 1명이 나갈 때, 나갔음을 알리는 메시지를 보내는 메서드

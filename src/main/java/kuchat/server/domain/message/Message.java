@@ -7,7 +7,7 @@ import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.message.dto.ChatMessage;
 import lombok.*;
 
-@Entity @ToString
+@Entity
 @Table(name = "message")
 @Getter
 @NoArgsConstructor

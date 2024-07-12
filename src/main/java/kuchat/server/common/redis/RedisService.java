@@ -1,19 +1,17 @@
 package kuchat.server.common.redis;
 
-import kuchat.server.common.exception.KuchatException;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.HashOperations;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static kuchat.server.common.exception.BaseResponse.REDIS_FIND_FAIL;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,69 +20,79 @@ import static kuchat.server.common.exception.BaseResponse.REDIS_FIND_FAIL;
 @Service
 public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisMessageListenerContainer messageListener;
+    private final ApplicationEventPublisher eventPublisher;
 
-    // 1. ValueOperations : key - value
-    @Transactional
-    public void putValueOp(String key, String value) {
-        log.info("[putValueOp] key = {}, value = {}", key, value);
-        ValueOperations<String, Object> valueOps = redisTemplate.opsForValue();
-        valueOps.set(key, value);
+    private Map<Long, RedisSubscriber> subscribers;
+    private Map<Long, ChannelTopic> topics;         // chatroom id - ChannelTopic
+    private Map<ChannelTopic, Set<RedisSubscriber>> topicSub;     // 한 채팅방의 topic - 그걸 구독하고 있는 sub 들 집합
+
+    @PostConstruct
+    private void init() {
+        subscribers = new HashMap<>();
+        topics = new HashMap<>();
+        topicSub = new ConcurrentHashMap<>();
     }
 
-    public String getValueOp(String key) {
-        String value = (String) redisTemplate.opsForValue().get(key);
-        log.info("[getValueOp] key = {}, value = {}", key, value);
-        return value;
-    }
+    // topic 구독
+    public void subscribeTopic(Long chatroomId, List<Long> memberIds) {
+        log.info("[subscribeTopic] {} 회원들이 {} 번 채팅방 구독함.", memberIds.toString(), chatroomId);
+        ChannelTopic topic = getTopic(chatroomId);
+        if(!topicSub.containsKey(topic)){
+            topicSub.put(topic, ConcurrentHashMap.newKeySet());
+        }
 
-    @Transactional
-    public boolean deleteValueOp(String key) {
-        log.info("[deleteValueOp] 제거하는 key = {}", key);
-        return Boolean.TRUE.equals(redisTemplate.delete(key));
-    }
-
-
-    // 2. HashOperations : key - hash key - value
-    @Transactional
-    public void putHashOp(String key, Long hashKey, String value) {
-        log.info("[putHashOp] key = {}, hash key = {}, value = {}", key, hashKey.toString(), value);
-        HashOperations<String, Long, String> hashOps = redisTemplate.opsForHash();
-        hashOps.put(key, hashKey, value);
-    }
-
-    @Transactional
-    public void putHashOps(String key, Map<Long, String> data) {
-        log.info("[putHashOps] key = {}, Map <hash key, value> = {}", key, data.toString());
-        HashOperations<String, Long, String> values = redisTemplate.opsForHash();
-        values.putAll(key, data);
-    }
-
-    public String getHashOp(String key, Long hashKey) {
-        String value = (String) redisTemplate.opsForHash().get(key, hashKey);
-        log.info("[getHashOp] 조회하는 key = {}, hashKey = {}, value = {}", key, hashKey, value);
-        return value;
-    }
-
-    public Map<Long, String> getHashOpMap(String key) {
-        Map<Object, Object> rawMap = redisTemplate.opsForHash().entries(key);
-        Map<Long, String> result = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : rawMap.entrySet()) {
-            try {
-                Long keyAsLong = (Long) entry.getKey();
-                String valueAsString = (String) entry.getValue();
-                result.put(keyAsLong, valueAsString);
-            } catch (Exception e) {
-                throw new KuchatException(REDIS_FIND_FAIL);
+        for(Long memberId : memberIds){
+            RedisSubscriber subscriber = getSubscriber(memberId);
+            if(topicSub.get(topic).add(subscriber)){
+                subscriber.subscribeTo(topic);
+                messageListener.addMessageListener(subscriber, topic);
             }
         }
-        return result;
+        topics.put(chatroomId, topic);
     }
 
-    @Transactional
-    public void deleteHashOp(String key, String hashKey) {
-        log.info("[deleteHashOp] 제거하는 key = {}, hashKey = {}", key, hashKey);
-        HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
-        values.delete(key, hashKey);
+
+    // topic 구독 취소
+    public void cancelSubscribe(Long chatroomId, Long memberId) {
+        log.info("[cancelSubscribe] {} 회원이 {}번 채팅방 구독 취소함.", memberId, chatroomId);
+        ChannelTopic topic = getTopic(chatroomId);
+
+        RedisSubscriber subscriber = getSubscriber(memberId);
+        if(topicSub.containsKey(topic) && topicSub.get(topic).remove(subscriber)){
+            subscriber.unsubscribeFrom(topic);
+            messageListener.removeMessageListener(subscriber, topic);
+        }
+    }
+
+
+    private RedisSubscriber getSubscriber(Long memberId){
+        RedisSubscriber subscriber = subscribers.get(memberId);
+        if (subscriber == null) {
+            subscriber = new RedisSubscriber(memberId, eventPublisher, redisTemplate);
+            subscribers.put(memberId, subscriber);
+        }
+        return subscriber;
+    }
+
+
+    public ChannelTopic getTopic(Long chatroomId) {
+        ChannelTopic topic = topics.get(chatroomId);
+        if (topic == null) {
+            topic = new ChannelTopic("chatroom: " + chatroomId);
+            topics.put(chatroomId, topic);
+        }
+
+        return topic;
+    }
+
+    public Set<RedisSubscriber> getSubscriberSet(Long memberId){
+        Set<RedisSubscriber> subscriberSet = topicSub.get(memberId);
+        if(subscriberSet == null){
+            subscriberSet = new HashSet<>();
+            subscriberSet.add(getSubscriber(memberId));
+        }
+        return subscriberSet;
     }
 
 }

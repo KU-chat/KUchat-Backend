@@ -9,6 +9,7 @@ import kuchat.server.domain.chatroom.dto.FindChatroomsResponse;
 import kuchat.server.domain.chatroom.dto.UpdateChatroomRequest;
 import kuchat.server.domain.chatroom.service.ChatroomService;
 import kuchat.server.domain.message.dto.RecentMessagesResponse;
+import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import static kuchat.server.common.exception.BaseResponse.EMPTY_CHATROOM;
 public class ChatroomController {
 
     private final ChatroomService chatroomService;
+    private final MessageService messageService;
 
     @Operation(summary = "채팅방 생성")
     @PostMapping("")
@@ -69,30 +71,11 @@ public class ChatroomController {
         return ResponseEntity.accepted().build();
     }
 
-
-//    @Operation(summary = "채팅방에 멤버 추가하기")
-//    @PostMapping("/{id}/join")
-//    public ResponseEntity<BaseResponse> join(@PathVariable("id") Long chatroomId,
-//                                             @RequestBody JoinMemberRequest request) {
-//        log.info("[join] id가 {} 번인 채팅방에 {} 번 member 추가하기", chatroomId, request.getJoinMembers().toString());
-//        chatroomService.join(chatroomId, request.getJoinMembers());
-//        return ResponseEntity.ok(CHATROOM_SUCCESS);
-//    }
-//
-//    @Operation(summary = "채팅방 나가기")
-//    @DeleteMapping("/{chatroomId}/memberId/{memberId}/leave")
-//    public ResponseEntity<BaseResponse> leave(@PathVariable("chatroomId") Long chatroomId,
-//                                              @PathVariable("memberId") Long memberId) {
-//        log.info("[leave] id가 {} 번인 채팅방에서 {} 번 member가 나감", chatroomId, memberId);
-//        chatroomService.leave(chatroomId, memberId);
-//        return ResponseEntity.ok(CHATROOM_SUCCESS);
-//    }
-
     @Operation(summary = "채팅 화면으로 들어가기 (최근 20개 톡 가져오기)")
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/enter")
     public ResponseEntity<RecentMessagesResponse> enter(@PathVariable("id") Long chatroomId) {
         log.info("{}번 채팅방 화면으로 이동", chatroomId);
-        RecentMessagesResponse response = chatroomService.enter(chatroomId);        // 최근 20개 톡 가져오기
+        RecentMessagesResponse response = messageService.enter(chatroomId);        // 최근 20개 톡 가져오기
         return ResponseEntity.ok().body(response);
     }
 

@@ -1,5 +1,6 @@
 package kuchat.server.common.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+@Slf4j
 @Configuration
 @EnableRedisRepositories
 public class RedisConfig {
@@ -27,6 +29,7 @@ public class RedisConfig {
     // redis 와의 연결 정보 설정
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
+        log.info("[redisConnectionFactory]");
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, Integer.parseInt(port));
         configuration.setPassword(password);
         return new LettuceConnectionFactory(configuration);
@@ -35,6 +38,7 @@ public class RedisConfig {
     // 레디스의 pub/sub 메세지를 처리하는 listener 컨테이너 설정
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory factory) {
+        log.info("[redisMessageListenerContainer]");
         RedisMessageListenerContainer messageListener = new RedisMessageListenerContainer();
         messageListener.setConnectionFactory(factory);
         return messageListener;
@@ -44,6 +48,7 @@ public class RedisConfig {
     // Redis 데이터를 저장, 조회하는데 사용되는 redisTemplate 객체 생성
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
+        log.info("[redisTemplate]");
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());

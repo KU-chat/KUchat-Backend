@@ -1,7 +1,7 @@
 package kuchat.server.domain.chatroom.service;
 
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.redis.RedisSubscriber;
+import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.chatroom.dto.ChatroomResponse;
@@ -12,13 +12,11 @@ import kuchat.server.domain.chatroom.repository.ChatroomMemberRepository;
 import kuchat.server.domain.chatroom.repository.ChatroomRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
-import kuchat.server.domain.message.dto.RecentMessagesResponse;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,15 +35,17 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
     private final ChatroomMemberRepository chatroomMemberRepository;
     private final MemberRepository memberRepository;
-    private final MessageService messageService;
-    private final RedisMessageListenerContainer redisMessageListenerContainer;
-    private final RedisSubscriber redisSubscriber;
 
-    private Map<Long, ChannelTopic> topics = new HashMap<>();
+    private final MessageService messageService;
+    private final RedisService redisService;
 
 
     @Transactional
     public ChatroomResponse create(CreateChatroomRequest request) {
+        List<Chatroom> chatrooms = chatroomRepository.findByName(request.getName());
+        if (!chatrooms.isEmpty()) {
+            throw new KuchatException(DUPLICATE_CHATROOM_NAME);
+        }
         Chatroom chatroom = chatroomRepository.save(
                 Chatroom.builder()
                         .name(request.getName())
@@ -55,19 +55,10 @@ public class ChatroomService {
         return new ChatroomResponse(chatroom.getId());
     }
 
-    public ChannelTopic getTopic(Long chatroomId) {
-        ChannelTopic topic = topics.get(chatroomId);
-        if (topic == null) {
-            topic = new ChannelTopic(chatroomId.toString());
-            redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
-            topics.put(chatroomId, topic);
-        }
-
-        return topic;
-    }
 
     public FindChatroomsResponse findChatrooms(String name) {
-        List<Chatroom> chatrooms = chatroomRepository.findByName(name);
+        List<Chatroom> chatrooms = Optional.ofNullable(chatroomRepository.findByName(name))
+                .orElse(Collections.emptyList());
         List<FindChatroomResponse> findChatroomResponse = chatrooms.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
@@ -81,6 +72,10 @@ public class ChatroomService {
 
     @Transactional
     public void updateName(Long chatroomId, String newName) {
+        List<Chatroom> chatrooms = chatroomRepository.findByName(newName);
+        if (!chatrooms.isEmpty()) {
+            throw new KuchatException(DUPLICATE_CHATROOM_NAME);
+        }
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         chatroom.setName(newName);
@@ -115,7 +110,7 @@ public class ChatroomService {
                 .collect(Collectors.joining(", "))
         );
 
-        ChannelTopic topic = getTopic(chatroom.getId());
+        ChannelTopic topic = redisService.getTopic(chatroomId);
         messageService.sendJoinMessage(joinMembers, chatroom, topic);
     }
 
@@ -125,7 +120,7 @@ public class ChatroomService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-        ChannelTopic topic = getTopic(chatroom.getId());
+        ChannelTopic topic = redisService.getTopic(chatroom.getId());
         messageService.sendLeaveMessage(member, chatroom, topic);
 
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
@@ -146,10 +141,5 @@ public class ChatroomService {
         chatroomRepository.delete(chatroom);
     }
 
-    public RecentMessagesResponse enter(Long chatroomId) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
-        return messageService.findRecentMessages(chatroom);       // 최근 20개 톡 가져오기
-    }
 
 }

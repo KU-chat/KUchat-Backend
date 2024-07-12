@@ -21,8 +21,8 @@ public enum BaseResponse {
     //- 3000 번대 : 회원가입/멤버 관련 상태 코드
     SIGNUP_SUCCESS(3000, HttpStatus.CREATED, "회원가입 성공"),
     NOT_FOUND_LANGUAGE(3001, HttpStatus.NOT_FOUND, "존재하지 않는 언어입니다."),
-    NOT_FOUND_MEMBER(3002, HttpStatus.NOT_FOUND, "존재하지 않는 회웝입니다."),
-    EMAIL_BAD_REQUEST(3003, HttpStatus.BAD_REQUEST, "건국대학교 이메일이 아닙니다."),
+    NOT_FOUND_MEMBER(3002, HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
+    INFO_BAD_REQUEST(3003, HttpStatus.BAD_REQUEST, "입력된 정보가 형식에 맞지 않습니다. 다시 입력해주세요."),
 
     //- 4000번대 : 채팅방(chatroom) 관련 코드
     CHATROOM_SUCCESS(4000, HttpStatus.ACCEPTED, "채팅방 생성/수정 성공"),
@@ -31,6 +31,7 @@ public enum BaseResponse {
     MALFORMED_CHATROOM_ID(4003, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
     DUPLICATED_JOIN(4004, HttpStatus.BAD_REQUEST, "이미 참여하고 있는 회원은 초대할 수 없습니다."),
     EMPTY_CHATROOM(4005, HttpStatus.BAD_REQUEST, "채팅방 참여 인원이 없어 채팅방을 만들 수 없습니다."),
+    DUPLICATE_CHATROOM_NAME(4006, HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방 이름입니다. 다른 이름으로 시도해주세요."),
 
     //- 5000번대 : 메시지(message)/소켓 관련 코드
     MESSAGE_SEND_SUCCESS(5000, HttpStatus.OK, "메세지 전송 성공"),

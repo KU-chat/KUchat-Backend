@@ -35,7 +35,7 @@ public class Member extends BaseTime {
     @Column(name = "member_id")
     private Long id;
 
-    @Email
+    @Email(message = "이메일 형식이 아닙니다.")
     @NotEmpty
     @Valid
     @Column(name = "email", nullable = false)
@@ -47,14 +47,14 @@ public class Member extends BaseTime {
     @Column(name = "department")
     private String department;
 
-    @Size(min = 9, max = 9)
+    @Size(min = 9, max = 9, message = "학번은 9자리 숫자 형태여야 합니다.")
     @Column(name = "student_id")
     private String studentId;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Size(min = 6, max = 6)
+    @Size(min = 6, max = 6, message = "생일은 6자리 숫자 형태여야 합니다.")
     private String birthday;
 
     @Column(name = "setting_langugage")
@@ -75,10 +75,8 @@ public class Member extends BaseTime {
 
     private String profileImage;
 
-
-    // 이거 필요없지 않나?
     @OneToMany(mappedBy = "member")
-//     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
+    // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
     private Set<ChatroomMember> chatroomMembers = new HashSet<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
 
     @OneToMany(mappedBy = "member")
@@ -115,7 +113,7 @@ public class Member extends BaseTime {
         this.refreshToken = refreshToken;
     }
 
-    public void updateInfo(SignupRequest request) {
+    public void updateInfo(@Valid SignupRequest request) {
         this.setLanguage = SettingLanguage.of(request.getSetLanguage());
         this.firstLanguage = LearnLanguage.of(request.getFirstLanguage());
         this.secondLanguage = LearnLanguage.of(request.getSecondLanguage());
@@ -126,22 +124,8 @@ public class Member extends BaseTime {
         this.studentId = request.getStudentId();
         this.gender = Gender.of(request.getGender());
 
-        this.role = Role.STUDENT;           // 추가정보 받은 후
-
-//        this.email = request.getEmail();
-//        if (validateEmail(email)) {
-//            this.email = request.getEmail();
-//        }
+        this.role = Role.STUDENT;           // 추가정보 받은 후 처리
     }
-
-//    private boolean validateEmail(String email) {
-//        if (!email.contains("@konkuk.ac.kr")) {
-//            log.info("[validateEmail] email = {}", email);
-//            throw new KuchatException(BaseResponse.EMAIL_BAD_REQUEST);
-//        } else {
-//            return true;
-//        }
-//    }
 
     public void addChatroom(ChatroomMember chatroomMember) {
         chatroomMembers.add(chatroomMember);

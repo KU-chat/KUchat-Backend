@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @ToString
 public class RecentMessagesResponse {
-    private List<ChatMessage> recentMessages;
+    private List<MessageResponse> recentMessages;
 
     public RecentMessagesResponse(List<Message> messages) {
-        List<ChatMessage> chatMessages = messages.stream()
-                .map(message -> new ChatMessage(message))
+        List<MessageResponse> messageResponses = messages.stream()
+                .map(MessageResponse::new)
                 .collect(Collectors.toList());
-        this.recentMessages = chatMessages;
+        this.recentMessages = messageResponses;
     }
 }
