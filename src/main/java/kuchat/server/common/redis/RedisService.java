@@ -1,10 +1,11 @@
 package kuchat.server.common.redis;
 
 import jakarta.annotation.PostConstruct;
+import kuchat.server.domain.message.dto.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Transactional(readOnly = true)
 @Service
 public class RedisService {
-    private final RedisTemplate<String, Object> redisTemplate;
     private final SubscriptionManager subscriptionManager;
+    private final SimpMessageSendingOperations messageSendingOperations;
 
     private Map<Long, Subscriber> subscribers;
     private Map<Long, ChannelTopic> channels;         // chatroom id - ChannelTopic
@@ -63,10 +64,14 @@ public class RedisService {
     public ChannelTopic getChannel(Long chatroomId) {
         ChannelTopic channel = channels.get(chatroomId);
         if (channel == null) {
-            channel = new ChannelTopic("chatroom: " + chatroomId);
+            channel = new ChannelTopic("/sub/chatroom/" + chatroomId);
             channels.put(chatroomId, channel);
         }
 
         return channel;
+    }
+
+    public void send(String topic, MessageResponse messageResponse) {
+        messageSendingOperations.convertAndSend(topic, messageResponse);
     }
 }

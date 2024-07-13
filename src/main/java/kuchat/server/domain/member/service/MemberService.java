@@ -1,6 +1,8 @@
 package kuchat.server.domain.member.service;
 
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.domain.chatroom.Chatroom;
+import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
@@ -11,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
 
@@ -49,5 +54,12 @@ public class MemberService {
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
+
+    public List<Member> findMembeByChatroomId(Chatroom chatroom) {
+        Set<ChatroomMember> chatroomMembers = chatroom.getChatroomMembers();
+        return chatroomMembers.stream()
+                .map(ChatroomMember::getMember)
+                .toList();
     }
 }

@@ -134,4 +134,5 @@ public class Member extends BaseTime {
     public void deleteChatroom(ChatroomMember chatroomMember) {
         chatroomMembers.remove(chatroomMember);
     }
+
 }

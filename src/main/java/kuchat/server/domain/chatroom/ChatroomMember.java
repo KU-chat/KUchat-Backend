@@ -29,4 +29,5 @@ public class ChatroomMember extends BaseTime {
         this.member = member;
         this.chatroom = chatroom;
     }
+
 }

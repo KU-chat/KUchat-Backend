@@ -3,12 +3,14 @@ package kuchat.server.domain.chatroom.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.dto.ChatroomResponse;
 import kuchat.server.domain.chatroom.dto.CreateChatroomRequest;
 import kuchat.server.domain.chatroom.dto.FindChatroomsResponse;
 import kuchat.server.domain.chatroom.dto.UpdateChatroomRequest;
 import kuchat.server.domain.chatroom.service.ChatroomService;
-import kuchat.server.domain.message.dto.RecentMessagesResponse;
+import kuchat.server.domain.member.service.MemberService;
+import kuchat.server.domain.chatroom.dto.EnterChatroomResponse;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ public class ChatroomController {
 
     private final ChatroomService chatroomService;
     private final MessageService messageService;
+    private final MemberService memberService;
 
     @Operation(summary = "채팅방 생성")
     @PostMapping("")
@@ -73,9 +76,11 @@ public class ChatroomController {
 
     @Operation(summary = "채팅 화면으로 들어가기 (최근 20개 톡 가져오기)")
     @GetMapping("/{id}/enter")
-    public ResponseEntity<RecentMessagesResponse> enter(@PathVariable("id") Long chatroomId) {
+    public ResponseEntity<EnterChatroomResponse> enter(@PathVariable("id") Long chatroomId) {
         log.info("{}번 채팅방 화면으로 이동", chatroomId);
-        RecentMessagesResponse response = messageService.enter(chatroomId);        // 최근 20개 톡 가져오기
+        Chatroom chatroom = chatroomService.getChatroom(chatroomId);
+        EnterChatroomResponse response = messageService.enter(chatroom);        // 최근 20개 톡 가져오기
+        response.setMemberInfos(memberService.findMembeByChatroomId(chatroom));
         return ResponseEntity.ok().body(response);
     }
 

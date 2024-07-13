@@ -17,7 +17,6 @@ public class ChatroomJoinRequest extends ChatMessage{
     private MessageType messageType = MessageType.JOIN;
     private String text;
 
-//    @Builder
     public ChatroomJoinRequest(Long chatroomId, List<Long> memberIds, String text) {
         this.chatroomId = chatroomId;
         this.memberIds = memberIds;

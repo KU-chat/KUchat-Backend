@@ -16,7 +16,6 @@ import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,16 +75,20 @@ public class ChatroomService {
         if (!chatrooms.isEmpty()) {
             throw new KuchatException(DUPLICATE_CHATROOM_NAME);
         }
-        Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
+        Chatroom chatroom = getChatroom(chatroomId);
         chatroom.setName(newName);
         log.info("[updateName] id = {}, 바뀐 채팅방 이름 = {}", chatroom.getId(), chatroom.getName());
     }
 
-    @Transactional
-    public void join(Long chatroomId, List<Long> memberIds) {
+    public Chatroom getChatroom(Long chatroomId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
+        return chatroom;
+    }
+
+    @Transactional
+    public void join(Long chatroomId, List<Long> memberIds) {
+        Chatroom chatroom = getChatroom(chatroomId);
         List<Member> joinMembers = memberRepository.findAllById(memberIds);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
         if (memberIds.size() != joinMembers.size()) {
             throw new KuchatException(NOT_FOUND_MEMBER);
@@ -110,17 +113,16 @@ public class ChatroomService {
                 .collect(Collectors.joining(", "))
         );
 
-        ChannelTopic topic = redisService.getChannel(chatroomId);
+        String topic = "/sub/chatroom/" + chatroomId;
         messageService.sendJoinMessage(joinMembers, chatroom, topic);
     }
 
     @Transactional
     public void leave(Long chatroomId, Long memberId) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
+        Chatroom chatroom = getChatroom(chatroomId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-        ChannelTopic topic = redisService.getChannel(chatroom.getId());
+        String topic = "/sub/chatroom/" + chatroom.getId();
         messageService.sendLeaveMessage(member, chatroom, topic);
 
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
