@@ -110,7 +110,7 @@ public class ChatroomService {
                 .collect(Collectors.joining(", "))
         );
 
-        ChannelTopic topic = redisService.getTopic(chatroomId);
+        ChannelTopic topic = redisService.getChannel(chatroomId);
         messageService.sendJoinMessage(joinMembers, chatroom, topic);
     }
 
@@ -120,7 +120,7 @@ public class ChatroomService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-        ChannelTopic topic = redisService.getTopic(chatroom.getId());
+        ChannelTopic topic = redisService.getChannel(chatroom.getId());
         messageService.sendLeaveMessage(member, chatroom, topic);
 
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);

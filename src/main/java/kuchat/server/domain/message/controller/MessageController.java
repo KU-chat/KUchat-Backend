@@ -33,12 +33,15 @@ public class MessageController {
     @MessageMapping("/message")
     public void handleMessage(ChatMessage message){
         log.info("[handleMessage] 들어온 메세지 = {}", message);
-        ChannelTopic topic = redisService.getTopic(message.getChatroomId());
-        messageService.handleReceivedMessage(topic, message);
+
+        ChannelTopic channel = redisService.getChannel(message.getChatroomId());
+        messageService.handleReceivedMessage(channel, message);
     }
 
     @MessageMapping("/join")
     public void join(ChatroomJoinRequest joinRequest){
+        log.info("[join] join 요청 = {}", joinRequest.toString());
+
         Long chatroomId = joinRequest.getChatroomId();
         List<Long> memberIds = joinRequest.getMemberIds();
         redisService.subscribeTopic(chatroomId, memberIds);
@@ -47,6 +50,8 @@ public class MessageController {
 
     @MessageMapping("/leave")
     public void leave(ChatMessage message){
+        log.info("[leave] 들어온 메세지 = {}", message.toString());
+
         Long chatroomId = message.getChatroomId();
         Long memberId = message.getSenderId();
         redisService.cancelSubscribe(chatroomId, memberId);

@@ -3,96 +3,70 @@ package kuchat.server.common.redis;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-//@Component
 @Service
 public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RedisMessageListenerContainer messageListener;
-    private final ApplicationEventPublisher eventPublisher;
+    private final SubscriptionManager subscriptionManager;
 
-    private Map<Long, RedisSubscriber> subscribers;
-    private Map<Long, ChannelTopic> topics;         // chatroom id - ChannelTopic
-    private Map<ChannelTopic, Set<RedisSubscriber>> topicSub;     // 한 채팅방의 topic - 그걸 구독하고 있는 sub 들 집합
+    private Map<Long, Subscriber> subscribers;
+    private Map<Long, ChannelTopic> channels;         // chatroom id - ChannelTopic
 
     @PostConstruct
     private void init() {
-        subscribers = new HashMap<>();
-        topics = new HashMap<>();
-        topicSub = new ConcurrentHashMap<>();
+        subscribers = new ConcurrentHashMap<>();
+        channels = new ConcurrentHashMap<>();
     }
 
     // topic 구독
     public void subscribeTopic(Long chatroomId, List<Long> memberIds) {
         log.info("[subscribeTopic] {} 회원들이 {} 번 채팅방 구독함.", memberIds.toString(), chatroomId);
-        ChannelTopic topic = getTopic(chatroomId);
-        if(!topicSub.containsKey(topic)){
-            topicSub.put(topic, ConcurrentHashMap.newKeySet());
-        }
+        ChannelTopic channel = getChannel(chatroomId);
 
-        for(Long memberId : memberIds){
-            RedisSubscriber subscriber = getSubscriber(memberId);
-            if(topicSub.get(topic).add(subscriber)){
-                subscriber.subscribeTo(topic);
-                messageListener.addMessageListener(subscriber, topic);
-            }
+        for (Long memberId : memberIds) {
+            Subscriber subscriber = getSubscriber(memberId);
+            subscriptionManager.addSubscription(subscriber, channel);
         }
-        topics.put(chatroomId, topic);
     }
 
 
     // topic 구독 취소
     public void cancelSubscribe(Long chatroomId, Long memberId) {
         log.info("[cancelSubscribe] {} 회원이 {}번 채팅방 구독 취소함.", memberId, chatroomId);
-        ChannelTopic topic = getTopic(chatroomId);
-
-        RedisSubscriber subscriber = getSubscriber(memberId);
-        if(topicSub.containsKey(topic) && topicSub.get(topic).remove(subscriber)){
-            subscriber.unsubscribeFrom(topic);
-            messageListener.removeMessageListener(subscriber, topic);
-        }
+        ChannelTopic channel = getChannel(chatroomId);
+        Subscriber subscriber = getSubscriber(memberId);
+        subscriptionManager.removeSubscription(subscriber, channel);
     }
 
 
-    private RedisSubscriber getSubscriber(Long memberId){
-        RedisSubscriber subscriber = subscribers.get(memberId);
+    private Subscriber getSubscriber(Long memberId) {
+        Subscriber subscriber = subscribers.get(memberId);
         if (subscriber == null) {
-            subscriber = new RedisSubscriber(memberId, eventPublisher, redisTemplate);
+            subscriber = new Subscriber(memberId);
             subscribers.put(memberId, subscriber);
         }
         return subscriber;
     }
 
 
-    public ChannelTopic getTopic(Long chatroomId) {
-        ChannelTopic topic = topics.get(chatroomId);
-        if (topic == null) {
-            topic = new ChannelTopic("chatroom: " + chatroomId);
-            topics.put(chatroomId, topic);
+    public ChannelTopic getChannel(Long chatroomId) {
+        ChannelTopic channel = channels.get(chatroomId);
+        if (channel == null) {
+            channel = new ChannelTopic("chatroom: " + chatroomId);
+            channels.put(chatroomId, channel);
         }
 
-        return topic;
+        return channel;
     }
-
-    public Set<RedisSubscriber> getSubscriberSet(Long memberId){
-        Set<RedisSubscriber> subscriberSet = topicSub.get(memberId);
-        if(subscriberSet == null){
-            subscriberSet = new HashSet<>();
-            subscriberSet.add(getSubscriber(memberId));
-        }
-        return subscriberSet;
-    }
-
 }
