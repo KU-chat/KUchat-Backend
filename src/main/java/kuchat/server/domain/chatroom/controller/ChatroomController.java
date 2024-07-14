@@ -80,7 +80,7 @@ public class ChatroomController {
         log.info("{}번 채팅방 화면으로 이동", chatroomId);
         Chatroom chatroom = chatroomService.getChatroom(chatroomId);
         EnterChatroomResponse response = messageService.enter(chatroom);        // 최근 20개 톡 가져오기
-        response.setMemberInfos(memberService.findMembeByChatroomId(chatroom));
+        response.setMemberInfos(memberService.findMembersByChatroomId(chatroom));
         return ResponseEntity.ok().body(response);
     }
 

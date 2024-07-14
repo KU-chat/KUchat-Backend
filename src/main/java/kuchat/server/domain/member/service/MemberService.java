@@ -6,6 +6,8 @@ import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
+import kuchat.server.domain.member.dto.ProfileResponse;
+import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
 import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.repository.MemberRepository;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
+import static kuchat.server.common.exception.BaseResponse.DUPLICATED_PLUS_ID;
 import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
 
 @Slf4j
@@ -56,10 +59,31 @@ public class MemberService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 
-    public List<Member> findMembeByChatroomId(Chatroom chatroom) {
+    public List<Member> findMembersByChatroomId(Chatroom chatroom) {
         Set<ChatroomMember> chatroomMembers = chatroom.getChatroomMembers();
         return chatroomMembers.stream()
                 .map(ChatroomMember::getMember)
                 .toList();
+    }
+
+    public ProfileResponse getProfile(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+        return new ProfileResponse(member);
+    }
+
+    @Transactional
+    public void updateProfile(Long memberId, ProfileUpdateRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+        validateAndUpdatePlusId(member, request.getPlusId());
+        member.updateProfile(request);
+    }
+
+    private void validateAndUpdatePlusId(Member member, String plusId) {
+        memberRepository.findAllByPlusIdWithLock(plusId)
+                .ifPresentOrElse(
+                        presentMember -> {throw new KuchatException(DUPLICATED_PLUS_ID);},
+                        () -> {member.setPlusId(plusId);});
     }
 }

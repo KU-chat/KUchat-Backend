@@ -27,6 +27,7 @@ public enum BaseResponse {
     NOT_FOUND_LANGUAGE(3001, HttpStatus.NOT_FOUND, "존재하지 않는 언어입니다."),
     NOT_FOUND_MEMBER(3002, HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     INFO_BAD_REQUEST(3003, HttpStatus.BAD_REQUEST, "입력된 정보가 형식에 맞지 않습니다. 다시 입력해주세요."),
+    DUPLICATED_PLUS_ID(3004, HttpStatus.BAD_REQUEST, "plus id가 중복됩니다. 다른 문자열로 시도해주세요."),
 
     //- 4000번대 : 채팅방(chatroom) 관련 코드
     CHATROOM_SUCCESS(4000, HttpStatus.ACCEPTED, "채팅방 생성/수정 성공"),

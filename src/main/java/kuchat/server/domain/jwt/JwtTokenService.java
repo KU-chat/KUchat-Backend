@@ -169,8 +169,16 @@ public class JwtTokenService {
     }
 
     public Long extractMemberIdFromToken(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-        return claims.get("memberId", Long.class);
+        try{
+            Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+            return claims.get("memberId", Long.class);
+        } catch (SignatureException e) {
+            throw new KuchatException(INVALID_SIGNATURE);
+        } catch (ExpiredJwtException e) {
+            throw new KuchatException(EXPIRED_TOKEN);
+        } catch (Exception e) {
+            throw new KuchatException(INVALID_TOKEN);
+        }
     }
 
     public Member getMember(Long memberId){

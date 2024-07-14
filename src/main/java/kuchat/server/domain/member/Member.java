@@ -10,17 +10,17 @@ import kuchat.server.domain.blockMember.BlockMember;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.*;
 import kuchat.server.domain.friendship.Friendship;
+import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Slf4j
 @Entity
@@ -50,6 +50,10 @@ public class Member extends BaseTime {
     @Size(min = 9, max = 9, message = "학번은 9자리 숫자 형태여야 합니다.")
     @Column(name = "student_id")
     private String studentId;
+
+    @Setter
+    @Column(name = "plus_id")
+    private String plusId;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -125,6 +129,7 @@ public class Member extends BaseTime {
         this.department = request.getDepartment();
         this.studentId = request.getStudentId();
         this.gender = Gender.of(request.getGender());
+        this.plusId = generatePlusId(10);
 
         this.role = Role.STUDENT;           // 추가정보 받은 후 처리
     }
@@ -139,6 +144,33 @@ public class Member extends BaseTime {
 
     public void setAboutMe(String aboutMe){
         this.aboutMe = aboutMe;
+    }
+
+    public String generatePlusId(int length){
+        String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            stringBuilder.append(CHARACTERS.charAt(secureRandom.nextInt(CHARACTERS.length())));
+        }
+        return stringBuilder.toString();
+    }
+
+    public int getAge() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        LocalDate birthDate = LocalDate.parse(birthday, formatter);         // 입력받은 생일 문자열을 LocalDate로 변환합니다
+        LocalDate currentDate = LocalDate.now();                    // 현재 날짜
+        Period age = Period.between(birthDate, currentDate);        // 생일과 현재 날짜를 비교하여 나이를 계산
+        return age.getYears();                                      // 현재 연도를 기준으로 나이를 반환
+    }
+
+    public void updateProfile(ProfileUpdateRequest request) {
+        name = request.getName();
+        department = request.getDepartment();
+        firstLanguage = LearnLanguage.of(request.getFirstLanguage());
+        secondLanguage = LearnLanguage.of(request.getSecondLanguage());
+        profileImage = request.getProfileImage();
+        aboutMe = request.getAboutMe();
     }
 
 }
