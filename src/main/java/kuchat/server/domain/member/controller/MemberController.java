@@ -3,6 +3,7 @@ package kuchat.server.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.SignupRequest;
 import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.service.MemberService;
@@ -10,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -43,5 +41,11 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
+//    @Operation(summary = "나의 프로필 조회")
+//    @GetMapping("/my-profile")
+//    public ResponseEntity<ProfileResponse> getMyProfile(){
+//        log.info("[getMyProfile] 나의 프로필 조회 요청");
+////        memberService.getMyProfile()
+//    }
 
 }

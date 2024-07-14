@@ -1,24 +1,24 @@
 package kuchat.server.domain.jwt;
 
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Optional;
 
-import static kuchat.server.common.exception.BaseResponse.MALFORMED_TOKEN;
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
+import static kuchat.server.common.exception.BaseResponse.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,14 +46,35 @@ public class JwtTokenService {
 
 
     // GoogleOAuth2UserInfo의 email을 사용하여 token 발급
-    public String generateAccessToken(String email) {
-
+    public String generateGUESTAccessToken(String email) {
         final Claims claims = Jwts.claims();        // claims = jwt token에 들어갈 정보, claim에 email을 넣어줘야 회원 식별 가능
+        claims.put("role", "ROLE_GUEST");
         claims.put("email", email);
 
-        log.info("[generateAccessToken] secretKey: " + secretKey);
-        log.info("[generateAccessToken] email: " + email);
-        log.info("[generateAccessToken] refreshTokenExpiration: " + refreshTokenExpiration);
+        log.info("[generateGUESTAccessToken] secretKey: " + secretKey);
+        log.info("[generateGUESTAccessToken] email: " + email);
+        log.info("[generateGUESTAccessToken] refreshTokenExpiration: " + refreshTokenExpiration);
+
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(ACCESS_TOKEN_SUBJECT)       // subject : 토큰의 주체/사용자를 식별하기 위해 사용됨
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String generateSTUDENTAccessToken(Member member){
+        final Claims claims = Jwts.claims();        // claims = jwt token에 들어갈 정보, claim에 email을 넣어줘야 회원 식별 가능
+        claims.put("role", "ROLE_STUDENT");
+        claims.put("memberId", member.getId());
+        claims.put("email", member.getEmail());
+        claims.put("studentId", member.getStudentId());
+
+        log.info("[generateSTUDENTAccessToken] secretKey: " + secretKey);
+        log.info("[generateSTUDENTAccessToken] email: " + member.getEmail());
+        log.info("[generateSTUDENTAccessToken] refreshTokenExpiration: " + refreshTokenExpiration);
 
 
         return Jwts.builder()
@@ -71,6 +92,19 @@ public class JwtTokenService {
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
+    }
+
+    public boolean validateToken(String accessToken){
+        try{
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(accessToken);
+            return true;
+        } catch (SignatureException e) {
+            throw new KuchatException(INVALID_SIGNATURE);
+        } catch (ExpiredJwtException e) {
+            throw new KuchatException(EXPIRED_TOKEN);
+        } catch (Exception e) {
+            throw new KuchatException(INVALID_TOKEN);
+        }
     }
 
     // response header에 access_token 실어서 보내기
@@ -93,24 +127,13 @@ public class JwtTokenService {
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(accessHeader))
                 .filter(str -> str.startsWith("Bearer "))
-                .map(accessToken -> accessToken.replace("Bearer ", ""));
+                .map(accessToken -> accessToken.split(" ")[1]);
     }
 
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(refreshHeader))
                 .filter(str -> str.startsWith("Bearer "))
-                .map(refreshToken -> refreshToken.replace("Bearer ", ""));
-    }
-
-    // 토큰에서 멤버의 email 추출
-    public String extractEmail(String token) {
-        try {
-            return getBody(token)
-                    .get("email")
-                    .toString();
-        } catch (Exception e) {
-            throw new KuchatException(MALFORMED_TOKEN);
-        }
+                .map(refreshToken -> refreshToken.split(" ")[1]);
     }
 
     // 토큰의 만료시간이 지났는지 확인
@@ -135,13 +158,33 @@ public class JwtTokenService {
     }
 
     @Transactional
-    public void updateRefreshToken(String email, String refreshToken) {
+    public void updateRefreshToken(Long memberId, String refreshToken) {
 
-        memberRepository.findByEmail(email)
+        memberRepository.findById(memberId)
                 .ifPresentOrElse(
                         member -> member.updateRefreshToken(refreshToken),
                         () -> new KuchatException(NOT_FOUND_MEMBER)
                 );
         log.info("[updateRefreshToken] refresh token 업데이트 완료!");
+    }
+
+    public Long extractMemberIdFromToken(String token) {
+        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+        return claims.get("memberId", Long.class);
+    }
+
+    public Member getMember(Long memberId){
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
+
+    public UserDetails getUserDetails(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+        return new CustomUserDetails(member);
+    }
+
+    public UsernamePasswordAuthenticationToken getAuthenticationToken(String token, UserDetails userDetails) {
+        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 }

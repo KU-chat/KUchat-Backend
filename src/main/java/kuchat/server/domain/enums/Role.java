@@ -11,5 +11,5 @@ public enum Role {
     ADMIN("ROLE_ADMIN", "관리자");
 
     private final String key;
-    private final String title;
+    private final String value;
 }

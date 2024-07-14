@@ -12,6 +12,10 @@ public enum BaseResponse {
     //- 1000 번대 : jwt 관련 상태 코드
     TOKEN_PROVIDE_SUCCESS(1000, HttpStatus.OK, "jwt 토큰 발급 성공"),
     MALFORMED_TOKEN(1001, HttpStatus.UNAUTHORIZED, "토큰이 올바르게 구성되지 않았습니다."),
+    NOT_FOUND_TOKEN(1002, HttpStatus.NOT_FOUND, "토큰이 존재하지 않습니다. 다시 로그인 해주세요."),
+    INVALID_TOKEN(1003, HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다. 다시 로그인 해주세요."),
+    EXPIRED_TOKEN(1004, HttpStatus.BAD_REQUEST, "유효기간이 만료된 토큰입니다. 다시 로그인 해주세요."),
+    INVALID_SIGNATURE(1005, HttpStatus.BAD_REQUEST, "JWT 토큰의 섭명이 유효하지 않습니다."),
 
     //- 2000 번대 : oauth 관련 상태 코드
     OAUTH_SUCCESS(2000, HttpStatus.OK, "oauth 인증 성공"),

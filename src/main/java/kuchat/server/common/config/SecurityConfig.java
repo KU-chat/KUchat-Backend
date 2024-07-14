@@ -3,6 +3,7 @@ package kuchat.server.common.config;
 import kuchat.server.common.oauth.handler.OAuth2LoginFailureHandler;
 import kuchat.server.common.oauth.handler.OAuth2LoginSuccessHandler;
 import kuchat.server.common.oauth.service.OAuth2Service;
+import kuchat.server.domain.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @Configuration
@@ -20,6 +22,7 @@ public class SecurityConfig {
     private final OAuth2Service oAuth2Service;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
     @Bean
@@ -32,18 +35,17 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)             // 세션을 사용하지 않으므로 disable (stateless)
                 )
                 .authorizeHttpRequests((authorize) -> authorize                             // 인증, 인가 설정 시 HttpServletRequest 를 사용한다는 의미
-//                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**",
-//                                "/swagger-ui/**", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
-//                        .requestMatchers("/oauth/login", "/member/signup", "/ws/message").permitAll()       // 인증 절차 없이 접근 가능해야 하는 페이지 모두 추가하기
-//                        .anyRequest().authenticated()           // 이 외에 모든 페이지는 인증된 사용자만 접근 가능
-                                .anyRequest().permitAll()
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**",
+                                "/swagger-ui/**", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/oauth/login", "/member/signup", "/ws/**", "/ws-connect").permitAll()       // 인증 절차 없이 접근 가능해야 하는 페이지 모두 추가하기
+                        .anyRequest().authenticated()           // 이 외에 모든 페이지는 인증된 사용자만 접근 가능
                 )
                 .oauth2Login(oauth2Login -> oauth2Login                                      // oauth2 로그인에 관한 다양한 기능 제공
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))            // oauth2 로그인 로직을 담당하는 service 등록
-                );
-//                .addFilterBefore(new JwtTokenFilter(memberService, secretKey), UsernamePasswordAuthenticationFilter.class)
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

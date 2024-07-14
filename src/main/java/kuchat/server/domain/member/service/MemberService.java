@@ -36,7 +36,7 @@ public class MemberService {
         member.updateInfo(signupRequest);
 
         // 엑세스 토큰, 리프레시 토큰 발급
-        String accessToken = jwtTokenService.generateAccessToken(member.getEmail());
+        String accessToken = jwtTokenService.generateSTUDENTAccessToken(member);
         String refreshToken = jwtTokenService.generateRefreshToken();
         member.updateRefreshToken(refreshToken);
 

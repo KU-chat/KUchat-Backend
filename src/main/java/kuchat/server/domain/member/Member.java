@@ -100,6 +100,8 @@ public class Member extends BaseTime {
 
     private String refreshToken;
 
+    private String aboutMe;         // 한줄 자기소개
+
     @Builder
     public Member(String email, Platform platform, String attributeName, String profileImage) {
         this.email = email;
@@ -133,6 +135,10 @@ public class Member extends BaseTime {
 
     public void deleteChatroom(ChatroomMember chatroomMember) {
         chatroomMembers.remove(chatroomMember);
+    }
+
+    public void setAboutMe(String aboutMe){
+        this.aboutMe = aboutMe;
     }
 
 }
