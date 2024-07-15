@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplyResponse {
+public class FriendResponse {
     private Long friendId;
     private String name;
     private String department;
@@ -22,7 +22,7 @@ public class ApplyResponse {
     private String profileImage;
     private LocalDateTime sentTime;
 
-    public ApplyResponse(Member member, LocalDateTime sentTime) {
+    public FriendResponse(Member member, LocalDateTime sentTime) {
         friendId = member.getId();
         name = member.getName();
         department = member.getDepartment();
@@ -32,5 +32,16 @@ public class ApplyResponse {
         hometown = member.getHometown();
         profileImage = member.getProfileImage();
         this.sentTime = sentTime;
+    }
+
+    public FriendResponse(Member member) {
+        friendId = member.getId();
+        name = member.getName();
+        department = member.getDepartment();
+        gender = member.getGender().toString();
+        age = member.getAge();
+        aboutMe = member.getAboutMe();
+        hometown = member.getHometown();
+        profileImage = member.getProfileImage();
     }
 }

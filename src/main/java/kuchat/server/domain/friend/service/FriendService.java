@@ -3,8 +3,8 @@ package kuchat.server.domain.friend.service;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.friend.Friend;
-import kuchat.server.domain.friend.dto.ApplyResponse;
-import kuchat.server.domain.friend.dto.ApplyResponses;
+import kuchat.server.domain.friend.dto.FriendResponse;
+import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.dto.FriendRequest;
 import kuchat.server.domain.friend.repository.FriendRepository;
 import kuchat.server.domain.member.Member;
@@ -14,13 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-import static kuchat.server.common.exception.BaseResponse.FRIEND_APPLY_LOOKUP_SUCCESS;
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_APPLY;
-import static kuchat.server.domain.enums.FriendType.PENDING;
+import static kuchat.server.common.exception.BaseResponse.*;
+import static kuchat.server.domain.enums.FriendType.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -55,35 +52,35 @@ public class FriendService {
         updateFriendship(member, receiver, savedFriend);
     }
 
-    public ApplyResponses getSentApply(Member member) {
+    public FriendResponses getSentApply(Member member) {
         log.info("[getSentApply] {} 가 보낸 친구 신청 목록 조회", member.getId());
         List<Friend> sentApply = friendRepository.findAllBySenderId(member.getId());        // 내가 보낸 친구신청 조회
         if (sentApply.isEmpty()) {
-            return new ApplyResponses(Collections.emptyList(), FRIEND_APPLY_LOOKUP_SUCCESS);
+            return new FriendResponses(Collections.emptyList(), FRIEND_APPLY_LOOKUP_SUCCESS);
         }
-        List<ApplyResponse> responses = sentApply.stream()
+        List<FriendResponse> responses = sentApply.stream()
                 .map(friend -> memberRepository.findById(friend.getReceiver().getId())
-                        .map(receiver -> new ApplyResponse(receiver, friend.getCreatedDate()))
+                        .map(receiver -> new FriendResponse(receiver, friend.getCreatedDate()))
                         .orElse(null))
                 .filter(Objects::nonNull)
                 .toList();
-        return new ApplyResponses(responses);
+        return new FriendResponses(responses);
     }
 
 
-    public ApplyResponses getReceivedApply(Member member) {
+    public FriendResponses getReceivedApply(Member member) {
         log.info("[getReceivedApply] {} 가 받은 친구 신청 목록 조회", member.getId());
         List<Friend> receiverApply = friendRepository.findAllByReceiverId(member.getId());        // 내가 받은 친구신청 조회
         if (receiverApply.isEmpty()) {
-            return new ApplyResponses(Collections.emptyList(), FRIEND_APPLY_LOOKUP_SUCCESS);
+            return new FriendResponses(Collections.emptyList(), FRIEND_APPLY_LOOKUP_SUCCESS);
         }
-        List<ApplyResponse> responses = receiverApply.stream()
+        List<FriendResponse> responses = receiverApply.stream()
                 .map(friend -> memberRepository.findById(friend.getSender().getId())
-                        .map(sender -> new ApplyResponse(sender, friend.getCreatedDate()))
+                        .map(sender -> new FriendResponse(sender, friend.getCreatedDate()))
                         .orElse(null))
                 .filter(Objects::nonNull)
                 .toList();
-        return new ApplyResponses(responses);
+        return new FriendResponses(responses);
     }
 
     @Transactional
@@ -109,4 +106,23 @@ public class FriendService {
         sender.addFriend(friend);
     }
 
+    public FriendResponses getFriendList(Member member, String friendName) {
+        log.info("[getFriendList] 이름에 '{}' 을 포함하는 친구 조회", friendName);
+        List<Friend> friendships = friendRepository.findAllByName(member.getId(), friendName);
+        List<FriendResponse> friendResponse = friendships.stream()
+                .map(friend -> friend.getSender().equals(member) ? friend.getReceiver() : friend.getSender())
+                .map(FriendResponse::new)
+                .toList();
+        return new FriendResponses(friendResponse);
+    }
+
+    public FriendResponse getFriendProfile(Member member, Long friendId) {
+        log.info("[getFriendProfile] id가 {} 인 친구의 프로필 조회", friendId);
+        if(friendRepository.findBlockedFriend(member.getId(), friendId).isPresent()){
+            throw new KuchatException(BLOCKED_MEMBER);
+        }
+        Member friend = memberRepository.findById(friendId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+        return new FriendResponse(friend);
+    }
 }

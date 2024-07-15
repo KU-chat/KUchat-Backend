@@ -14,11 +14,11 @@ import static kuchat.server.common.exception.BaseResponse.FRIEND_APPLY_LOOKUP_SU
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplyResponses {
-    private List<ApplyResponse> responses;
+public class FriendResponses {
+    private List<FriendResponse> responses;
     private BaseResponse baseResponse;
 
-    public ApplyResponses(List<ApplyResponse> responses) {
+    public FriendResponses(List<FriendResponse> responses) {
         this.responses = responses;
         baseResponse = FRIEND_APPLY_LOOKUP_SUCCESS;
     }

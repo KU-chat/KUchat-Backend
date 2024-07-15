@@ -65,6 +65,7 @@ public enum BaseResponse {
     FRIEND_SENDER_UNMATCH(6004, HttpStatus.BAD_REQUEST, "로그인된 사용자와 친구 요청을 보내는 사용자가 불일치합니다."),
     NOT_FOUND_PLUSID(6005, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
     NOT_FOUND_APPLY(6006, HttpStatus.NOT_FOUND, "해당 친구 신청이 존재하지 않습니다."),
+    BLOCKED_MEMBER(6007, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
 
     //- 7000번대 : 알림 관련 코드
 
