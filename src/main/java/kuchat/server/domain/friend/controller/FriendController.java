@@ -43,17 +43,17 @@ public class FriendController {
 
     @Operation(summary = "내가 보낸 친구 신청 목록 조회")
     @GetMapping("/sent-request")
-    public ResponseEntity<ApplyResponses> getSentApply(@AuthenticationPrincipal Member member){
+    public ResponseEntity<FriendResponses> getSentApply(@AuthenticationPrincipal Member member){
         log.info("[getSentApply] {} 가 보낸 친구 신청 목록 조회", member.getId());
-        ApplyResponses response = friendService.getSentApply(member);
+        FriendResponses response = friendService.getSentApply(member);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "내가 받은 친구 신청 목록 조회")
     @GetMapping("/received-request")
-    public ResponseEntity<ApplyResponses> getReceivedApply(@AuthenticationPrincipal Member member) {
+    public ResponseEntity<FriendResponses> getReceivedApply(@AuthenticationPrincipal Member member) {
         log.info("[getReceivedApply] {} 가 받은 친구 신청 목록 조회", member.getId());
-        ApplyResponses response = friendService.getReceivedApply(member);
+        FriendResponses response = friendService.getReceivedApply(member);
         return ResponseEntity.ok(response);
     }
 
@@ -75,4 +75,21 @@ public class FriendController {
         return ResponseEntity.ok(FRIEND_APPLY_REFUSE_SUCCESS);
     }
 
+    @Operation(summary = "친구 목록 조회 (이름 검색)")
+    @GetMapping("")
+    public ResponseEntity<FriendResponses> getFriendList(@AuthenticationPrincipal Member member,
+                                                         @RequestParam("name") String friendName){
+        log.info("[getFriendList] 친구 목록 검색 및 조회. 검색 문자열 = '{}'", friendName);
+        FriendResponses response = friendService.getFriendList(member, friendName);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "친구 프로필 조회")
+    @GetMapping("{id}/profile")
+    public ResponseEntity<FriendResponse> getFriendProfile(@AuthenticationPrincipal Member member,
+                                                           @PathVariable("id") Long friendId){
+        log.info("[getFriendProfile]");
+        FriendResponse response = friendService.getFriendProfile(member, friendId);
+        return ResponseEntity.ok(response);
+    }
 }

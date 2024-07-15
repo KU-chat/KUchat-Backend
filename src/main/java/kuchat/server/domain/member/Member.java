@@ -185,4 +185,5 @@ public class Member extends BaseTime {
             friends.add(friend);
         }
     }
+
 }
