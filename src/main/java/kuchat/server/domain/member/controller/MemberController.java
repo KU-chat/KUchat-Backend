@@ -3,10 +3,8 @@ package kuchat.server.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import kuchat.server.common.exception.BaseResponse;
-import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.jwt.JwtTokenService;
+import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
@@ -16,10 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Optional;
 
 @Slf4j
 @Tag(name = "Member", description = "회원")
@@ -29,8 +27,6 @@ import java.util.Optional;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtTokenService jwtTokenService;
-
 
     // 회원가입 처리하기
     @Operation(summary = "회원가입")
@@ -50,25 +46,18 @@ public class MemberController {
 
     @Operation(summary = "나의 프로필 조회")
     @GetMapping("/my-profile")
-    public ResponseEntity<ProfileResponse> getMyProfile(HttpServletRequest request){
+    public ResponseEntity<ProfileResponse> getMyProfile(@AuthenticationPrincipal Member member) {
         log.info("[getMyProfile] 나의 프로필 조회 요청");
-        String token = jwtTokenService.extractAccessToken(request)
-                .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_TOKEN));
-        Long memberId = jwtTokenService.extractMemberIdFromToken(token);
-        ProfileResponse response = memberService.getProfile(memberId);
+        ProfileResponse response = memberService.getProfile(member);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "나의 프로필 수정")
     @PatchMapping("/my-profile")
-    public ResponseEntity<Void> updateMyProfile(HttpServletRequest request, @RequestBody ProfileUpdateRequest requestBody){
+    public ResponseEntity<Void> updateMyProfile(@AuthenticationPrincipal Member member,
+                                                @RequestBody ProfileUpdateRequest requestBody) {
         log.info("[getMyProfile] 나의 프로필 수정 요청");
-        String token = jwtTokenService.extractAccessToken(request)
-                .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_TOKEN));
-        Long memberId = jwtTokenService.extractMemberIdFromToken(token);
-        memberService.updateProfile(memberId, requestBody);
-
+        memberService.updateProfile(member, requestBody);
         return ResponseEntity.ok().build();
     }
-
 }

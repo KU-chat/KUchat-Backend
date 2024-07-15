@@ -27,30 +27,44 @@ public enum BaseResponse {
     NOT_FOUND_LANGUAGE(3001, HttpStatus.NOT_FOUND, "존재하지 않는 언어입니다."),
     NOT_FOUND_MEMBER(3002, HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     INFO_BAD_REQUEST(3003, HttpStatus.BAD_REQUEST, "입력된 정보가 형식에 맞지 않습니다. 다시 입력해주세요."),
-    DUPLICATED_PLUS_ID(3004, HttpStatus.BAD_REQUEST, "plus id가 중복됩니다. 다른 문자열로 시도해주세요."),
+    DUPLICATED_PLUSID(3004, HttpStatus.BAD_REQUEST, "plus id가 중복됩니다. 다른 문자열로 시도해주세요."),
 
     //- 4000번대 : 채팅방(chatroom) 관련 코드
-    CHATROOM_SUCCESS(4000, HttpStatus.ACCEPTED, "채팅방 생성/수정 성공"),
-    NOT_FOUND_CHATROOM(4001, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
-    EXIT_CHATROOM_FAIL(4002, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),
-    MALFORMED_CHATROOM_ID(4003, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
-    DUPLICATED_JOIN(4004, HttpStatus.BAD_REQUEST, "이미 참여하고 있는 회원은 초대할 수 없습니다."),
-    EMPTY_CHATROOM(4005, HttpStatus.BAD_REQUEST, "채팅방 참여 인원이 없어 채팅방을 만들 수 없습니다."),
-    DUPLICATE_CHATROOM_NAME(4006, HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방 이름입니다. 다른 이름으로 시도해주세요."),
+    CHATROOM_CREATE_SUCCESS(4000, HttpStatus.ACCEPTED, "채팅방 생성 성공"),
+    CHATROOM_UPDATE_SUCCESS(4001, HttpStatus.ACCEPTED, "채팅방 수정 성공"),
+    CHATROOM_MAINTAIN_SUCCESS(4002, HttpStatus.OK, "채팅방 이름이 변경사항 없이 유지됩니다."),
+    CHATROOM_LIST_SUCCESS(4003, HttpStatus.ACCEPTED, "채팅방 목록 조회 성공"),
+    FIND_CHATROOM_MESSAGES_SUCCESS(4004, HttpStatus.ACCEPTED, "채팅방 최근 메세지들 조회 성공"),
+
+    NOT_FOUND_CHATROOM(4005, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
+    EXIT_CHATROOM_FAIL(4006, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),
+    MALFORMED_CHATROOM_ID(4007, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
+    DUPLICATED_JOIN(4008, HttpStatus.BAD_REQUEST, "이미 참여하고 있는 회원은 초대할 수 없습니다."),
+    EMPTY_CHATROOM(4009, HttpStatus.BAD_REQUEST, "채팅방 참여 인원이 없어 채팅방을 만들 수 없습니다."),
+    DUPLICATE_CHATROOM_NAME(4010, HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방 이름입니다. 다른 이름으로 시도해주세요."),
 
     //- 5000번대 : 메시지(message)/소켓 관련 코드
-    MESSAGE_SEND_SUCCESS(5000, HttpStatus.OK, "메세지 전송 성공"),
-    WEBSOCKET_CONNECTION_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버 접속에 실패했습니다."),
-    WEBSOCKET_CLOSE_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결 종료에 실패했습니다."),
-    CONVERT_TO_JSON_FAIL(5002, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 객체를 json 형태로 바꾸는데 실패했습니다"),
-    CONVERT_TO_OBJECT_FAIL(5003, HttpStatus.INTERNAL_SERVER_ERROR, "json을 메세지 객체 형태로 바꾸는데 실패했습니다"),
-    MESSAGE_SEND_FAIL(5004, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송해 실패했습니다."),
-    NOT_FOUND_MESSAGE(5005, HttpStatus.NOT_FOUND, "존재하지 않는 메세지입니다."),
-    MESSAGE_LENGTH_UNMATCH(5006, HttpStatus.BAD_REQUEST, "메세지의 payload 길이가 일치하지 않습니다."),
-    NOT_FOUND_SESSION(5007, HttpStatus.NOT_FOUND, "사용자의 웹소켓 세션이 존재하지 않습니다. 다시 연결을 시도해주세요."),
-    WEBSOCKET_DISCONNECT(5008, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결이 끊겼습니다. 다시 연결을 시도해주세요."),
+    MESSAGE_SEND_SUCCESS(5000, HttpStatus.OK, "메세지 전송 및 처리 성공"),
+    WEBSOCKET_CONNECTION_SUCCESS(5001, HttpStatus.OK, "웹소켓 연결 성공"),
+    WEBSOCKET_CONNECTION_FAIL(5002, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버 접속에 실패했습니다."),
+    WEBSOCKET_CLOSE_FAIL(5003, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결 종료에 실패했습니다."),
+    CONVERT_TO_JSON_FAIL(5004, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 객체를 json 형태로 바꾸는데 실패했습니다"),
+    CONVERT_TO_OBJECT_FAIL(5005, HttpStatus.INTERNAL_SERVER_ERROR, "json을 메세지 객체 형태로 바꾸는데 실패했습니다"),
+    MESSAGE_SEND_FAIL(5006, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송에 실패했습니다."),
+    NOT_FOUND_MESSAGE(5007, HttpStatus.NOT_FOUND, "존재하지 않는 메세지입니다."),
+    MESSAGE_LENGTH_UNMATCH(5008, HttpStatus.BAD_REQUEST, "메세지의 payload 길이가 일치하지 않습니다."),
+    NOT_FOUND_SESSION(5009, HttpStatus.NOT_FOUND, "사용자의 웹소켓 세션이 존재하지 않습니다. 다시 연결을 시도해주세요."),
+    WEBSOCKET_DISCONNECT(5010, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결이 끊겼습니다. 다시 연결을 시도해주세요."),
 
     //- 6000번대 : 친구 관련 코드
+    FRIEND_APPLY_SUCCESS(6000, HttpStatus.OK, "친구 신청 성공"),
+    FRIEND_ACCEPT_SUCCESS(6001, HttpStatus.CREATED, "친구 신청 수락 성공"),
+    FRIEND_APPLY_REFUSE_SUCCESS(6002, HttpStatus.OK, "친구 신청 거절 성공"),
+    FRIEND_APPLY_LOOKUP_SUCCESS(6003, HttpStatus.OK, "친구 신청 목록 조회 성공"),
+
+    FRIEND_SENDER_UNMATCH(6004, HttpStatus.BAD_REQUEST, "로그인된 사용자와 친구 요청을 보내는 사용자가 불일치합니다."),
+    NOT_FOUND_PLUSID(6005, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
+    NOT_FOUND_APPLY(6006, HttpStatus.NOT_FOUND, "해당 친구 신청이 존재하지 않습니다."),
 
     //- 7000번대 : 알림 관련 코드
 

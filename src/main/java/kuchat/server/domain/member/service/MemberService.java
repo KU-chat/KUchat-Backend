@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static kuchat.server.common.exception.BaseResponse.DUPLICATED_PLUS_ID;
+import static kuchat.server.common.exception.BaseResponse.DUPLICATED_PLUSID;
 import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
 
 @Slf4j
@@ -50,8 +50,8 @@ public class MemberService {
     }
 
     public boolean duplicateStudentId(String studentId) {
-        return memberRepository.findAllByStudentId(studentId)
-                .isPresent();
+        return !memberRepository.findAllByStudentId(studentId)
+                .isEmpty();
     }
 
     public Member findMemberByEmail(String email) {
@@ -66,24 +66,22 @@ public class MemberService {
                 .toList();
     }
 
-    public ProfileResponse getProfile(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    public ProfileResponse getProfile(Member member) {
         return new ProfileResponse(member);
     }
 
     @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateRequest request) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    public void updateProfile(Member member, ProfileUpdateRequest request) {
         validateAndUpdatePlusId(member, request.getPlusId());
         member.updateProfile(request);
     }
 
     private void validateAndUpdatePlusId(Member member, String plusId) {
         memberRepository.findAllByPlusIdWithLock(plusId)
+                .stream().findAny()
                 .ifPresentOrElse(
-                        presentMember -> {throw new KuchatException(DUPLICATED_PLUS_ID);},
-                        () -> {member.setPlusId(plusId);});
+                        duplicatedMember -> { throw new KuchatException(DUPLICATED_PLUSID); },
+                        () -> member.setPlusId(plusId)
+                );
     }
 }

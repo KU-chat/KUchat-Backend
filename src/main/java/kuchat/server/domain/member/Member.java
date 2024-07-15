@@ -6,15 +6,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import kuchat.server.domain.BaseTime;
-import kuchat.server.domain.blockMember.BlockMember;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.*;
-import kuchat.server.domain.friendship.Friendship;
+import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -83,11 +81,12 @@ public class Member extends BaseTime {
     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
     private Set<ChatroomMember> chatroomMembers = new HashSet<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
 
-    @OneToMany(mappedBy = "member")
-    private List<BlockMember> blockMembers = new ArrayList<>();         // 차단한 사람 목록
+//    @OneToMany(mappedBy = "member")
+//    private List<BlockMember> blockMembers = new ArrayList<>();         // 차단한 사람 목록
 
     @OneToMany(mappedBy = "friend")
-    private List<Friendship> friendships = new ArrayList<>();        // 친구목록
+    private Set<Friend> friends = new HashSet<>();        // 친구목록 : PENDING, FRIEND, BLOCKED, BLOCKED_BY 모든 관계의 친구를 포함한다.
+
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -173,4 +172,17 @@ public class Member extends BaseTime {
         aboutMe = request.getAboutMe();
     }
 
+    public void addFriend(Friend friend) {
+        Optional<Friend> optionalFriend = friends.stream()
+                .filter(foundFriend -> foundFriend.equals(friend))
+                .findFirst();
+        if (optionalFriend.isPresent()) {
+            Friend foundFriend = optionalFriend.get();
+            friends.remove(foundFriend);         // 기존 객체 제거
+            foundFriend.setFriendType(friend.getFriendType());  // friendType 수정
+            friends.add(foundFriend);            // 수정된 객체 추가
+        } else {
+            friends.add(friend);
+        }
+    }
 }
