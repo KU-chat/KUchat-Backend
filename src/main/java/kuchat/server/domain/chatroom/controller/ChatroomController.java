@@ -2,6 +2,7 @@ package kuchat.server.domain.chatroom.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.dto.ChatroomResponse;
@@ -20,7 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-import static kuchat.server.common.exception.BaseResponse.EMPTY_CHATROOM;
+import static kuchat.server.common.exception.BaseResponse.*;
 
 @Slf4j
 @Tag(name = "Chatroom", description = "채팅방")
@@ -62,16 +63,16 @@ public class ChatroomController {
 
     @Operation(summary = "채팅방 이름 변경 (단체 톡방만 가능)")
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateName(@PathVariable("id") Long chatroomId,
-                                           @RequestBody UpdateChatroomRequest request) {
+    public ResponseEntity<BaseResponse> updateName(@PathVariable("id") Long chatroomId,
+                                                   @RequestBody UpdateChatroomRequest request) {
         String newName = request.getNewName();
         log.info("[updateName] 채팅방 번호 = {}, 바꿀 이름 = {}", chatroomId, newName);
         if (newName == null) {
             log.info("[updateName] 이름 안바꿉니다~~");
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(CHATROOM_MAINTAIN_SUCCESS);
         }
         chatroomService.updateName(chatroomId, request.getNewName());
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.ok(CHATROOM_UPDATE_SUCCESS);
     }
 
     @Operation(summary = "채팅 화면으로 들어가기 (최근 20개 톡 가져오기)")
@@ -81,6 +82,7 @@ public class ChatroomController {
         Chatroom chatroom = chatroomService.getChatroom(chatroomId);
         EnterChatroomResponse response = messageService.enter(chatroom);        // 최근 20개 톡 가져오기
         response.setMemberInfos(memberService.findMembersByChatroomId(chatroom));
+        response.setBaseResponse(CHATROOM_LIST_SUCCESS);
         return ResponseEntity.ok().body(response);
     }
 

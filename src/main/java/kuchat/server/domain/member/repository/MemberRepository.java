@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -19,12 +20,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             "where m.platform=:platform and m.attributeName=:attributeName")
     Optional<Member> findByPlatformAndAttributeName(@Param("platform") Platform platform, @Param("attributeName") String attributeName);
 
-    Optional<Member> findAllByStudentId(String studentId);
+    List<Member> findAllByStudentId(String studentId);
 
     Optional<Member> findByEmail(String email);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select m from Member m " +
             "where m.plusId=:plusId")
-    Optional<Member> findAllByPlusIdWithLock(@Param("plus_id") String plusId);
+    List<Member> findAllByPlusIdWithLock(@Param("plus_id") String plusId);
+
+    @Query("select m from Member m where m.plusId = :plusId")
+    Optional<Member> findByPlusId(@Param("plusId") String plusId);
 }

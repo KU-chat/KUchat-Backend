@@ -51,7 +51,7 @@ public class ChatroomService {
                         .build());
         log.info("[createChatroom] 생성된 채팅방 id = {}, name = {}", chatroom.getId(), chatroom.getName());
         join(chatroom.getId(), request.getMemberIds());
-        return new ChatroomResponse(chatroom.getId());
+        return new ChatroomResponse(chatroom.getId(), CHATROOM_CREATE_SUCCESS);
     }
 
 
@@ -61,7 +61,7 @@ public class ChatroomService {
         List<FindChatroomResponse> findChatroomResponse = chatrooms.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
-        return new FindChatroomsResponse(findChatroomResponse);
+        return new FindChatroomsResponse(findChatroomResponse, CHATROOM_LIST_SUCCESS);
     }
 
 
