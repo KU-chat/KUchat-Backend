@@ -5,12 +5,16 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
+import kuchat.server.domain.relation.block.Block;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.*;
 import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
+import kuchat.server.domain.relation.sentRequest.SentRequest;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,12 +85,17 @@ public class Member extends BaseTime {
     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
     private Set<ChatroomMember> chatroomMembers = new HashSet<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
 
-//    @OneToMany(mappedBy = "member")
-//    private List<BlockMember> blockMembers = new ArrayList<>();         // 차단한 사람 목록
-
     @OneToMany(mappedBy = "friend")
-    private Set<Friend> friends = new HashSet<>();        // 친구목록 : PENDING, FRIEND, BLOCKED, BLOCKED_BY 모든 관계의 친구를 포함한다.
+    private Set<Friend> friends = new HashSet<>();
 
+    @OneToMany(mappedBy = "blocker")
+    private Set<Block> blocks = new HashSet<>();         // 차단한 사람 목록
+
+    @OneToMany(mappedBy = "sender")
+    private Set<SentRequest> sentRequests = new HashSet<>();
+
+    @OneToMany(mappedBy = "receiver")
+    private Set<SentRequest> receivedRequests = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -172,18 +181,15 @@ public class Member extends BaseTime {
         aboutMe = request.getAboutMe();
     }
 
-    public void addFriend(Friend friend) {
+    public boolean addFriend(Friend friend) {
         Optional<Friend> optionalFriend = friends.stream()
                 .filter(foundFriend -> foundFriend.equals(friend))
                 .findFirst();
-        if (optionalFriend.isPresent()) {
-            Friend foundFriend = optionalFriend.get();
-            friends.remove(foundFriend);         // 기존 객체 제거
-            foundFriend.setFriendType(friend.getFriendType());  // friendType 수정
-            friends.add(foundFriend);            // 수정된 객체 추가
-        } else {
-            friends.add(friend);
+        if(optionalFriend.isPresent()) {
+            throw new KuchatException(BaseResponse.ALREADY_FRIEND);
         }
+        friends.add(friend);
+        return true;
     }
 
 }
