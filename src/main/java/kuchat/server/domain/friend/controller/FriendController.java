@@ -2,7 +2,6 @@ package kuchat.server.domain.friend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import kuchat.server.common.exception.BaseResponse;
-import kuchat.server.domain.friend.dto.FriendRequest;
 import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.service.FriendService;
@@ -25,11 +24,11 @@ public class FriendController {
     private final FriendService friendService;
 
     @Operation(summary = "친구 프로필에서 친구 신청 보내기")
-    @PostMapping("")
+    @PostMapping("/{id}")
     public ResponseEntity<BaseResponse> addFriend(@AuthenticationPrincipal Member member,
-                                                  @RequestBody FriendRequest request) {
-        log.info("[applyFriend] 친구 신청 요청 = {}", request.toString());
-        friendService.addFriend(member, request);
+                                                  @PathVariable("id") Long friendId) {
+        log.info("[applyFriend] id = {} 인 사용자를 친구로 추가", friendId);
+        friendService.addFriend(member, friendId);
         return ResponseEntity.ok(FRIEND_APPLY_SUCCESS);
     }
 
