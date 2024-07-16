@@ -69,7 +69,7 @@ public enum BaseResponse {
     ALREADY_APPLY(6006, HttpStatus.BAD_REQUEST, "사용자 둘 중 한명이 이미 요청을 보낸 관계입니다."),
     NOT_FOUND_FRIEND(6007, HttpStatus.NOT_FOUND, "둘은 친구가 아니었습니다~~"),
     NOT_FOUND_PLUSID(6007, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
-    NOT_FOUND_APPLY(6008, HttpStatus.NOT_FOUND, "존재하지 않는 친구 신청입니다."),
+    NOT_FOUND_BLOCK(6008, HttpStatus.NOT_FOUND, "해당 사용자들 사이에 차단 관계가 존재하지 않습니다."),
     BLOCKED_MEMBER(6009, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
     ALREADY_FRIEND(6010, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
 

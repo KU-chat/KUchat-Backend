@@ -5,11 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
-
-@Getter @ToString
+@Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class FriendRequest {
-    private Long receiverId;
+    private Long friendId;
 }

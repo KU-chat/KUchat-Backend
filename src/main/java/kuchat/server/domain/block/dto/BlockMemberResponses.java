@@ -1,4 +1,4 @@
-package kuchat.server.domain.relation.block.dto;
+package kuchat.server.domain.block.dto;
 
 import kuchat.server.common.exception.BaseResponse;
 import lombok.AllArgsConstructor;
