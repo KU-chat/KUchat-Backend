@@ -8,7 +8,8 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@Getter @ToString
+@Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class FriendResponse {

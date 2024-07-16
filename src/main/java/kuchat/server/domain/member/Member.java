@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
-import kuchat.server.domain.relation.block.Block;
+import kuchat.server.domain.block.Block;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.*;
 import kuchat.server.domain.friend.Friend;
@@ -85,21 +85,11 @@ public class Member extends BaseTime {
     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
     private Set<ChatroomMember> chatroomMembers = new HashSet<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
 
-    @OneToMany(mappedBy = "friend")
-    private Set<Friend> friends = new HashSet<>();
+    @OneToMany(mappedBy = "follower")               // Member가 follower인 Friend 객체들의 집합
+    private Set<Friend> friends = new HashSet<>();      // 내가 팔로우한 사용자들 (= 내 친구들)
 
-    @OneToMany(mappedBy = "receiver")
-    private Set<Block> blockedBy = new HashSet<>();
-
-    @OneToMany(mappedBy = "sender")
+    @OneToMany(mappedBy = "blocker")            // Member가 blocker인 Block 객체들의 집합
     private Set<Block> blocks = new HashSet<>();  // 내가 차단한 사람들의 목록 (sender가 나 자신인 Block 객체들의 모음)
-
-    @OneToMany(mappedBy = "sender")
-    private Set<Apply> sentApplies = new HashSet<>();  // 내가 보낸 친구 신청들
-
-    @OneToMany(mappedBy = "receiver")
-    private Set<Apply> receivedApplies = new HashSet<>();  // 내가 받은 친구 신청들
-
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -186,10 +176,7 @@ public class Member extends BaseTime {
     }
 
     public boolean addFriend(Friend friend) {
-        Optional<Friend> optionalFriend = friends.stream()
-                .filter(foundFriend -> foundFriend.equals(friend))
-                .findFirst();
-        if(optionalFriend.isPresent()) {
+        if(containsFriend(friend.getFollowed())) {
             throw new KuchatException(BaseResponse.ALREADY_FRIEND);
         }
         friends.add(friend);
@@ -200,15 +187,20 @@ public class Member extends BaseTime {
         return blocks.contains(friend);
     }
 
-    public void deleteSentApply(Apply apply) {
-        sentApplies.remove(apply);
-    }
-
-    public void deleteReceivedApply(Apply apply) {
-        receivedApplies.remove(apply);
-    }
-
     public void deleteFriend(Friend friend) {
         friends.remove(friend);
+    }
+
+    public void addBlock(Block block) {
+        blocks.add(block);
+    }
+
+    public boolean containsFriend(Member friend) {
+        return friends.stream()
+                .anyMatch(f -> Objects.equals(f.getFollowed(), friend));
+    }
+
+    public void deleteBlock(Block block) {
+        blocks.remove(block);
     }
 }
