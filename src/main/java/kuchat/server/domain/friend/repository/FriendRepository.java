@@ -1,6 +1,7 @@
 package kuchat.server.domain.friend.repository;
 
 import kuchat.server.domain.friend.Friend;
+import kuchat.server.domain.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,26 +14,21 @@ import java.util.Optional;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     @Query("select f from Friend f " +
-            "where f.sender.id = :id and f.friendType = 'PENDING'")
-    List<Friend> findAllBySenderId(@Param("id") Long id);
+            "where f.member1.id = :id or f.member2.id = :id")
+    List<Friend> findAllByMemberId(@Param("id") Long id);
 
     @Query("select f from Friend f " +
-            "where f.receiver.id = :id and f.friendType = 'PENDING'")
-    List<Friend> findAllByReceiverId(Long id);
+            "where (f.member1.id = :id1 and f.member2.id = :id2) or " +
+            "(f.member1.id = :id2 and f.member2.id = :id1)")
+    Optional<Friend> findByMemberIds(Long id1, Long id2);
 
     @Query("select f from Friend f " +
-            "where f.friendType = 'PENDING' " +
-            "and f.sender.id = :senderId and f.receiver.id = :id")
-    Optional<Friend> findBySenderIdAndReceiverId(@Param("senderId")Long senderId, @Param("id")Long id);
+            "where ((f.member1 = :member and f.member2.name like %:name%) or " +
+            "(f.member2 = :member and f.member1.name like %:name%))")
+    List<Friend> findAllByName(@Param("member")Member member, @Param("name") String name);       // member 의 친구들 검색
 
     @Query("select f from Friend f " +
-            "where f.friendType = 'FRIEND' and " +
-            "((f.sender.id = :id and f.receiver.name like %:name%) or " +
-            "(f.receiver.id = :id and f.sender.name like %:name%))")
-    List<Friend> findAllByName(@Param("id") Long id, @Param("name") String name);
-
-    @Query("select f from Friend f " +
-            "where ((f.friendType = 'BLOCKED') or (f.friendType = 'BLOCKED_BY'))" +
-            "and ((f.sender.id = :id and f.receiver.id = :friendId) or (f.sender.id = :friendId and f.receiver.id = :id))")
-    Optional<Friend> findBlockedFriend(@Param("id") Long id, @Param("friendId") Long friendId);
+            "where (f.member1 = :m1 and f.member2 = :m2) or " +
+            "(f.member1 = :m2 and f.member2 = :m1)")
+    Optional<Friend> findByMembers(@Param("m1") Member member1, @Param("m2") Member member2);
 }

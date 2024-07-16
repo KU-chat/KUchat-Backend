@@ -11,6 +11,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FriendRequest {
-    private Long senderId;
     private Long receiverId;
 }
