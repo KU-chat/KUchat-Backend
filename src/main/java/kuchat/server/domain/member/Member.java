@@ -14,7 +14,7 @@ import kuchat.server.domain.enums.*;
 import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
-import kuchat.server.domain.relation.sentRequest.SentRequest;
+import kuchat.server.domain.relation.apply.Apply;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,14 +88,18 @@ public class Member extends BaseTime {
     @OneToMany(mappedBy = "friend")
     private Set<Friend> friends = new HashSet<>();
 
-    @OneToMany(mappedBy = "blocker")
-    private Set<Block> blocks = new HashSet<>();         // 차단한 사람 목록
+    @OneToMany(mappedBy = "receiver")
+    private Set<Block> blockedBy = new HashSet<>();
 
     @OneToMany(mappedBy = "sender")
-    private Set<SentRequest> sentRequests = new HashSet<>();
+    private Set<Block> blocks = new HashSet<>();  // 내가 차단한 사람들의 목록 (sender가 나 자신인 Block 객체들의 모음)
+
+    @OneToMany(mappedBy = "sender")
+    private Set<Apply> sentApplies = new HashSet<>();  // 내가 보낸 친구 신청들
 
     @OneToMany(mappedBy = "receiver")
-    private Set<SentRequest> receivedRequests = new HashSet<>();
+    private Set<Apply> receivedApplies = new HashSet<>();  // 내가 받은 친구 신청들
+
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -192,4 +196,19 @@ public class Member extends BaseTime {
         return true;
     }
 
+    public boolean block(Member friend) {
+        return blocks.contains(friend);
+    }
+
+    public void deleteSentApply(Apply apply) {
+        sentApplies.remove(apply);
+    }
+
+    public void deleteReceivedApply(Apply apply) {
+        receivedApplies.remove(apply);
+    }
+
+    public void deleteFriend(Friend friend) {
+        friends.remove(friend);
+    }
 }
