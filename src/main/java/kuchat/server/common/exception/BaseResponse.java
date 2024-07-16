@@ -61,11 +61,14 @@ public enum BaseResponse {
     FRIEND_ACCEPT_SUCCESS(6001, HttpStatus.CREATED, "친구 신청 수락 성공"),
     FRIEND_APPLY_REFUSE_SUCCESS(6002, HttpStatus.OK, "친구 신청 거절 성공"),
     FRIEND_APPLY_LOOKUP_SUCCESS(6003, HttpStatus.OK, "친구 신청 목록 조회 성공"),
+    BLOCK_MEMBER_SUCCESS(6004, HttpStatus.OK, "사용자 차단 성공"),
+    DELETE_BLOCK_SUCCESS(6005, HttpStatus.OK, "차단 해제 성공"),
 
-    FRIEND_SENDER_UNMATCH(6004, HttpStatus.BAD_REQUEST, "로그인된 사용자와 친구 요청을 보내는 사용자가 불일치합니다."),
-    NOT_FOUND_PLUSID(6005, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
-    NOT_FOUND_APPLY(6006, HttpStatus.NOT_FOUND, "해당 친구 신청이 존재하지 않습니다."),
-    BLOCKED_MEMBER(6007, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
+    FRIEND_SENDER_UNMATCH(6006, HttpStatus.BAD_REQUEST, "로그인된 사용자와 친구 요청을 보내는 사용자가 불일치합니다."),
+    NOT_FOUND_PLUSID(6007, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
+    NOT_FOUND_APPLY(6008, HttpStatus.NOT_FOUND, "해당 친구 신청이 존재하지 않습니다."),
+    BLOCKED_MEMBER(6009, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
+    ALREADY_FRIEND(6010, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
 
     //- 7000번대 : 알림 관련 코드
 

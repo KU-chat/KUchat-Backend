@@ -3,9 +3,9 @@ package kuchat.server.domain.friend.service;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.friend.Friend;
-import kuchat.server.domain.friend.dto.FriendResponse;
-import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.dto.FriendRequest;
+import kuchat.server.domain.friend.dto.FriendResponses;
+import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.friend.repository.FriendRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
@@ -102,8 +102,9 @@ public class FriendService {
     }
 
     private void updateFriendship(Member sender, Member receiver, Friend friend) {
-        receiver.addFriend(friend);
+        receiver.addFriend(friend).isPresent(removedFriend -> friendRepository.delete(removedFriend));
         sender.addFriend(friend);
+
     }
 
     public FriendResponses getFriendList(Member member, String friendName) {
@@ -124,5 +125,10 @@ public class FriendService {
         Member friend = memberRepository.findById(friendId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
         return new FriendResponse(friend);
+    }
+
+    public void block(Member member, Long friendId) {
+        log.info("[block] {} 번 사용자가 {} 번 사용자를 차단함.", member.getId(), friendId);
+        new Friend();
     }
 }
