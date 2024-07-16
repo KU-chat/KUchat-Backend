@@ -3,7 +3,6 @@ package kuchat.server.domain.friend.service;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.friend.Friend;
-import kuchat.server.domain.friend.dto.FriendRequest;
 import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.repository.FriendRepository;
@@ -29,9 +28,9 @@ public class FriendService {
     private final FriendRepository friendRepository;
 
     @Transactional
-    public void addFriend(Member member, FriendRequest request) {
-        log.info("[addFriend] member = {} 가 receiver id = {} 를 친구로 추가함", member.getId(), request.getFriendId());
-        Member friendMember = memberRepository.findById(request.getFriendId())
+    public void addFriend(Member member, Long friendId) {
+        log.info("[addFriend] member = {} 가 receiver id = {} 를 친구로 추가함", member.getId(), friendId);
+        Member friendMember = memberRepository.findById(friendId)
                 .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_MEMBER));
         Friend newFriend = Friend.builder()
                 .follower(member)

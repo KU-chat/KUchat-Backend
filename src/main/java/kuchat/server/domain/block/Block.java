@@ -3,7 +3,6 @@ package kuchat.server.domain.block;
 import jakarta.persistence.*;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.relation.UnidirectRelation;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

@@ -14,7 +14,6 @@ import kuchat.server.domain.enums.*;
 import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
-import kuchat.server.domain.relation.apply.Apply;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,14 +80,14 @@ public class Member extends BaseTime {
 
     private String profileImage;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
     private Set<ChatroomMember> chatroomMembers = new HashSet<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
 
-    @OneToMany(mappedBy = "follower")               // Member가 follower인 Friend 객체들의 집합
+    @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)               // Member가 follower인 Friend 객체들의 집합
     private Set<Friend> friends = new HashSet<>();      // 내가 팔로우한 사용자들 (= 내 친구들)
 
-    @OneToMany(mappedBy = "blocker")            // Member가 blocker인 Block 객체들의 집합
+    @OneToMany(mappedBy = "blocker", fetch = FetchType.LAZY, cascade = CascadeType.ALL)            // Member가 blocker인 Block 객체들의 집합
     private Set<Block> blocks = new HashSet<>();  // 내가 차단한 사람들의 목록 (sender가 나 자신인 Block 객체들의 모음)
 
     @Enumerated(EnumType.STRING)
