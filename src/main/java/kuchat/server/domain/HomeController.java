@@ -1,6 +1,6 @@
-package kuchat.server.common;
+package kuchat.server.domain;
 
-import kuchat.server.domain.jwt.JwtTokenService;
+import kuchat.server.common.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

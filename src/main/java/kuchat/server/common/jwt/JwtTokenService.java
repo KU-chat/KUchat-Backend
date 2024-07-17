@@ -1,4 +1,4 @@
-package kuchat.server.domain.jwt;
+package kuchat.server.common.jwt;
 
 
 import io.jsonwebtoken.*;
@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -22,7 +22,7 @@ import static kuchat.server.common.exception.BaseResponse.*;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
+@Service
 public class JwtTokenService {
 
     private static final String ACCESS_TOKEN_SUBJECT = "access_token";
@@ -65,7 +65,7 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public String generateSTUDENTAccessToken(Member member){
+    public String generateSTUDENTAccessToken(Member member) {
         final Claims claims = Jwts.claims();        // claims = jwt token에 들어갈 정보, claim에 email을 넣어줘야 회원 식별 가능
         claims.put("role", "ROLE_STUDENT");
         claims.put("memberId", member.getId());
@@ -94,8 +94,8 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public boolean validateToken(String accessToken){
-        try{
+    public boolean validateToken(String accessToken) {
+        try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(accessToken);
             return true;
         } catch (SignatureException e) {
@@ -169,7 +169,7 @@ public class JwtTokenService {
     }
 
     public Long extractMemberIdFromToken(String token) {
-        try{
+        try {
             Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
             return claims.get("memberId", Long.class);
         } catch (SignatureException e) {
@@ -181,7 +181,7 @@ public class JwtTokenService {
         }
     }
 
-    public Member getMember(Long memberId){
+    public Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }

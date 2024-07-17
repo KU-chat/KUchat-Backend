@@ -1,4 +1,4 @@
-package kuchat.server.domain.jwt;
+package kuchat.server.common.jwt;
 
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;

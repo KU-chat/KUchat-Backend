@@ -21,7 +21,9 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Entity
@@ -87,7 +89,8 @@ public class Member extends BaseTime {
     @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)               // Member가 follower인 Friend 객체들의 집합
     private Set<Friend> friends = new HashSet<>();      // 내가 팔로우한 사용자들 (= 내 친구들)
 
-    @OneToMany(mappedBy = "blocker", fetch = FetchType.LAZY, cascade = CascadeType.ALL)            // Member가 blocker인 Block 객체들의 집합
+    @OneToMany(mappedBy = "blocker", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    // Member가 blocker인 Block 객체들의 집합
     private Set<Block> blocks = new HashSet<>();  // 내가 차단한 사람들의 목록 (sender가 나 자신인 Block 객체들의 모음)
 
     @Enumerated(EnumType.STRING)
@@ -143,11 +146,11 @@ public class Member extends BaseTime {
         chatroomMembers.remove(chatroomMember);
     }
 
-    public void setAboutMe(String aboutMe){
+    public void setAboutMe(String aboutMe) {
         this.aboutMe = aboutMe;
     }
 
-    public String generatePlusId(int length){
+    public String generatePlusId(int length) {
         String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom secureRandom = new SecureRandom();
         StringBuilder stringBuilder = new StringBuilder();
@@ -175,7 +178,7 @@ public class Member extends BaseTime {
     }
 
     public boolean addFriend(Friend friend) {
-        if(containsFriend(friend.getFollowed())) {
+        if (containsFriend(friend.getFollowed())) {
             throw new KuchatException(BaseResponse.ALREADY_FRIEND);
         }
         friends.add(friend);

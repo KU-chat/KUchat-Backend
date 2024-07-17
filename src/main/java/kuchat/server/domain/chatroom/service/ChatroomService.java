@@ -143,5 +143,4 @@ public class ChatroomService {
         chatroomRepository.delete(chatroom);
     }
 
-
 }

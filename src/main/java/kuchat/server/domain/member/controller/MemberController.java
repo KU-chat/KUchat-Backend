@@ -3,7 +3,6 @@ package kuchat.server.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.domain.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;

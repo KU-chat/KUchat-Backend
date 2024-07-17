@@ -10,7 +10,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.oauth.CustomOAuth2User;
 import kuchat.server.common.oauth.dto.TokenResponse;
 import kuchat.server.domain.enums.Role;
-import kuchat.server.domain.jwt.JwtTokenService;
+import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

@@ -25,9 +25,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select m from Member m " +
-            "where m.plusId=:plusId")
-    List<Member> findAllByPlusIdWithLock(@Param("plus_id") String plusId);
+    @Query("select m from Member m where m.plusId = :plusId")
+    List<Member> findAllByPlusIdWithLock(@Param("plusId") String plusId);
 
     @Query("select m from Member m where m.plusId = :plusId")
     Optional<Member> findByPlusId(@Param("plusId") String plusId);

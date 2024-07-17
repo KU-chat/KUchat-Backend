@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -86,7 +87,7 @@ public class ChatMessage {
                         break;
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new KuchatException(BaseResponse.CONVERT_TO_OBJECT_FAIL);
         }
     }

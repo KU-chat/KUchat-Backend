@@ -4,7 +4,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.Platform;
-import kuchat.server.domain.jwt.JwtTokenService;
+import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
