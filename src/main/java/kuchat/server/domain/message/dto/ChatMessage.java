@@ -33,22 +33,22 @@ public class ChatMessage {
         this.parentId = null;
     }
 
-    public ChatMessage(Message message) {
-        this.chatroomId = message.getMessageId();
-        this.messageType = message.getMessageType();
-        this.senderId = message.getSenderId();
-        this.text = message.getText();
-        this.parentId = ((message.getParent()) != null) ? message.getParent().getMessageId() : null;
-    }
+//    public ChatMessage(Message message) {
+//        this.chatroomId = message.getMessageId();
+//        this.messageType = message.getMessageType();
+//        this.senderId = message.getSenderId();
+//        this.text = message.getText();
+//        this.parentId = ((message.getParent()) != null) ? message.getParent().getMessageId() : null;
+//    }
 
 
-    public ChatMessage(ChatroomJoinRequest joinMessage) {
-        this.chatroomId = joinMessage.getChatroomId();
-        this.messageType = joinMessage.getMessageType();
-        this.senderId = joinMessage.getSenderId();
-        this.text = joinMessage.getText();
-        this.parentId = joinMessage.getParentId();
-    }
+//    public ChatMessage(ChatroomJoinRequest joinMessage) {
+//        this.chatroomId = joinMessage.getChatroomId();
+//        this.messageType = joinMessage.getMessageType();
+//        this.senderId = joinMessage.getSenderId();
+//        this.text = joinMessage.getText();
+//        this.parentId = joinMessage.getParentId();
+//    }
 
     public ChatMessage(String publishMessage) {
         // ChatMessage(chatroomId=1, messageType=JOIN, senderId=-1, text=이영선 님이 입장했습니다., parentId=null)

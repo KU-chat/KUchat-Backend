@@ -17,18 +17,39 @@ public class MessageResponse {
     private Long chatroomId;
     private MessageType messageType;
     private Long senderId;
+    private String senderName;
+    private String senderImage;
     private String text;
     private Long parentId;
     private LocalDateTime createdDate;
 
-    public MessageResponse(Message message) {
+    @Builder
+    public MessageResponse(Message message, String senderName, String senderImage) {
         this.messageId = message.getMessageId();
         this.chatroomId = message.getMessageId();
         this.messageType = message.getMessageType();
         this.senderId = message.getSenderId();
+        this.senderName = senderName;
+        this.senderImage = senderImage;
         this.text = message.getText();
         this.parentId = ((message.getParent()) != null) ? message.getParent().getMessageId() : null;
         this.createdDate = message.getCreatedDate();
+    }
+
+    public static MessageResponse serverNotice(Message message) {
+        return MessageResponse.builder()
+                .message(message)
+                .senderName(null)
+                .senderImage(null)
+                .build();
+
+//        this.messageId = message.getMessageId();
+//        this.chatroomId = message.getMessageId();
+//        this.messageType = message.getMessageType();
+//        this.senderId = message.getSenderId();
+//        this.text = message.getText();
+//        this.parentId = null;
+//        this.createdDate = message.getCreatedDate();
     }
 
 }

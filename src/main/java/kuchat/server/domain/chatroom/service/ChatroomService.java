@@ -12,6 +12,7 @@ import kuchat.server.domain.chatroom.repository.ChatroomMemberRepository;
 import kuchat.server.domain.chatroom.repository.ChatroomRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
+import kuchat.server.domain.message.dto.MessageResponse;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +35,7 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
     private final ChatroomMemberRepository chatroomMemberRepository;
     private final MemberRepository memberRepository;
-
     private final MessageService messageService;
-    private final RedisService redisService;
 
 
     @Transactional
@@ -87,20 +86,23 @@ public class ChatroomService {
     }
 
     @Transactional
-    public void join(Long chatroomId, List<Long> memberIds) {
+    public MessageResponse join(Long chatroomId, List<Long> memberIds) {
         Chatroom chatroom = getChatroom(chatroomId);
+        List<ChatroomMember> chatroomMembers = new ArrayList<>();
         List<Member> joinMembers = memberRepository.findAllById(memberIds);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
         if (memberIds.size() != joinMembers.size()) {
             throw new KuchatException(NOT_FOUND_MEMBER);
         }
-        List<ChatroomMember> chatroomMembers = new ArrayList<>();
-
         for (Member member : joinMembers) {
             ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
             chatroomMembers.add(chatroomMember);
             member.addChatroom(chatroomMember);
             chatroom.addMember(chatroomMember);
         }
+        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}]", chatroom.getChatroomMembers().stream()
+                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
+                .collect(Collectors.joining(", "))
+        );
 
         try {
             chatroomMemberRepository.saveAll(chatroomMembers);      // for문 안에서 한개씩 저장하는 대신 arraylist를 한번에 저장
@@ -108,23 +110,15 @@ public class ChatroomService {
             throw new KuchatException(DB_SAVE_FAIL);
         }
 
-        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}]", chatroom.getChatroomMembers().stream()
-                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
-                .collect(Collectors.joining(", "))
-        );
-
-        String topic = "/sub/chatroom/" + chatroomId;
-        messageService.sendJoinMessage(joinMembers, chatroom, topic);
+        return messageService.createJoinMessage(joinMembers, chatroom);
     }
 
     @Transactional
-    public void leave(Long chatroomId, Long memberId) {
+    public MessageResponse leave(Long chatroomId, Long memberId) {
         Chatroom chatroom = getChatroom(chatroomId);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-        String topic = "/sub/chatroom/" + chatroom.getId();
-        messageService.sendLeaveMessage(member, chatroom, topic);
-
+        MessageResponse leaveMessage = messageService.createLeaveMessage(member, chatroom);
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
         int memberNum = chatroom.deleteMember(chatroomMember);
         member.deleteChatroom(chatroomMember);
@@ -134,6 +128,7 @@ public class ChatroomService {
             delete(chatroom);
         }
         chatroomMemberRepository.delete(chatroomMember);
+        return leaveMessage;
     }
 
     @Transactional
