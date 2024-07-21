@@ -29,10 +29,10 @@ public class BlockService {
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
 
-    public void block(Member member, Long blockMemberId) {
-        log.info("[block] {} 번 사용자가 {} 번 사용자를 차단함.", member.getId(), blockMemberId);
-        Member blocked = memberRepository.findById(blockMemberId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    public void block(Long memberId, Long blockMemberId) {
+        log.info("[block] {} 번 사용자가 {} 번 사용자를 차단함.", memberId, blockMemberId);
+        Member member = getMember(memberId);
+        Member blocked = getMember(blockMemberId);
 
         deleteFriend(member, blocked);          // member 가 blocked 를 팔로우한 경우, 제거
         deleteFriend(blocked, member);          // blocked 가 member 를 팔로우한 경우, 제거
@@ -53,22 +53,28 @@ public class BlockService {
                 );
     }
 
-    public void release(Member member, Long releaseMemberId) {
-        log.info("[release] {} 번 사용자가 차단한 {} 번 사용자를 차단 해제함.", member.getId(), releaseMemberId);
-        Member released = memberRepository.findById(releaseMemberId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    public void release(Long memberId, Long releaseMemberId) {
+        log.info("[release] {} 번 사용자가 차단한 {} 번 사용자를 차단 해제함.", memberId, releaseMemberId);
+        Member member = getMember(memberId);
+        Member released = getMember(releaseMemberId);
         Block block = blockRepository.findByMembers(member, released)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_BLOCK));
         member.deleteBlock(block);
         blockRepository.delete(block);
     }
 
-    public BlockMemberResponses getblocks(Member member) {
-        log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", member.getId());
+    public BlockMemberResponses getblocks(Long memberId) {
+        log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", memberId);
+        Member member = getMember(memberId);
         List<BlockMemberResponse> responses = member.getBlocks().stream()
                 .map(Block::getBlocked)
                 .map(BlockMemberResponse::new)
                 .toList();
         return new BlockMemberResponses(responses);
+    }
+
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 }

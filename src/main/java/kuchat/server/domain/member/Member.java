@@ -25,12 +25,12 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+@ToString
 @Slf4j
 @Entity
 @Table(name = "member")
 @Getter
 @NoArgsConstructor
-@ToString
 public class Member extends BaseTime {
 
     @Id
@@ -104,17 +104,18 @@ public class Member extends BaseTime {
     private Platform platform;
 
     @Column(nullable = false)
-    private String attributeName;       // 플랫폼에서 제공하는 id
+    private String providerId;       // 플랫폼에서 제공하는 id
 
     private String refreshToken;
 
+    @Setter
     private String aboutMe;         // 한줄 자기소개
 
     @Builder
-    public Member(String email, Platform platform, String attributeName, String profileImage) {
+    public Member(String email, Platform platform, String providerId, String profileImage) {
         this.email = email;
         this.platform = platform;
-        this.attributeName = attributeName;
+        this.providerId = providerId;
         this.profileImage = profileImage;
         role = Role.GUEST;
     }
@@ -144,10 +145,6 @@ public class Member extends BaseTime {
 
     public void deleteChatroom(ChatroomMember chatroomMember) {
         chatroomMembers.remove(chatroomMember);
-    }
-
-    public void setAboutMe(String aboutMe) {
-        this.aboutMe = aboutMe;
     }
 
     public String generatePlusId(int length) {

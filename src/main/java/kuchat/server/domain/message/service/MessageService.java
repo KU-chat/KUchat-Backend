@@ -43,7 +43,7 @@ public class MessageService {
             return enterChatroomResponse;
         }
         log.info("[findRecentMessages] 20개 이하 메세지 조회");
-        enterChatroomResponse.setRecentMessages(messages);
+//        enterChatroomResponse.setRecentMessages(messages);
         return enterChatroomResponse;
     }
 
