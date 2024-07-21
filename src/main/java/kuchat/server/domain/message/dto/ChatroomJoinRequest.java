@@ -1,25 +1,24 @@
 package kuchat.server.domain.message.dto;
 
 import kuchat.server.domain.enums.MessageType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
-import static kuchat.server.domain.message.service.MessageService.SERVER_ID;
-
-@Getter @ToString
+@Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatroomJoinRequest extends ChatMessage{
-    private List<Long> memberIds;
+public class ChatroomJoinRequest extends ChatMessage {
     private Long chatroomId;
-    private Long senderId = SERVER_ID;
+    private List<Long> memberIds;
     private MessageType messageType = MessageType.JOIN;
-    private String text;
 
-    public ChatroomJoinRequest(Long chatroomId, List<Long> memberIds, String text) {
+    public ChatroomJoinRequest(Long chatroomId, List<Long> memberIds) {
         this.chatroomId = chatroomId;
         this.memberIds = memberIds;
-        this.text = text;
     }
 }
