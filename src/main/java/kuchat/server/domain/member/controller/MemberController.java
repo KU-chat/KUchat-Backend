@@ -3,7 +3,7 @@ package kuchat.server.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.domain.member.Member;
+import kuchat.server.common.argumentResolver.Auth;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -45,18 +44,19 @@ public class MemberController {
 
     @Operation(summary = "나의 프로필 조회")
     @GetMapping("/my-profile")
-    public ResponseEntity<ProfileResponse> getMyProfile(@AuthenticationPrincipal Member member) {
+    public ResponseEntity<ProfileResponse> getMyProfile(@Auth Long memberId) {
         log.info("[getMyProfile] 나의 프로필 조회 요청");
-        ProfileResponse response = memberService.getProfile(member);
+        log.info("[getMyProfile] memberId = {}", memberId);
+        ProfileResponse response = memberService.getProfile(memberId);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "나의 프로필 수정")
     @PatchMapping("/my-profile")
-    public ResponseEntity<Void> updateMyProfile(@AuthenticationPrincipal Member member,
+    public ResponseEntity<Void> updateMyProfile(@Auth Long memberId,
                                                 @RequestBody ProfileUpdateRequest requestBody) {
         log.info("[getMyProfile] 나의 프로필 수정 요청");
-        memberService.updateProfile(member, requestBody);
+        memberService.updateProfile(memberId, requestBody);
         return ResponseEntity.ok().build();
     }
 }

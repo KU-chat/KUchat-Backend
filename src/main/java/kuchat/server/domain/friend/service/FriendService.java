@@ -28,8 +28,9 @@ public class FriendService {
     private final FriendRepository friendRepository;
 
     @Transactional
-    public void addFriend(Member member, Long friendId) {
-        log.info("[addFriend] member = {} 가 receiver id = {} 를 친구로 추가함", member.getId(), friendId);
+    public void addFriend(Long memberId, Long friendId) {
+        log.info("[addFriend] member = {} 가 receiver id = {} 를 친구로 추가함", memberId, friendId);
+        Member member = getMember(memberId);
         Member friendMember = memberRepository.findById(friendId)
                 .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_MEMBER));
         Friend newFriend = Friend.builder()
@@ -40,8 +41,9 @@ public class FriendService {
     }
 
     @Transactional
-    public void addByPlusId(Member member, String plusId) {
-        log.info("[addByPlusId] member id = {} 인 사용자가 plus id = {} 인 사용자를 친구로 추가함.", member.getId(), plusId);
+    public void addByPlusId(Long memberId, String plusId) {
+        log.info("[addByPlusId] member id = {} 인 사용자가 plus id = {} 인 사용자를 친구로 추가함.", memberId, plusId);
+        Member member = getMember(memberId);
         Member friendMember = memberRepository.findByPlusId(plusId)
                 .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_PLUSID));
         Friend newFriend = Friend.builder()
@@ -52,8 +54,9 @@ public class FriendService {
     }
 
 
-    public FriendResponses getFriendList(Member member, String friendName) {
+    public FriendResponses getFriendList(Long memberId, String friendName) {
         log.info("[getFriendList] 이름에 '{}' 을 포함하는 친구 조회", friendName);
+        Member member = getMember(memberId);
         List<Friend> friendships = friendRepository.findAllByName(member, friendName);
         List<FriendResponse> friendResponse = friendships.stream()
                 .map(Friend::getFollowed)
@@ -62,22 +65,27 @@ public class FriendService {
         return new FriendResponses(friendResponse);
     }
 
-    public FriendResponse getFriendProfile(Member member, Long friendId) {
+    public FriendResponse getFriendProfile(Long memberId, Long friendId) {
         log.info("[getFriendProfile] id가 {} 인 친구의 프로필 조회", friendId);
-        Member friendMember = memberRepository.findById(friendId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+        Member member = getMember(memberId);
+        Member friendMember = getMember(friendId);
         if (member.block(friendMember) || friendMember.block(member)) {
             throw new KuchatException(BLOCKED_MEMBER);
         }
         return new FriendResponse(friendMember);
     }
 
-    public void delete(Member member, Long friendId) {
-        Member friendMember = memberRepository.findById(friendId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    public void delete(Long memberId, Long friendId) {
+        Member member = getMember(memberId);
+        Member friendMember = getMember(friendId);
         Friend friend = friendRepository.findByMembers(member, friendMember)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
         member.deleteFriend(friend);
         friendRepository.delete(friend);
+    }
+
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 }

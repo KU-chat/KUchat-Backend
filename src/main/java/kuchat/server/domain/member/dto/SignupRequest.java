@@ -23,5 +23,4 @@ public class SignupRequest {
     private String studentId;
     private String gender;
     private String birthday;
-    private String email;
 }

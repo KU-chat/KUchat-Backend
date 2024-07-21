@@ -33,6 +33,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration){
-        registration.interceptors(new SubscriptionInterceptor());       // 인터셉터 등록
+//        registration.interceptors(new SubscriptionInterceptor());       // 인터셉터 등록
     }
 }

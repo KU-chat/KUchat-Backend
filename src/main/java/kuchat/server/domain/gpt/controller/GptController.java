@@ -26,11 +26,11 @@ public class GptController {
 
     private final GptService gptService;
 
-    @Operation(summary = "AI 대화추천 기능")
-    @PostMapping("/chatroom/{chatroomId}")
-    public ResponseEntity<TopicsResponse> suggestTopic(@PathVariable("chatroomId") Long chatroomId){
-        log.info("[suggestTopic] chatroomId = {} 인 채팅방에 대화 추천 기능ㄱㄱ: ", chatroomId);
-        TopicsResponse response = gptService.getTopics(chatroomId);
-        return ResponseEntity.ok();
-    }
+//    @Operation(summary = "AI 대화추천 기능")
+//    @PostMapping("/chatroom/{chatroomId}")
+//    public ResponseEntity<TopicsResponse> suggestTopic(@PathVariable("chatroomId") Long chatroomId){
+//        log.info("[suggestTopic] chatroomId = {} 인 채팅방에 대화 추천 기능ㄱㄱ: ", chatroomId);
+//        TopicsResponse response = gptService.getTopics(chatroomId);
+//        return ResponseEntity.ok();
+//    }
 }

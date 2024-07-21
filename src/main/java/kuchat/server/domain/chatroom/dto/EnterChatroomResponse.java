@@ -32,10 +32,10 @@ public class EnterChatroomResponse {
         this.memberInfos = memberInfos;
     }
 
-    public void setRecentMessages(List<Message> messages) {
-        List<MessageResponse> messageResponses = messages.stream()
-                .map(MessageResponse::new)
-                .collect(Collectors.toList());
-        this.recentMessages = messageResponses;
-    }
+//    public void setRecentMessages(List<Message> messages) {
+//        List<MessageResponse> messageResponses = messages.stream()
+//                .map(MessageResponse::new)
+//                .collect(Collectors.toList());
+//        this.recentMessages = messageResponses;
+//    }
 }
