@@ -106,8 +106,6 @@ public class Member extends BaseTime {
     @Column(nullable = false)
     private String providerId;       // 플랫폼에서 제공하는 id
 
-    private String refreshToken;
-
     @Setter
     private String aboutMe;         // 한줄 자기소개
 
@@ -118,10 +116,6 @@ public class Member extends BaseTime {
         this.providerId = providerId;
         this.profileImage = profileImage;
         role = Role.GUEST;
-    }
-
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 
     public void updateInfo(@Valid SignupRequest request) {

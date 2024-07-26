@@ -1,5 +1,6 @@
 package kuchat.server.common.jwt;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthToken {
+
     private String accessToken;
     private String refreshToken;
     private Long AccessTokenExpiresIn;

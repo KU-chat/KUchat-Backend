@@ -33,8 +33,8 @@ public class FriendController {
 
     @Operation(summary = "plus id로 친구 신청 보내기")
     @PostMapping("/{plusId}")
-    public ResponseEntity<BaseResponse> sendApplyByPlusId(@PathVariable("plusId") String plusId,
-                                                          @Auth Long memberId) {
+    public ResponseEntity<BaseResponse> sendApplyByPlusId(@Auth Long memberId,
+                                                          @PathVariable("plusId") String plusId) {
         log.info("[applyFriendByPlusId] plusId = {} 인 친구에서 {} 가 친구 요청을 보냄", plusId, memberId);
         friendService.addByPlusId(memberId, plusId);
         return ResponseEntity.ok(FRIEND_APPLY_SUCCESS);
@@ -59,7 +59,7 @@ public class FriendController {
     }
 
     @Operation(summary = "친구 삭제")
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponse> deleteFriend(@Auth Long memberId,
                                                      @PathVariable("id") Long friendId) {
         log.info("[deleteFriend] member id = {} 인 사용자와의 친구 관계 삭제", friendId);

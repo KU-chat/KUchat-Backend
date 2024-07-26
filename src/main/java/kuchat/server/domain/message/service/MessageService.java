@@ -85,9 +85,9 @@ public class MessageService {
         }
         message = new Message(chatMessage, chatroom);
         Message saved = messageRepository.save(message);
-        String senderName = redisService.getMemberName(saved.getSenderId());
-        String senderImage = redisService.getProfileImage(saved.getSenderId());
-        return new MessageResponse(saved, senderName, senderImage);
+//        String senderName = redisService.getMemberName(saved.getSenderId());
+//        String senderImage = redisService.getProfileImage(saved.getSenderId());
+        return new MessageResponse();
     }
 
 }

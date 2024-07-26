@@ -1,16 +1,12 @@
 package kuchat.server.common.redis;
 
 import jakarta.annotation.PostConstruct;
-import kuchat.server.domain.message.dto.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,9 +18,9 @@ public class RedisService {
     private final SubscriptionManager subscriptionManager;
     private final SimpMessageSendingOperations messageSendingOperations;
 
-    private Map<Long, Subscriber> subscribers;
-    private Map<Long, ChannelTopic> channels;         // chatroom id - ChannelTopic
-    private Map<Long, Map<String, String>> memberInfo;      // member id - refresh token, name
+    //    private Map<Long, Subscriber> subscribers;
+//    private Map<Long, ChannelTopic> channels;         // chatroom id - ChannelTopic
+    private Map<Long, String> memberInfo;      // member id - refresh token
 
     @PostConstruct
     private void init() {
@@ -33,36 +29,16 @@ public class RedisService {
 //        channels = new ConcurrentHashMap<>();
     }
 
-    public void registerMember(Long memberId, String name, String refreshToken, String profileImage){
-        Map<String, String> info = new HashMap<>();
-        info.put("name", name);
-        info.put("refreshToken", refreshToken);
-        info.put("profileImage", profileImage);
-        memberInfo.put(memberId, info);
+//    public void registerMember(Long memberId, String refreshToken) {
+//        memberInfo.put(memberId, refreshToken);
+//    }
+
+    public String getRefreshToken(Long memberId) {
+        return memberInfo.get(memberId);
     }
 
-    public String getRefreshToken(Long memberId){
-        return memberInfo.get(memberId).get("refreshToken");
-    }
-
-    public String getMemberName(Long memberId){
-        return memberInfo.get(memberId).get("name");
-    }
-
-    public String getProfileImage(Long memberId){
-        return memberInfo.get(memberId).get("profileImage");
-    }
-
-    public void setMemberName(Long memberId, String name){
-        memberInfo.get(memberId).put("name", name);
-    }
-
-    public void setRefreshToken(Long memberId, String refreshToken){
-        memberInfo.get(memberId).put("refreshToken", refreshToken);
-    }
-
-    public void setProfileImage(Long memberId, String profileImage){
-        memberInfo.get(memberId).put("profileImage", profileImage);
+    public void setRefreshToken(Long memberId, String refreshToken) {
+        memberInfo.put(memberId, refreshToken);
     }
 
     // topic 구독

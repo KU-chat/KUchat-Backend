@@ -1,4 +1,4 @@
-package kuchat.server.common.oauth.dto;
+package kuchat.server.common.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

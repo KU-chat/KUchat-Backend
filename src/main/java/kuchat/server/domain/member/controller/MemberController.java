@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.argumentResolver.Auth;
+import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
@@ -53,10 +54,10 @@ public class MemberController {
 
     @Operation(summary = "나의 프로필 수정")
     @PatchMapping("/my-profile")
-    public ResponseEntity<Void> updateMyProfile(@Auth Long memberId,
-                                                @RequestBody ProfileUpdateRequest requestBody) {
+    public ResponseEntity<BaseResponse> updateMyProfile(@Auth Long memberId,
+                                                        @RequestBody ProfileUpdateRequest requestBody) {
         log.info("[getMyProfile] 나의 프로필 수정 요청");
         memberService.updateProfile(memberId, requestBody);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(BaseResponse.PROFILE_UPDATE_SUCCESS);
     }
 }

@@ -1,5 +1,6 @@
 package kuchat.server.common.oauth.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,7 @@ import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
@@ -64,13 +66,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] accessToken : " + authToken.getAccessToken());
                 log.info("[SuccessHandler] refreshToken : " + authToken.getRefreshToken());
 
-                response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken.getAccessToken());
-                response.addHeader(REFRESH_TOKEN, "Bearer " + authToken.getRefreshToken());
                 response.sendRedirect("/");
-
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write("[SuccessHandler] Login successful and tokens are issued.");
+                response.setContentType("application/json");
+                response.getWriter().write(new ObjectMapper().writeValueAsString(authToken));
                 response.getWriter().flush();
+
+                log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급도 함!");
             }
         } catch (Exception e) {
             log.error(e.getMessage());

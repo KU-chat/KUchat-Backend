@@ -21,14 +21,14 @@ public class HomeController {
     }
 
     // 회원 정보 받기
-    @GetMapping("member/signup")
+    @GetMapping("/member/signup")
     public String signup(@RequestParam("platform") String platform,
-                         @RequestParam("attributeName") String attributeName,
+                         @RequestParam("providerId") String providerId,
                          Model model) {
         log.info("[signup] 신규회원 정보 받는 화면으로 이동!");
-        log.info("[signup] platform = {}, attributeName = {}", platform, attributeName);
+        log.info("[signup] platform = {}, providerId = {}", platform, providerId);
         model.addAttribute("platform", platform);
-        model.addAttribute("attributeName", attributeName);
+        model.addAttribute("providerId", providerId);
 
         return "signup";
     }

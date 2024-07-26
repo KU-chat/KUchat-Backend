@@ -1,5 +1,7 @@
 package kuchat.server.domain.enums;
 
+import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.exception.KuchatException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,4 +14,13 @@ public enum Role {
 
     private final String key;
     private final String value;
+
+    public static Role of(String key) {
+        for (Role role : Role.values()) {
+            if (key.equals(role.key)) {
+                return role;
+            }
+        }
+        throw new KuchatException(BaseResponse.NOT_FOUND_ROLE);
+    }
 }

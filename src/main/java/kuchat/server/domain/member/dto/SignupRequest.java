@@ -12,7 +12,7 @@ import lombok.ToString;
 @ToString
 public class SignupRequest {
     private String platform;
-    private String attributeName;
+    private String providerId;
 
     private String setLanguage;          // SettingLanguage 타입
     private String firstLanguage;         // LearnLanguage

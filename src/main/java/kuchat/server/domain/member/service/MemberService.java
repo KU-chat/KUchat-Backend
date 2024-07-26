@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.List;
 import java.util.Set;
 
@@ -34,13 +35,12 @@ public class MemberService {
     @Transactional
     public SignupResponse signup(SignupRequest signupRequest) {
         Platform platform = Platform.of(signupRequest.getPlatform());
-        Member member = memberRepository.findByPlatformAndProviderId(platform, signupRequest.getAttributeName())
+        Member member = memberRepository.findByPlatformAndProviderId(platform, signupRequest.getProviderId())
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
         member.updateInfo(signupRequest);
 
         // 엑세스 토큰, 리프레시 토큰 발급
         AuthToken authToken = jwtTokenService.generateAuthToken(member.getRole(), member.getId());
-        member.updateRefreshToken(authToken.getRefreshToken());
 
         log.info("[signup] member id : " + member.getId());
         log.info("[signup] Signup request access token: " + authToken.getAccessToken());

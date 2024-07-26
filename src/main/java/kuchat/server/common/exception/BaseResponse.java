@@ -26,10 +26,12 @@ public enum BaseResponse {
 
     //- 3000 번대 : 회원가입/멤버 관련 상태 코드
     SIGNUP_SUCCESS(3000, HttpStatus.CREATED, "회원가입 성공"),
+    PROFILE_UPDATE_SUCCESS(3001, HttpStatus.OK, "사용자 프로필 업데이트 성공"),
     NOT_FOUND_LANGUAGE(3001, HttpStatus.NOT_FOUND, "존재하지 않는 언어입니다."),
     NOT_FOUND_MEMBER(3002, HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     INFO_BAD_REQUEST(3003, HttpStatus.BAD_REQUEST, "입력된 정보가 형식에 맞지 않습니다. 다시 입력해주세요."),
     DUPLICATED_PLUSID(3004, HttpStatus.BAD_REQUEST, "plus id가 중복됩니다. 다른 문자열로 시도해주세요."),
+    NOT_FOUND_ROLE(3005, HttpStatus.BAD_REQUEST, "사용자 권한 정보가 유효하지 않습니다. 다시 시도해주세요."),
 
     //- 4000번대 : 채팅방(chatroom) 관련 코드
     CHATROOM_CREATE_SUCCESS(4000, HttpStatus.ACCEPTED, "채팅방 생성 성공"),

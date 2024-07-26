@@ -1,13 +1,10 @@
-package kuchat.server.common.jwt;
+package kuchat.server.common.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.BaseResponse;
-import kuchat.server.common.exception.KuchatException;
-import kuchat.server.domain.enums.Platform;
-import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.repository.MemberRepository;
-import kuchat.server.domain.member.service.MemberService;
+import kuchat.server.common.exception.JwtTokenException;
+import kuchat.server.common.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -20,24 +17,23 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class JwtTokenInterceptor implements HandlerInterceptor {
 
     private final JwtTokenService jwtTokenService;
-    private final MemberRepository memberRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).replaceAll("Bearer ", "");
+        // true 반환 시 인터셉터 통과, 컨트롤러로!
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (accessToken == null) {
+            log.info("[validateToken] token is null");
+            throw new JwtTokenException(BaseResponse.NOT_FOUND_TOKEN);
+        }
+        accessToken = accessToken.replaceAll("Bearer ", "");
         log.info("[preHandle] access token = {}", accessToken);
 
         if (request.getRequestURI().contains("/member/signup") ||
                 request.getRequestURI().equals("/") ||
                 request.getRequestURI().equals("/login")) {
+            log.info("[preHandle] request uri = {} 는 인증절차 필요X", accessToken);
             return true;
-        }
-
-        try {
-            validateToken(accessToken);
-        } catch (KuchatException e) {
-            log.error("[doFilterInternal] error message = {}", e.getMessage());
-            return false;
         }
 
         Long memberId = jwtTokenService.getMemberId(accessToken);
@@ -51,12 +47,4 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private void validateToken(String token) {
-        if (token == null) {
-            throw new KuchatException(BaseResponse.NOT_FOUND_TOKEN);
-        }
-        if (!token.startsWith("Bearer ")) {
-            throw new KuchatException(BaseResponse.INVALID_TOKEN);
-        }
-    }
 }

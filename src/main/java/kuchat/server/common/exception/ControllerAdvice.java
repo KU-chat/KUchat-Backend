@@ -24,4 +24,10 @@ public class ControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(INFO_BAD_REQUEST.getCode(), e.getMessage()));
     }
+
+    @ExceptionHandler(JwtTokenException.class)
+    public ResponseEntity<ErrorResponse> handleJwtTokenException(JwtTokenException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(INFO_BAD_REQUEST.getCode(), e.getMessage()));
+    }
 }
