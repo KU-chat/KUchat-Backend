@@ -56,7 +56,12 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           envs: GITHUB_SHA
           script: |
-            sudo docker rm -f $(docker ps -qa)
+#             기존 컨테이너 중지 및 제거
+            if [ $(docker ps -q -f name=kuchat) ]; then
+              sudo docker stop kuchat
+              sudo docker rm kuchat
+            fi
+            
             sudo docker ps
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
             sudo docker run -d -p 9000:9000 --name kuchat ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
