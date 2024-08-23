@@ -46,11 +46,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] GUEST, 아직 쿠챗 회원가입을 하지 않은 사람");
                 String platform = customOAuth2User.getPlatform().getValue();
                 String providerId = customOAuth2User.getProviderId();
-                response.sendRedirect("/member/signup");
                 String accessToken = "Bearer " + jwtTokenService.generateGuestToken(platform, providerId);
                 response.setHeader(HttpHeaders.AUTHORIZATION, accessToken);
                 log.info("[회원가입 전 access token] {}", accessToken);
-                response.getWriter().flush();
+                response.sendRedirect("/member/signup");
             }
 
             // 기존 회원인 경우 (Role = STUDENT)
