@@ -16,7 +16,6 @@ import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
@@ -45,10 +44,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             // 나중에 정보 입력 다 받으면 Role.STUDENT 로 업데이트 시켜야함
             if (customOAuth2User.getRole() == Role.GUEST) {
                 log.info("[SuccessHandler] GUEST, 아직 쿠챗 회원가입을 하지 않은 사람");
+                String platform = customOAuth2User.getPlatform().getValue();
                 String providerId = customOAuth2User.getProviderId();
-                String redirectUrl = "/member/signup?platform=" + customOAuth2User.getPlatform().getValue() +
-                        "&providerId=" + providerId;
-                response.sendRedirect(redirectUrl);
+                response.sendRedirect("/member/signup");
+                String accessToken = "Bearer " + jwtTokenService.generateGuestToken(platform, providerId);
+                response.setHeader(HttpHeaders.AUTHORIZATION, accessToken);
+                log.info("[회원가입 전 access token] {}", accessToken);
                 response.getWriter().flush();
             }
 
@@ -58,7 +59,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] STUDENT, 이미 쿠챗 회원인 사람");
 
                 Member member = memberRepository.findByPlatformAndProviderId(customOAuth2User.getPlatform(),
-                        customOAuth2User.getProviderId())
+                                customOAuth2User.getProviderId())
                         .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_MEMBER));
                 log.info("[SuccessHandler] 기존 회원인 경우 platform = {}, provider id = {}",
                         customOAuth2User.getPlatform(), customOAuth2User.getProviderId());

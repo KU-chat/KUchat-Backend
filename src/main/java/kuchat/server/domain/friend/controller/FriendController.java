@@ -11,8 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static kuchat.server.common.exception.BaseResponse.FRIEND_APPLY_SUCCESS;
-import static kuchat.server.common.exception.BaseResponse.FRIEND_DELETE_SUCCESS;
+import static kuchat.server.common.exception.BaseResponse.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,16 +27,16 @@ public class FriendController {
                                                   @PathVariable("id") Long friendId) {
         log.info("[applyFriend] id = {} 인 사용자를 친구로 추가", friendId);
         friendService.addFriend(memberId, friendId);
-        return ResponseEntity.ok(FRIEND_APPLY_SUCCESS);
+        return ResponseEntity.ok(SUCCESS);
     }
 
     @Operation(summary = "plus id로 친구 신청 보내기")
-    @PostMapping("/{plusId}")
+    @PostMapping("plusId/{plusId}")
     public ResponseEntity<BaseResponse> sendApplyByPlusId(@Auth Long memberId,
                                                           @PathVariable("plusId") String plusId) {
         log.info("[applyFriendByPlusId] plusId = {} 인 친구에서 {} 가 친구 요청을 보냄", plusId, memberId);
         friendService.addByPlusId(memberId, plusId);
-        return ResponseEntity.ok(FRIEND_APPLY_SUCCESS);
+        return ResponseEntity.ok(SUCCESS);
     }
 
     @Operation(summary = "친구 목록 조회 (이름 검색)")
@@ -64,7 +63,7 @@ public class FriendController {
                                                      @PathVariable("id") Long friendId) {
         log.info("[deleteFriend] member id = {} 인 사용자와의 친구 관계 삭제", friendId);
         friendService.delete(memberId, friendId);
-        return ResponseEntity.ok(FRIEND_DELETE_SUCCESS);
+        return ResponseEntity.ok(SUCCESS);
     }
 
 }

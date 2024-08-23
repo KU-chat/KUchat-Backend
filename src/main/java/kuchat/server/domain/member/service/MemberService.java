@@ -1,7 +1,9 @@
 package kuchat.server.domain.member.service;
 
+import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
+import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.Platform;
@@ -21,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static kuchat.server.common.exception.BaseResponse.DUPLICATED_PLUSID;
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
+import static kuchat.server.common.exception.BaseResponse.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,12 +32,13 @@ import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenService jwtTokenService;
+    private final RedisService redisService;
 
     @Transactional
-    public SignupResponse signup(SignupRequest signupRequest) {
-        Platform platform = Platform.of(signupRequest.getPlatform());
-        Member member = memberRepository.findByPlatformAndProviderId(platform, signupRequest.getProviderId())
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    public SignupResponse signup(String guestToken, SignupRequest signupRequest) {
+        log.info("[signup] guestToken = {}", guestToken);
+        Member member = jwtTokenService.extractMemberByGuestToken(guestToken);
+        log.info("[signup] member = {}", member.toString());
         member.updateInfo(signupRequest);
 
         // 엑세스 토큰, 리프레시 토큰 발급
@@ -91,4 +93,15 @@ public class MemberService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
+
+    public BaseResponse logout(Long memberId) {
+        Member member = getMember(memberId);
+        redisService.removeRefreshToken(memberId);
+        return SUCCESS;
+    }
+
+//    public BaseResponse quit(Long memberId) {
+//
+//    }
+
 }

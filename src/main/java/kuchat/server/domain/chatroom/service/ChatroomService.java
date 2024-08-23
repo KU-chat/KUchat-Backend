@@ -1,7 +1,6 @@
 package kuchat.server.domain.chatroom.service;
 
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.chatroom.dto.ChatroomResponse;
@@ -50,7 +49,7 @@ public class ChatroomService {
                         .build());
         log.info("[createChatroom] 생성된 채팅방 id = {}, name = {}", chatroom.getId(), chatroom.getName());
         join(chatroom.getId(), request.getMemberIds());
-        return new ChatroomResponse(chatroom.getId(), CHATROOM_CREATE_SUCCESS);
+        return new ChatroomResponse(chatroom.getId(), SUCCESS);
     }
 
 
@@ -60,7 +59,7 @@ public class ChatroomService {
         List<FindChatroomResponse> findChatroomResponse = chatrooms.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
-        return new FindChatroomsResponse(findChatroomResponse, CHATROOM_LIST_SUCCESS);
+        return new FindChatroomsResponse(findChatroomResponse, SUCCESS);
     }
 
 

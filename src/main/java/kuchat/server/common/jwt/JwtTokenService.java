@@ -4,7 +4,6 @@ package kuchat.server.common.jwt;
 import io.jsonwebtoken.*;
 import kuchat.server.common.exception.JwtTokenException;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.oauth.CustomOAuth2User;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.enums.Role;
@@ -14,7 +13,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -73,14 +71,20 @@ public class JwtTokenService {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey)
                     .parseClaimsJws(token);
+            log.info("[isExpired] 토큰 만료 시간 = {} ", claims.getBody().getExpiration());
+            log.info("[isExpired] 현재 시간 = {}", new Date());
             return claims.getBody().getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
+            log.info("[isExpired] ExpiredJwtException 발생 : {}", e.getMessage());
             return true;
         } catch (UnsupportedJwtException e) {
+            log.info("[isExpired] UnsupportedJwtException 발생 : {}", e.getMessage());
             throw new JwtTokenException(UNSUPPORTED_TOKEN);
         } catch (MalformedJwtException e) {
+            log.info("[isExpired] MalformedJwtException 발생 : {}", e.getMessage());
             throw new JwtTokenException(MALFORMED_TOKEN);
         } catch (SignatureException e) {
+            log.info("[isExpired] SignatureException 발생 : {}", e.getMessage());
             throw new JwtTokenException(INVALID_SIGNATURE);
         } catch (JwtException e) {
             log.error("[isExpired] jwt 토큰 오류 = {}", e.getMessage());
@@ -90,9 +94,10 @@ public class JwtTokenService {
 
     public boolean validatedRefreshToken(String refreshToken) {
         // 1. 토큰의 유효성 확인 : 리프레시 토큰이 올바르게 서명되었는지, 만료되지 않았는지 확인
-        if (refreshToken == null){
+        if (refreshToken == null) {
             return false;
-        } if(isExpired(refreshToken)) {
+        }
+        if (isExpired(refreshToken)) {
             return false;
         }
 
@@ -124,4 +129,62 @@ public class JwtTokenService {
         return generateAuthToken(Role.of(role), memberId);
     }
 
+    public String generateGuestToken(String platform, String providerId) {
+        final Claims claims = Jwts.claims();        // claims = jwt token에 들어갈 정보, claim에 email을 넣어줘야 회원 식별 가능
+        claims.put("platform", platform);
+        claims.put("providerId", providerId);
+
+        log.info("[generateGuestToken] platform: " + platform);
+        log.info("[generateGuestToken] providerId: " + providerId);
+
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public boolean isValidGuestToken(String guestToken) {
+        log.info("[isValidGuestToken] guestToken = {} ", guestToken);
+        // 1. 토큰의 유효성 확인
+        if (guestToken == null) {
+            log.info("[isValidGuestToken] 토큰이 존재하지 않습니다.");
+            return false;  // 토큰이 없을 경우 false 반환
+        }
+        try {
+            if (isExpired(guestToken)) {
+                log.info("[isValidGuestToken] 토큰이 만료되었습니다.");
+                return false;  // 토큰이 만료되었을 경우 false 반환
+            }
+            log.info("[isValidGuestToken] jwt parse 전");
+            Jwts.parser().setSigningKey(secretKey)
+                    .parseClaimsJws(guestToken);
+            return true;  // 토큰이 유효하면 true 반환
+        } catch (JwtException e) {
+            return false;  // 토큰이 유효하지 않으면 false 반환
+        }
+    }
+
+    public Member extractMemberByGuestToken(String guestToken) {
+        // 1. 토큰의 유효성 확인 : 리프레시 토큰이 올바르게 서명되었는지, 만료되지 않았는지 확인
+        if (guestToken == null) {
+            log.info("[extractMemberByGuestToken] 토큰이 존재하지 않습니다.");
+            throw new JwtTokenException(NOT_FOUND_TOKEN);
+        }
+        if (isExpired(guestToken)) {
+            log.info("[extractMemberByGuestToken] 토큰이 만료되었습니다.");
+            throw new JwtTokenException(EXPIRED_TOKEN);
+        }
+        Claims body = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(guestToken)
+                .getBody();
+        Platform platform = Platform.of(body.get("platform", String.class));
+        String providerId = body.get("providerId", String.class);
+        log.info("[extractMemberByGuestToken] member의 platform = {}, providerId = {}", platform, providerId);
+        return memberRepository.findByPlatformAndProviderId(platform, providerId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
 }

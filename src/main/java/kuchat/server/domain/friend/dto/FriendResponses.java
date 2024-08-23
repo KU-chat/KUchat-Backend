@@ -8,7 +8,6 @@ import lombok.ToString;
 
 import java.util.List;
 
-import static kuchat.server.common.exception.BaseResponse.FRIEND_APPLY_LOOKUP_SUCCESS;
 
 @Getter
 @ToString
@@ -20,6 +19,6 @@ public class FriendResponses {
 
     public FriendResponses(List<FriendResponse> responses) {
         this.responses = responses;
-        baseResponse = FRIEND_APPLY_LOOKUP_SUCCESS;
+        baseResponse = BaseResponse.SUCCESS;
     }
 }

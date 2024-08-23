@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static kuchat.server.common.exception.BaseResponse.BLOCK_MEMBER_SUCCESS;
-import static kuchat.server.common.exception.BaseResponse.RELEASE_BLOCK_SUCCESS;
+import static kuchat.server.common.exception.BaseResponse.SUCCESS;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,10 +24,10 @@ public class BlockController {
     @Operation(summary = "사용자 차단하기")        // 친구가 아니었어도 차단 가능
     @PostMapping("/{id}")
     public ResponseEntity<BaseResponse> block(@Auth Long memberId,
-                                              @RequestParam("id") Long blockMemberId) {
+                                              @PathVariable("id") Long blockMemberId) {
         log.info("[blockMember] id = {} 인 사용자가 id = {} 인 사용자를 차단함. ", memberId, blockMemberId);
         blockService.block(memberId, blockMemberId);
-        return ResponseEntity.ok(BLOCK_MEMBER_SUCCESS);
+        return ResponseEntity.ok(SUCCESS);
     }
 
     @Operation(summary = "사용자 차단 해제하기")
@@ -36,7 +36,7 @@ public class BlockController {
                                                 @PathVariable("id") Long releaseMemberId) {
         log.info("[release] id = {} 인 사용자가 id = {} 인 사용자를 차단 해제함. ", memberId, releaseMemberId);
         blockService.release(memberId, releaseMemberId);
-        return ResponseEntity.ok(RELEASE_BLOCK_SUCCESS);
+        return ResponseEntity.ok(SUCCESS);
     }
 
     @Operation(summary = "내가 차단한 사용자 목록 조회")

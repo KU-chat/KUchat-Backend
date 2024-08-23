@@ -8,7 +8,8 @@ import lombok.ToString;
 
 import java.util.List;
 
-@Getter @ToString
+@Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlockMemberResponses {
@@ -17,6 +18,6 @@ public class BlockMemberResponses {
 
     public BlockMemberResponses(List<BlockMemberResponse> blockMemberResponses) {
         this.blockMemberResponses = blockMemberResponses;
-        baseResponse = BaseResponse.BLOCK_LOOKUP_SUCCESS;
+        baseResponse = BaseResponse.SUCCESS;
     }
 }

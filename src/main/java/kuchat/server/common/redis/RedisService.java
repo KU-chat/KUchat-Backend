@@ -41,6 +41,10 @@ public class RedisService {
         memberInfo.put(memberId, refreshToken);
     }
 
+    public void removeRefreshToken(Long memberId) {
+        memberInfo.remove(memberId);
+    }
+
     // topic 구독
 //    public void subscribeTopic(Long chatroomId, List<Long> memberIds) {
 //        log.info("[subscribeTopic] {} 회원들이 {} 번 채팅방 구독함.", memberIds.toString(), chatroomId);
