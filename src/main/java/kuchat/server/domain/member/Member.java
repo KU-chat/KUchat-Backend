@@ -64,7 +64,7 @@ public class Member extends BaseTime {
     @Size(min = 6, max = 6, message = "생일은 6자리 숫자 형태여야 합니다.")
     private String birthday;
 
-    @Column(name = "setting_langugage")
+    @Column(name = "setting_language")
     @Enumerated(EnumType.STRING)
     private SettingLanguage setLanguage;
 

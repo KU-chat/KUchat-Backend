@@ -21,7 +21,7 @@ public class Chatroom extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "room_id")
+    @Column(name = "chatroom_id")
     private Long id;
 
     @Setter

@@ -23,7 +23,7 @@ public class Friend extends BaseTime {
     private Member followed;
 
     @ManyToOne
-    @JoinColumn(name = "follwer_id")            // 팔로우한 사람 (자기 자신)
+    @JoinColumn(name = "follower_id")            // 팔로우한 사람 (자기 자신)
     private Member follower;
 
 
