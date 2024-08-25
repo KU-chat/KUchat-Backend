@@ -15,4 +15,10 @@ public class KuchatException extends RuntimeException {
         this.message = baseResponse.getMessage();
         this.code = baseResponse.getCode();
     }
+
+    public KuchatException(BaseResponse baseResponse,String message){
+        this.httpStatus = baseResponse.getHttpStatus();
+        this.message = message;
+        this.code = baseResponse.getCode();
+    }
 }

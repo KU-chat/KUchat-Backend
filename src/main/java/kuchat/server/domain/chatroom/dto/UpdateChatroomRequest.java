@@ -1,5 +1,6 @@
 package kuchat.server.domain.chatroom.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,5 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateChatroomRequest {
+    @NotBlank
     private String newName;
 }

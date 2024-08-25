@@ -1,33 +1,39 @@
 package kuchat.server.domain.message.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.enums.MessageType;
-import kuchat.server.domain.message.Message;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+@Data
 public class ChatMessage {
-    //    private Long messageId;
+
+    @NotNull
     private Long chatroomId;
-    private MessageType messageType;
+
+    @NotNull
+    private String messageType;
+
+    @NotNull
     private Long senderId;
+
+    @NotBlank
     private String text;
+
     private Long parentId;
 
     @Builder
     public ChatMessage(Long chatroomId, MessageType messageType, Long senderId, String text) {
         this.chatroomId = chatroomId;
-        this.messageType = messageType;
+        this.messageType = messageType.toString();
         this.senderId = senderId;
         this.text = text;
         this.parentId = null;
@@ -70,7 +76,7 @@ public class ChatMessage {
                         this.chatroomId = Long.parseLong(map[1]);
                         break;
                     case "messageType":
-                        this.messageType = MessageType.valueOf(map[1]);
+                        this.messageType = map[1];
                         break;
                     case "senderId":
                         this.senderId = Long.parseLong(map[1]);

@@ -2,16 +2,9 @@ package kuchat.server.domain.member.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import kuchat.server.domain.enums.Platform;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+@Data
 public class SignupRequest {
 
     @NotBlank
@@ -26,7 +19,7 @@ public class SignupRequest {
     @NotBlank
     private String hometown;
 
-    @Pattern(regexp = "[a-zA-Z0-9]{4,20}$", message = "이름은 최소 4자 이상, 20자 이하이며, 영문과 숫자만 입력하세요.")
+    @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,20}$", message = "이름은 최소 2자 이상, 20자 이하이며, 영문/한글/숫자만 입력 가능합니다.")
     private String name;
 
     @NotBlank

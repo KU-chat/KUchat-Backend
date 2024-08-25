@@ -29,9 +29,8 @@ public class BlockService {
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
 
-    public void block(Long memberId, Long blockMemberId) {
-        log.info("[block] {} 번 사용자가 {} 번 사용자를 차단함.", memberId, blockMemberId);
-        Member member = getMember(memberId);
+    public void block(Member member, Long blockMemberId) {
+        log.info("[block] {} 번 사용자가 {} 번 사용자를 차단함.", member.getId(), blockMemberId);
         Member blocked = getMember(blockMemberId);
 
         deleteFriend(member, blocked);          // member 가 blocked 를 팔로우한 경우, 제거
@@ -53,9 +52,8 @@ public class BlockService {
                 );
     }
 
-    public void release(Long memberId, Long releaseMemberId) {
-        log.info("[release] {} 번 사용자가 차단한 {} 번 사용자를 차단 해제함.", memberId, releaseMemberId);
-        Member member = getMember(memberId);
+    public void release(Member member, Long releaseMemberId) {
+        log.info("[release] {} 번 사용자가 차단한 {} 번 사용자를 차단 해제함.", member.getId(), releaseMemberId);
         Member released = getMember(releaseMemberId);
         Block block = blockRepository.findByMembers(member, released)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_BLOCK));
@@ -63,9 +61,8 @@ public class BlockService {
         blockRepository.delete(block);
     }
 
-    public BlockMemberResponses getblocks(Long memberId) {
-        log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", memberId);
-        Member member = getMember(memberId);
+    public BlockMemberResponses getblocks(Member member) {
+        log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", member.getId());
         List<BlockMemberResponse> responses = member.getBlocks().stream()
                 .map(Block::getBlocked)
                 .map(BlockMemberResponse::new)

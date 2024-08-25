@@ -6,6 +6,7 @@ import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.dto.EnterChatroomResponse;
 import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.member.Member;
+import kuchat.server.domain.member.repository.MemberRepository;
 import kuchat.server.domain.message.Message;
 import kuchat.server.domain.message.dto.ChatMessage;
 import kuchat.server.domain.message.dto.MessageResponse;
@@ -31,6 +32,7 @@ public class MessageService {
 
     public static final Long SERVER_ID = (long) -1;
     private final MessageRepository messageRepository;
+    private final MemberRepository memberRepository;
     private final RedisService redisService;
 
     public EnterChatroomResponse enter(Chatroom chatroom) {

@@ -2,11 +2,9 @@ package kuchat.server.common.config;
 
 import kuchat.server.common.argumentResolver.AuthArgumentResolver;
 import kuchat.server.common.interceptor.JwtTokenInterceptor;
-import kuchat.server.common.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.view.MustacheViewResolver;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -14,7 +12,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.beans.BeanProperty;
 import java.util.List;
 
 @Slf4j

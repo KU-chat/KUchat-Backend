@@ -9,4 +9,9 @@ import lombok.*;
 public class ErrorResponse {
     private int code;
     private String message;
+
+    public ErrorResponse(BaseResponse baseResponse) {
+        code = baseResponse.getCode();
+        message = baseResponse.getMessage();
+    }
 }

@@ -27,6 +27,6 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         String token = Objects.requireNonNull(webRequest.getHeader("Authorization"))
                 .replaceAll("Bearer ", "");
-        return jwtTokenService.getMemberId(token);
+        return jwtTokenService.extractMemberByGuestToken(token);
     }
 }

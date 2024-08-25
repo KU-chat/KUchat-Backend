@@ -64,7 +64,7 @@ public class JwtTokenService {
                 .compact();
         redisService.setRefreshToken(memberId, refreshToken);
 
-        return AuthToken.of(accessToken, refreshToken, accessTokenExpiration, refreshTokenExpiration);
+        return new AuthToken(accessToken, refreshToken);
     }
 
     private boolean isExpired(String token) {
@@ -76,7 +76,7 @@ public class JwtTokenService {
             return claims.getBody().getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
             log.info("[isExpired] ExpiredJwtException 발생 : {}", e.getMessage());
-            return true;
+            throw new JwtTokenException(EXPIRED_TOKEN);
         } catch (UnsupportedJwtException e) {
             log.info("[isExpired] UnsupportedJwtException 발생 : {}", e.getMessage());
             throw new JwtTokenException(UNSUPPORTED_TOKEN);

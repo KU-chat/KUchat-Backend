@@ -12,13 +12,15 @@ import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.stream.Collectors;
 
-import static kuchat.server.common.exception.BaseResponse.EMPTY_CHATROOM;
-import static kuchat.server.common.exception.BaseResponse.SUCCESS;
+import static kuchat.server.common.exception.BaseResponse.*;
 
 @Slf4j
 @Tag(name = "Chatroom", description = "채팅방")
@@ -33,13 +35,18 @@ public class ChatroomController {
 
     @Operation(summary = "채팅방 생성")
     @PostMapping("")
-    public ResponseEntity<ChatroomResponse> create(@RequestBody CreateChatroomRequest request) {
-
+    public ResponseEntity<ChatroomResponse> create(@Validated @RequestBody CreateChatroomRequest request,
+                                                   BindingResult bindingResult) {
+        log.info("[create] 채팅방 생성 요청 request = {}", request.toString());
         if (request.getMemberIds().isEmpty()) {
             throw new KuchatException(EMPTY_CHATROOM);
         }
+        if(bindingResult.hasErrors()){
+            String messages = getErrorMessages(bindingResult);
+            log.error("[create] bindingResult messages = {}", messages);
+            throw new KuchatException(CHATROOM_BAD_REQUEST, messages);
+        }
 
-        log.info("[create] 채팅방 생성 요청 request = {}", request.toString());
         ChatroomResponse response = chatroomService.create(request);
 
         URI location = ServletUriComponentsBuilder      // 새롭게 생성된 채팅방의 uri를 알려주는 용도
@@ -61,14 +68,16 @@ public class ChatroomController {
     @Operation(summary = "채팅방 이름 변경 (단체 톡방만 가능)")
     @PutMapping("/{id}")
     public ResponseEntity<BaseResponse> updateName(@PathVariable("id") Long chatroomId,
-                                                   @RequestBody UpdateChatroomRequest request) {
+                                                   @Validated @RequestBody UpdateChatroomRequest request,
+                                                   BindingResult bindingResult) {
         String newName = request.getNewName();
         log.info("[updateName] 채팅방 번호 = {}, 바꿀 이름 = {}", chatroomId, newName);
-        if (newName == null) {
-            log.info("[updateName] 이름 안바꿉니다~~");
-            return ResponseEntity.ok(SUCCESS);
+        if(bindingResult.hasErrors()){
+            String messages = getErrorMessages(bindingResult);
+            log.error("[updateName] bindingResult messages = {}", messages);
+            throw new KuchatException(CHATROOM_BAD_REQUEST, messages);
         }
-        chatroomService.updateName(chatroomId, request.getNewName());
+        chatroomService.updateName(chatroomId, newName);
         return ResponseEntity.ok(SUCCESS);
     }
 
@@ -83,4 +92,10 @@ public class ChatroomController {
         return ResponseEntity.ok().body(response);
     }
 
+
+    private static String getErrorMessages(BindingResult bindingResult) {
+        return bindingResult.getAllErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .collect(Collectors.joining("$"));
+    }
 }

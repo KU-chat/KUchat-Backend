@@ -3,11 +3,10 @@ package kuchat.server.domain.member.service;
 import kuchat.server.common.exception.BaseResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
+import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.ChatroomMember;
-import kuchat.server.domain.enums.Platform;
-import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 import java.util.Set;
@@ -39,6 +37,10 @@ public class MemberService {
         log.info("[signup] guestToken = {}", guestToken);
         Member member = jwtTokenService.extractMemberByGuestToken(guestToken);
         log.info("[signup] member = {}", member.toString());
+        if (duplicateStudentId(signupRequest.getStudentId())) {
+            log.error("[error] 이미 존재하는 학번입니다.");
+            throw new KuchatException(DUPLICATED_STUDENT_ID);
+        }
         member.updateInfo(signupRequest);
 
         // 엑세스 토큰, 리프레시 토큰 발급
@@ -50,7 +52,7 @@ public class MemberService {
         return new SignupResponse(member.getId(), authToken.getAccessToken(), authToken.getRefreshToken());
     }
 
-    public boolean duplicateStudentId(String studentId) {
+    private boolean duplicateStudentId(String studentId) {
         return !memberRepository.findAllByStudentId(studentId)
                 .isEmpty();
     }
@@ -67,8 +69,7 @@ public class MemberService {
                 .toList();
     }
 
-    public ProfileResponse getProfile(Long memberId) {
-        Member member = getMember(memberId);
+    public ProfileResponse getProfile(Member member) {
         return new ProfileResponse(member);
     }
 
@@ -84,7 +85,9 @@ public class MemberService {
         memberRepository.findAllByPlusIdWithLock(plusId)
                 .stream().findAny()
                 .ifPresentOrElse(
-                        duplicatedMember -> { throw new KuchatException(DUPLICATED_PLUSID); },
+                        duplicatedMember -> {
+                            throw new KuchatException(DUPLICATED_PLUSID);
+                        },
                         () -> member.setPlusId(plusId)
                 );
     }
@@ -94,10 +97,8 @@ public class MemberService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 
-    public BaseResponse logout(Long memberId) {
-        Member member = getMember(memberId);
-        redisService.removeRefreshToken(memberId);
-        return SUCCESS;
+    public void logout(Member member) {
+        redisService.removeRefreshToken(member.getId());
     }
 
 //    public BaseResponse quit(Long memberId) {
