@@ -57,11 +57,10 @@ jobs:
           envs: GITHUB_SHA
           script: |
             echo "Stopping existing container..."
-            if [ $(docker ps -q -f name=kuchat) ]; then
-              sudo docker stop kuchat
-              sudo docker rm kuchat
-            fi
-            sudo docker ps
+            sudo docker stop kuchat
+            sudo docker rm kuchat
+            
+            sudo docker ps -a
             echo "Pulling new image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
             echo "Running new container..."
