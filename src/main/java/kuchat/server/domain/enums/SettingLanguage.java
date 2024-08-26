@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_LANGUAGE;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_LANGUAGE;
 @Getter
 public enum SettingLanguage {
     ENGLISH("영어"),

@@ -5,7 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
@@ -59,7 +59,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
                 Member member = memberRepository.findByPlatformAndProviderId(customOAuth2User.getPlatform(),
                                 customOAuth2User.getProviderId())
-                        .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_MEMBER));
+                        .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_MEMBER));
                 log.info("[SuccessHandler] 기존 회원인 경우 platform = {}, provider id = {}",
                         customOAuth2User.getPlatform(), customOAuth2User.getProviderId());
                 AuthToken authToken = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
@@ -76,7 +76,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new KuchatException(BaseResponse.OAUTH2_FAIL);
+            throw new KuchatException(BaseResponseStatus.OAUTH2_FAIL);
         }
     }
 }

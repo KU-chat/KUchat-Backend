@@ -2,7 +2,7 @@ package kuchat.server.domain.chatroom.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.dto.*;
@@ -20,7 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.stream.Collectors;
 
-import static kuchat.server.common.exception.BaseResponse.*;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @Tag(name = "Chatroom", description = "채팅방")
@@ -67,9 +67,9 @@ public class ChatroomController {
 
     @Operation(summary = "채팅방 이름 변경 (단체 톡방만 가능)")
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponse> updateName(@PathVariable("id") Long chatroomId,
-                                                   @Validated @RequestBody UpdateChatroomRequest request,
-                                                   BindingResult bindingResult) {
+    public ResponseEntity<BaseResponseStatus> updateName(@PathVariable("id") Long chatroomId,
+                                                         @Validated @RequestBody UpdateChatroomRequest request,
+                                                         BindingResult bindingResult) {
         String newName = request.getNewName();
         log.info("[updateName] 채팅방 번호 = {}, 바꿀 이름 = {}", chatroomId, newName);
         if(bindingResult.hasErrors()){
@@ -88,7 +88,7 @@ public class ChatroomController {
         Chatroom chatroom = chatroomService.getChatroom(chatroomId);
         EnterChatroomResponse response = messageService.enter(chatroom);        // 최근 20개 톡 가져오기
         response.setMemberInfos(memberService.findMembersByChatroomId(chatroom));
-        response.setBaseResponse(SUCCESS);
+        response.setBaseResponseStatus(SUCCESS);
         return ResponseEntity.ok().body(response);
     }
 

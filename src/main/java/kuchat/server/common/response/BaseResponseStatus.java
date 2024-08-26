@@ -1,14 +1,17 @@
-package kuchat.server.common.exception;
+package kuchat.server.common.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public enum BaseResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public enum BaseResponseStatus {
     // 1000 번대 : 요청 성공
     SUCCESS(1000, HttpStatus.OK, "요청에 성공하였습니다."),
     WEBSOCKET_CONNECTION_SUCCESS(1001, HttpStatus.OK, "웹소켓 연결 성공"),
@@ -82,5 +85,6 @@ public enum BaseResponse {
 
     private int code;
     private HttpStatus httpStatus;
+    @Setter
     private String message;
 }

@@ -1,5 +1,6 @@
-package kuchat.server.common.argumentResolver;
+package kuchat.server.common.jwt.argumentResolver;
 
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -9,7 +10,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.util.Objects;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_TOKEN;
 
 @RequiredArgsConstructor
 @Component
@@ -25,8 +26,12 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        String token = Objects.requireNonNull(webRequest.getHeader("Authorization"))
-                .replaceAll("Bearer ", "");
-        return jwtTokenService.extractMemberByGuestToken(token);
+        String token = webRequest.getHeader("Authorization");
+        if (token == null) {
+            throw new KuchatException(NOT_FOUND_TOKEN);
+        }
+        String accessToken = token.replaceAll("Bearer ", "");
+        return jwtTokenService.extractMemberByAccessToken(accessToken);
     }
+
 }

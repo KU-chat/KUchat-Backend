@@ -22,8 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static kuchat.server.common.exception.BaseResponse.INFO_BAD_REQUEST;
-import static kuchat.server.common.exception.BaseResponse.MESSAGE_FORMAT_ERROR;
+import static kuchat.server.common.response.BaseResponseStatus.MESSAGE_FORMAT_ERROR;
 
 @Slf4j
 @Tag(name = "Message", description = "메시지")

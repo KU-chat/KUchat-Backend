@@ -1,6 +1,6 @@
 package kuchat.server.domain.member.service;
 
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static kuchat.server.common.exception.BaseResponse.*;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -101,8 +101,10 @@ public class MemberService {
         redisService.removeRefreshToken(member.getId());
     }
 
-//    public BaseResponse quit(Long memberId) {
-//
-//    }
+    public BaseResponseStatus quit(Member member) {
+        redisService.removeRefreshToken(member.getId());      // 로그아웃 처리
+        memberRepository.delete(member);                      // 탈퇴 처리
+        return SUCCESS;
+    }
 
 }

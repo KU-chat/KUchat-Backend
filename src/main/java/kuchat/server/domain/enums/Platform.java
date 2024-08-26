@@ -4,7 +4,7 @@ import kuchat.server.common.exception.KuchatException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_PLATFORM;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_PLATFORM;
 
 @Slf4j
 @Getter

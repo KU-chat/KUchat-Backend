@@ -1,9 +1,8 @@
 package kuchat.server.domain.chatroom.dto;
 
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.MemberInfoResponse;
-import kuchat.server.domain.message.Message;
 import kuchat.server.domain.message.dto.MessageResponse;
 import lombok.*;
 
@@ -19,7 +18,7 @@ public class EnterChatroomResponse {
     private List<MessageResponse> recentMessages;
     private List<MemberInfoResponse> memberInfos;
     @Setter
-    private BaseResponse baseResponse;
+    private BaseResponseStatus baseResponseStatus;
 
     public EnterChatroomResponse(String name){
         this.name = name;

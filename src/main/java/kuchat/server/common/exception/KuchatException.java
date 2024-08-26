@@ -1,24 +1,25 @@
 package kuchat.server.common.exception;
 
+import kuchat.server.common.response.BaseResponseStatus;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
 //@RequiredArgsConstructor
 public class KuchatException extends RuntimeException {
-    private HttpStatus httpStatus;
-    private String message;
-    private int code;
 
-    public KuchatException(BaseResponse baseResponse){
-        this.httpStatus = baseResponse.getHttpStatus();
-        this.message = baseResponse.getMessage();
-        this.code = baseResponse.getCode();
+    private BaseResponseStatus baseResponseStatus;
+
+    public KuchatException(BaseResponseStatus baseResponseStatus){
+        this.baseResponseStatus = baseResponseStatus;
     }
 
-    public KuchatException(BaseResponse baseResponse,String message){
-        this.httpStatus = baseResponse.getHttpStatus();
-        this.message = message;
-        this.code = baseResponse.getCode();
+    public KuchatException(BaseResponseStatus baseResponseStatus, String message){
+        this.baseResponseStatus = baseResponseStatus;
+        baseResponseStatus.setMessage(message);
+    }
+
+    public HttpStatus getHttpStatus(){
+        return baseResponseStatus.getHttpStatus();
     }
 }

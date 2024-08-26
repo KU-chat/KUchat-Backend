@@ -1,6 +1,6 @@
 package kuchat.server.domain.chatroom.dto;
 
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,5 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ChatroomResponse {
     private Long id;
-    private BaseResponse baseResponse;
+    private BaseResponseStatus baseResponseStatus;
 }

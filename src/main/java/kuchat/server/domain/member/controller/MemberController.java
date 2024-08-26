@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import kuchat.server.common.argumentResolver.Auth;
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.jwt.argumentResolver.Auth;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.ProfileResponse;
@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static kuchat.server.common.exception.BaseResponse.INFO_BAD_REQUEST;
-import static kuchat.server.common.exception.BaseResponse.SUCCESS;
+import static kuchat.server.common.response.BaseResponseStatus.INFO_BAD_REQUEST;
+import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @Tag(name = "Member", description = "회원")
@@ -69,9 +69,9 @@ public class MemberController {
     @Operation(summary = "나의 프로필 수정")
     @SecurityRequirement(name = "JWT")
     @PatchMapping("/my-profile")
-    public ResponseEntity<BaseResponse> updateMyProfile(@Auth Member member,
-                                                        @Validated @RequestBody ProfileUpdateRequest requestBody,
-                                                        BindingResult bindingResult) {
+    public ResponseEntity<BaseResponseStatus> updateMyProfile(@Auth Member member,
+                                                              @Validated @RequestBody ProfileUpdateRequest requestBody,
+                                                              BindingResult bindingResult) {
         log.info("[updateMyProfile] 프로필 수정 요청");
         if(bindingResult.hasErrors()) {
             String messages = getErrorMessages(bindingResult);
@@ -80,13 +80,13 @@ public class MemberController {
         }
         log.info("[getMyProfile] 나의 프로필 수정 요청");
         memberService.updateProfile(member.getId(), requestBody);
-        return ResponseEntity.ok(BaseResponse.SUCCESS);
+        return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
     }
 
     @Operation(summary = "로그아웃")
     @SecurityRequirement(name = "JWT")
     @PostMapping("/logout")
-    public ResponseEntity<BaseResponse> logout(@Auth Member member, HttpServletResponse response) throws IOException {
+    public ResponseEntity<BaseResponseStatus> logout(@Auth Member member, HttpServletResponse response) throws IOException {
         log.info("[logout] memberId = {}", member.getId());
         memberService.logout(member);
 
@@ -103,10 +103,9 @@ public class MemberController {
     @Operation(summary = "회원 탈퇴")
     @SecurityRequirement(name = "JWT")
     @GetMapping("/quit")
-    public ResponseEntity<BaseResponse> quit(@Auth Member member) {
+    public ResponseEntity<BaseResponseStatus> quit(@Auth Member member) {
         log.info("[quit] memberId = {}", member.getId());
-//        BaseResponse response = memberService.quit(memberId);
-        BaseResponse response = BaseResponse.SUCCESS;
+        BaseResponseStatus response = memberService.quit(member);
         return ResponseEntity.ok(response);
     }
 

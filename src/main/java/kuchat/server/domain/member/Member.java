@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.block.Block;
@@ -170,7 +170,7 @@ public class Member extends BaseTime {
 
     public boolean addFriend(Friend friend) {
         if (containsFriend(friend.getFollowed())) {
-            throw new KuchatException(BaseResponse.ALREADY_FRIEND);
+            throw new KuchatException(BaseResponseStatus.ALREADY_FRIEND);
         }
         friends.add(friend);
         return true;

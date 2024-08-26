@@ -2,7 +2,7 @@ package kuchat.server.domain.message.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.enums.MessageType;
 import lombok.Builder;
@@ -63,7 +63,7 @@ public class ChatMessage {
             Pattern pattern = Pattern.compile("\\(([^)]+)\\)");
             Matcher matcher = pattern.matcher(publishMessage);
             if (!matcher.find()) {
-                throw new KuchatException(BaseResponse.NOT_FOUND_MESSAGE);
+                throw new KuchatException(BaseResponseStatus.NOT_FOUND_MESSAGE);
             }
 
             String message = matcher.group().replace("(", "").replace(")", "");       // 괄호안의 data
@@ -94,7 +94,7 @@ public class ChatMessage {
                 }
             }
         } catch (Exception e) {
-            throw new KuchatException(BaseResponse.CONVERT_TO_OBJECT_FAIL);
+            throw new KuchatException(BaseResponseStatus.CONVERT_TO_OBJECT_FAIL);
         }
     }
 }

@@ -1,7 +1,7 @@
 package kuchat.server.domain.chatroom;
 
 import jakarta.persistence.*;
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.enums.Status;
@@ -51,7 +51,7 @@ public class Chatroom extends BaseTime {
         if (chatroomMembers.remove(chatroomMember)) {
             return chatroomMembers.size();
         } else {
-            throw new KuchatException(BaseResponse.EXIT_CHATROOM_FAIL);
+            throw new KuchatException(BaseResponseStatus.EXIT_CHATROOM_FAIL);
         }
     }
 

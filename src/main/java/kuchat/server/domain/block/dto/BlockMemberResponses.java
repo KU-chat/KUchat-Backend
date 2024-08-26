@@ -1,6 +1,6 @@
 package kuchat.server.domain.block.dto;
 
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,10 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 public class BlockMemberResponses {
     List<BlockMemberResponse> blockMemberResponses;
-    BaseResponse baseResponse;
+    BaseResponseStatus baseResponseStatus;
 
     public BlockMemberResponses(List<BlockMemberResponse> blockMemberResponses) {
         this.blockMemberResponses = blockMemberResponses;
-        baseResponse = BaseResponse.SUCCESS;
+        baseResponseStatus = BaseResponseStatus.SUCCESS;
     }
 }

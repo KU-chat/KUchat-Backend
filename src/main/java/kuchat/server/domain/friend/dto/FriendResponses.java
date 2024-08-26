@@ -1,6 +1,6 @@
 package kuchat.server.domain.friend.dto;
 
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,10 +15,10 @@ import java.util.List;
 @NoArgsConstructor
 public class FriendResponses {
     private List<FriendResponse> responses;
-    private BaseResponse baseResponse;
+    private BaseResponseStatus baseResponseStatus;
 
     public FriendResponses(List<FriendResponse> responses) {
         this.responses = responses;
-        baseResponse = BaseResponse.SUCCESS;
+        baseResponseStatus = BaseResponseStatus.SUCCESS;
     }
 }

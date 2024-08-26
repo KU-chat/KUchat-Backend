@@ -1,6 +1,6 @@
 package kuchat.server.common.config;
 
-import kuchat.server.common.interceptor.JwtTokenInterceptor;
+import kuchat.server.common.jwt.JwtTokenInterceptor;
 import kuchat.server.common.oauth.handler.OAuth2LoginFailureHandler;
 import kuchat.server.common.oauth.handler.OAuth2LoginSuccessHandler;
 import kuchat.server.common.oauth.service.OAuth2Service;

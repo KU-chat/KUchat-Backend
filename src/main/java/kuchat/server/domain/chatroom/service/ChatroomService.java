@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static kuchat.server.common.exception.BaseResponse.*;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 
 @Slf4j

@@ -1,7 +1,7 @@
 package kuchat.server.common.config;
 
-import kuchat.server.common.argumentResolver.AuthArgumentResolver;
-import kuchat.server.common.interceptor.JwtTokenInterceptor;
+import kuchat.server.common.jwt.argumentResolver.AuthArgumentResolver;
+import kuchat.server.common.jwt.JwtTokenInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.view.MustacheViewResolver;

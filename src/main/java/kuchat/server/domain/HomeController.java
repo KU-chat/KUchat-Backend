@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static kuchat.server.common.exception.BaseResponse.INVALID_TOKEN;
+import static kuchat.server.common.response.BaseResponseStatus.INVALID_TOKEN;
 
 @Slf4j
 @RequiredArgsConstructor

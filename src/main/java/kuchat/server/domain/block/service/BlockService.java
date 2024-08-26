@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_BLOCK;
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_BLOCK;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MEMBER;
 
 
 @Slf4j

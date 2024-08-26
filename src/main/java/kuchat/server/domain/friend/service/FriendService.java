@@ -1,6 +1,6 @@
 package kuchat.server.domain.friend.service;
 
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.friend.dto.FriendResponse;
@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static kuchat.server.common.exception.BaseResponse.BLOCKED_MEMBER;
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MEMBER;
+import static kuchat.server.common.response.BaseResponseStatus.BLOCKED_MEMBER;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MEMBER;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class FriendService {
     public void addFriend(Member member, Long friendId) {
         log.info("[addFriend] member = {} 가 receiver id = {} 를 친구로 추가함", member.getId(), friendId);
         Member friendMember = memberRepository.findById(friendId)
-                .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_MEMBER));
         Friend newFriend = Friend.builder()
                 .follower(member)
                 .followed(friendMember).build();
@@ -43,7 +43,7 @@ public class FriendService {
     public void addByPlusId(Member member, String plusId) {
         log.info("[addByPlusId] member id = {} 인 사용자가 plus id = {} 인 사용자를 친구로 추가함.", member.getId(), plusId);
         Member friendMember = memberRepository.findByPlusId(plusId)
-                .orElseThrow(() -> new KuchatException(BaseResponse.NOT_FOUND_PLUSID));
+                .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_PLUSID));
         Friend newFriend = Friend.builder()
                 .follower(member)
                 .followed(friendMember).build();

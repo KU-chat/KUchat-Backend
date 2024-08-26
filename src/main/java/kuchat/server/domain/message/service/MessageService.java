@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static kuchat.server.common.exception.BaseResponse.NOT_FOUND_MESSAGE;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MESSAGE;
 
 
 @Slf4j

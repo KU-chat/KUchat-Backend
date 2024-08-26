@@ -1,6 +1,6 @@
 package kuchat.server.domain.enums;
 
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,6 @@ public enum Role {
                 return role;
             }
         }
-        throw new KuchatException(BaseResponse.NOT_FOUND_ROLE);
+        throw new KuchatException(BaseResponseStatus.NOT_FOUND_ROLE);
     }
 }

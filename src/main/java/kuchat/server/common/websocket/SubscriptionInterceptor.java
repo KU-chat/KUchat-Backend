@@ -1,18 +1,9 @@
 package kuchat.server.common.websocket;
 
-import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chatroom.service.ChatroomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.MessageHeaderAccessor;
-
-import static kuchat.server.common.exception.BaseResponse.ACCESS_DENIED;
-import static kuchat.server.common.exception.BaseResponse.STOMP_ACCESSOR_NULL;
-import static org.springframework.messaging.simp.stomp.StompCommand.*;
 
 // 메세지 요청, 응답을 가로채 로직을 수행하는 필터 역할
 @Slf4j

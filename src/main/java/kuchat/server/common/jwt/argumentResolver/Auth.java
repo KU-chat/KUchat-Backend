@@ -1,4 +1,4 @@
-package kuchat.server.common.argumentResolver;
+package kuchat.server.common.jwt.argumentResolver;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

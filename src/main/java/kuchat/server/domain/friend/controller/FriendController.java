@@ -1,8 +1,8 @@
 package kuchat.server.domain.friend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import kuchat.server.common.argumentResolver.Auth;
-import kuchat.server.common.exception.BaseResponse;
+import kuchat.server.common.jwt.argumentResolver.Auth;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.service.FriendService;
@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static kuchat.server.common.exception.BaseResponse.*;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,8 +24,8 @@ public class FriendController {
 
     @Operation(summary = "친구 프로필에서 친구 신청 보내기")
     @PostMapping("/{id}")
-    public ResponseEntity<BaseResponse> addFriend(@Auth Member member,
-                                                  @PathVariable("id") Long friendId) {
+    public ResponseEntity<BaseResponseStatus> addFriend(@Auth Member member,
+                                                        @PathVariable("id") Long friendId) {
         log.info("[applyFriend] id = {} 인 사용자를 친구로 추가", friendId);
         friendService.addFriend(member, friendId);
         return ResponseEntity.ok(SUCCESS);
@@ -33,8 +33,8 @@ public class FriendController {
 
     @Operation(summary = "plus id로 친구 신청 보내기")
     @PostMapping("plusId/{plusId}")
-    public ResponseEntity<BaseResponse> sendApplyByPlusId(@Auth Member member,
-                                                          @PathVariable("plusId") String plusId) {
+    public ResponseEntity<BaseResponseStatus> sendApplyByPlusId(@Auth Member member,
+                                                                @PathVariable("plusId") String plusId) {
         log.info("[applyFriendByPlusId] plusId = {} 인 친구에서 {} 가 친구 요청을 보냄", plusId, member.getId());
         friendService.addByPlusId(member, plusId);
         return ResponseEntity.ok(SUCCESS);
@@ -60,8 +60,8 @@ public class FriendController {
 
     @Operation(summary = "친구 삭제")
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseResponse> deleteFriend(@Auth Member member,
-                                                     @PathVariable("id") Long friendId) {
+    public ResponseEntity<BaseResponseStatus> deleteFriend(@Auth Member member,
+                                                           @PathVariable("id") Long friendId) {
         log.info("[deleteFriend] member id = {} 인 사용자와의 친구 관계 삭제", friendId);
         friendService.delete(member, friendId);
         return ResponseEntity.ok(SUCCESS);

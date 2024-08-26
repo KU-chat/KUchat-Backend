@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-import static kuchat.server.common.exception.BaseResponse.*;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Getter
 @Slf4j
@@ -137,7 +137,6 @@ public class JwtTokenService {
         log.info("[generateGuestToken] platform: " + platform);
         log.info("[generateGuestToken] providerId: " + providerId);
 
-
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -185,6 +184,25 @@ public class JwtTokenService {
         String providerId = body.get("providerId", String.class);
         log.info("[extractMemberByGuestToken] member의 platform = {}, providerId = {}", platform, providerId);
         return memberRepository.findByPlatformAndProviderId(platform, providerId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
+
+
+    public Member extractMemberByAccessToken(String accessToken) {
+        // 1. 토큰의 유효성 확인
+        if (accessToken == null) {
+            log.info("[extractMemberByAccessToken] 토큰이 존재하지 않습니다.");
+            throw new JwtTokenException(NOT_FOUND_TOKEN);
+        }
+        if (isExpired(accessToken)) {
+            log.info("[extractMemberByAccessToken] 토큰이 만료되었습니다.");
+            throw new JwtTokenException(EXPIRED_TOKEN);
+        }
+
+        Long memberId = getMemberId(accessToken);
+
+        log.info("[extractMemberByAccessToken] member의 id = {}", memberId);
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 }
