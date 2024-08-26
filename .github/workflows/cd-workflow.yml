@@ -56,11 +56,15 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           envs: GITHUB_SHA
           script: |
+            echo "Stopping existing container..."
             if [ $(docker ps -q -f name=kuchat) ]; then
               sudo docker stop kuchat
               sudo docker rm kuchat
             fi
             sudo docker ps
+            echo "Pulling new image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
+            echo "Running new container..."
             sudo docker run -d -p 8000:9000 --name kuchat ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
+            echo "Cleaning up old images..."
             sudo docker image prune -f
