@@ -56,7 +56,7 @@ public class MessageService {
                 .map(Member::getName)
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
 
-        ChatMessage joinMessage = new ChatMessage(chatroom.getId(), MessageType.TALK, SERVER_ID, text);
+        ChatMessage joinMessage = new ChatMessage(chatroom.getId(), "TALK", SERVER_ID, text);
         log.info("[sendJoinMessage] 서버에서 새로 만든 enterMessage = {}", joinMessage.toString());
         Message saved = messageRepository.save(new Message(joinMessage, chatroom));
         return MessageResponse.serverNotice(saved);
@@ -66,11 +66,7 @@ public class MessageService {
     @Transactional
     public MessageResponse createLeaveMessage(Member member, Chatroom chatroom) {
         String text = member.getName() + " 님이 채팅방을 나갔습니다.";
-        ChatMessage leaveMessage = ChatMessage.builder()
-                .chatroomId(chatroom.getId())
-                .senderId(member.getId())
-                .text(text)
-                .build();
+        ChatMessage leaveMessage = new ChatMessage(chatroom.getId(), "LEAVE", member.getId(), text);
         Message saved = messageRepository.save(new Message(leaveMessage, chatroom));
         return MessageResponse.serverNotice(saved);
     }
@@ -81,7 +77,7 @@ public class MessageService {
     public MessageResponse handleReceivedMessage(Chatroom chatroom, ChatMessage chatMessage) {
         Message message;
         if (chatMessage.getParentId() != null) {
-            Message parent = messageRepository.findById(chatMessage.getParentId())
+            Message parent = messageRepository.findById(Long.parseLong(chatMessage.getParentId()))
                     .orElseThrow(() -> new KuchatException(NOT_FOUND_MESSAGE));
             message = new Message(chatMessage, chatroom, parent);
         }

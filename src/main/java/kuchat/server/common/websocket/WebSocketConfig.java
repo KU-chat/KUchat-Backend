@@ -1,13 +1,10 @@
-package kuchat.server.common.config;
+package kuchat.server.common.websocket;
 
 
-import kuchat.server.common.websocket.SubscriptionInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.web.socket.config.annotation.*;
 
 @Slf4j
@@ -15,7 +12,8 @@ import org.springframework.web.socket.config.annotation.*;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-//    private final WebSocketHandler webSocketHandler;
+
+//    private final SubscriptionInterceptor subscriptionInterceptor;
 
     @Override
     public void configureMessageBroker (MessageBrokerRegistry mqRegistry){
@@ -25,14 +23,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry){
-        log.info("[registerStompEndpoints] Registering STOMP endpoint at /ws");
-        registry.addEndpoint("/ws-connect")     // stomp websocket 연결 end point
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
+        log.info("[registerStompEndpoints] Registering STOMP endpoint at /stomp");
+        registry.addEndpoint("/stomp")     // stomp websocket 연결 end point
+                .setAllowedOriginPatterns("*");
     }
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration){
-//        registration.interceptors(new SubscriptionInterceptor());       // 인터셉터 등록
-    }
+//    @Override
+//    public void configureClientInboundChannel(ChannelRegistration registration){
+//        registration.interceptors(subscriptionInterceptor);       // 인터셉터 등록
+//        // 사용자가 웹소켓 연결할 때 & 연결이 끊길 때 추가 기능을 위해 인터셉터 추가 (인증, 세션관리 등)
+//    }
 }

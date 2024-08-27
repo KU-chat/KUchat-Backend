@@ -34,13 +34,17 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)             // 세션을 사용하지 않으므로 disable (stateless)
                 )
-                .authorizeHttpRequests((authorize) -> authorize                             // 인증, 인가 설정 시 HttpServletRequest 를 사용한다는 의미
-//                        .requestMatchers("/index.html", "/", "/css/**", "/images/**", "/js/**", "/h2-console/**",
-//                                "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
-//                        .requestMatchers("/oauth/login", "/member/signup", "/ws/**", "/ws-connect").permitAll()       // 인증 절차 없이 접근 가능해야 하는 페이지 모두 추가하기
-//                        .anyRequest().authenticated()           // 이 외에 모든 페이지는 인증된 사용자만 접근 가능
-                                .anyRequest().permitAll()
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/stomp/**").permitAll()  // WebSocket 경로 허용
+                        .anyRequest().permitAll()
                 )
+//                .authorizeHttpRequests((authorize) -> authorize                             // 인증, 인가 설정 시 HttpServletRequest 를 사용한다는 의미
+////                        .requestMatchers("/index.html", "/", "/css/**", "/images/**", "/js/**", "/h2-console/**",
+////                                "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+////                        .requestMatchers("/oauth/login", "/member/signup", "/ws/**", "/ws-connect").permitAll()       // 인증 절차 없이 접근 가능해야 하는 페이지 모두 추가하기
+////                        .anyRequest().authenticated()           // 이 외에 모든 페이지는 인증된 사용자만 접근 가능
+//                                .anyRequest().permitAll()
+//                )
                 .oauth2Login(oauth2Login -> oauth2Login                                      // oauth2 로그인에 관한 다양한 기능 제공
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)

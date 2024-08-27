@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Transactional(readOnly = true)
 @Service
 public class RedisService {
-    private final SubscriptionManager subscriptionManager;
+//    private final SubscriptionManager subscriptionManager;
     private final SimpMessageSendingOperations messageSendingOperations;
 
     //    private Map<Long, Subscriber> subscribers;

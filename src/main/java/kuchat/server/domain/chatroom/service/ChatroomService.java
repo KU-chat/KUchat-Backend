@@ -84,6 +84,10 @@ public class ChatroomService {
         return chatroom;
     }
 
+    public boolean existChatroom(Long chatroomId) {
+        return chatroomRepository.findById(chatroomId).isPresent();
+    }
+
     @Transactional
     public MessageResponse join(Long chatroomId, List<Long> memberIds) {
         Chatroom chatroom = getChatroom(chatroomId);
