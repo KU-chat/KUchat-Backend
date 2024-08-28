@@ -1,14 +1,17 @@
 package kuchat.server.domain.message.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
 import static kuchat.server.domain.message.service.MessageService.SERVER_ID;
 
 @Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Builder
 @ToString
 public class ChatroomJoinRequest {
 

@@ -38,7 +38,7 @@ public class RedisService {
     }
 
     public void setRefreshToken(Long memberId, String refreshToken) {
-        memberInfo.put(memberId, refreshToken);
+        memberInfo.put(memberId, refreshToken);     // 이 때 저장되는 refresh token에는 bearer이 붙어있으면 안됨
     }
 
     public void removeRefreshToken(Long memberId) {

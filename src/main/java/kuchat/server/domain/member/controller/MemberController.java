@@ -25,8 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static kuchat.server.common.response.BaseResponseStatus.INFO_BAD_REQUEST;
-import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @Tag(name = "Member", description = "회원")
@@ -41,19 +40,23 @@ public class MemberController {
     @Operation(summary = "회원가입")
     @SecurityRequirement(name = "JWT")
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@RequestHeader(value = HttpHeaders.AUTHORIZATION) String guestToken,
+    public ResponseEntity<SignupResponse> signup(@CookieValue(required = false, value = HttpHeaders.AUTHORIZATION) String guestToken,
                                                  @Validated @RequestBody SignupRequest signupRequest, BindingResult bindingResult) {
         log.info("[signup] 회원가입 요청");
+        if(guestToken == null) {
+            log.error("[signup] 회원가입 요청 시 쿠키에 토큰이 존재하지 않음");
+            throw new KuchatException(NOT_FOUND_TOKEN);
+        }
+
         if(bindingResult.hasErrors()) {
             String messages = getErrorMessages(bindingResult);
             log.error("[signup] bindingResult messages = {}", messages);
             throw new KuchatException(INFO_BAD_REQUEST, messages);
         }
 
-        String token = guestToken.trim().replace("Bearer ", "");
-        log.info("[signup] guestToken = {}", token);
-//        log.info("[signup] signupRequest = {}", signupRequest.toString());
-        SignupResponse response = memberService.signup(token, signupRequest);
+        log.info("[signup] guestToken = {}", guestToken);
+        log.info("[signup] signupRequest = {}", signupRequest.toString());
+        SignupResponse response = memberService.signup(guestToken, signupRequest);
         return ResponseEntity.ok(response);
     }
 

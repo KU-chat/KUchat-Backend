@@ -97,6 +97,7 @@ public class JwtTokenService {
         if (refreshToken == null) {
             return false;
         }
+
         if (isExpired(refreshToken)) {
             return false;
         }
@@ -152,6 +153,7 @@ public class JwtTokenService {
             log.info("[isValidGuestToken] 토큰이 존재하지 않습니다.");
             return false;  // 토큰이 없을 경우 false 반환
         }
+
         try {
             if (isExpired(guestToken)) {
                 log.info("[isValidGuestToken] 토큰이 만료되었습니다.");
@@ -194,6 +196,7 @@ public class JwtTokenService {
             log.info("[extractMemberByAccessToken] 토큰이 존재하지 않습니다.");
             throw new JwtTokenException(NOT_FOUND_TOKEN);
         }
+
         if (isExpired(accessToken)) {
             log.info("[extractMemberByAccessToken] 토큰이 만료되었습니다.");
             throw new JwtTokenException(EXPIRED_TOKEN);

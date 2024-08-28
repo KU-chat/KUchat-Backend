@@ -2,6 +2,7 @@ package kuchat.server.common.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,9 +48,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] GUEST, 아직 쿠챗 회원가입을 하지 않은 사람");
                 String platform = customOAuth2User.getPlatform().getValue();
                 String providerId = customOAuth2User.getProviderId();
-                String accessToken = "Bearer " + jwtTokenService.generateGuestToken(platform, providerId);
-                response.setHeader(HttpHeaders.AUTHORIZATION, accessToken);
-                log.info("[회원가입 전 access token] {}", accessToken);
+                String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
+                log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
+                Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, guestToken);
+                cookie.setMaxAge(3600);     // 1시간
+                cookie.setHttpOnly(true);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+                log.info("[회원가입 전 access token] {}", cookie);
                 response.sendRedirect("/member/signup");
             }
 
