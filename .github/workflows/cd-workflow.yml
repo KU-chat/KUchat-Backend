@@ -54,13 +54,12 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           port: ${{ secrets.EC2_PORT }}
-#          envs: GITHUB_SHA
+          envs: GITHUB_SHA
           script: |
-            export GITHUB_SHA=${{ github.sha }}
             echo "Stopping existing container..."
             sudo docker stop kuchat
             sudo docker rm kuchat
-#            같은 이름의 컨테이너가 있으면 새로운 컨테이너로 갱신되지 않음! -> 그래서 반드시 기존 컨테이너 삭제해줘야함!!!
+            
             sudo docker ps -a
             echo "Pulling new image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
