@@ -54,8 +54,9 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           port: ${{ secrets.EC2_PORT }}
-          envs: GITHUB_SHA
+#          envs: GITHUB_SHA
           script: |
+            export GITHUB_SHA=${{ github.sha }}
             echo "Stopping existing container..."
             sudo docker stop kuchat
             sudo docker rm kuchat
