@@ -55,7 +55,8 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           envs: GITHUB_SHA
           script: |
-            
+            echo "📂 Current working directory:"
+            pwd
             
             echo "✋🏻Stopping existing services..."
             sudo docker-compose -f docker-compose-dev.yml down
