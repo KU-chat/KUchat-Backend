@@ -1,0 +1,21 @@
+# dev 환경에서의 docker compose
+
+services:
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    ports:
+      - 8000:9000
+    depends_on:
+      mq-server:
+        condition: service_healthy    # mq 서버가 정상적으로 작동할 때에만 api 서버를 띄운다
+
+  mq-server:
+    image: redis
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      retries: 10
