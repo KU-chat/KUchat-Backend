@@ -11,18 +11,22 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.oauth.CustomOAuth2User;
+import kuchat.server.common.response.ErrorResponse;
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Duration;
+
+import static kuchat.server.common.response.BaseResponseStatus.NOT_SIGNUP_MEMBER;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,7 +60,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 cookie.setPath("/");
                 response.addCookie(cookie);
                 log.info("[회원가입 전 access token] {}", cookie);
-                response.sendRedirect("/member/signup");
+
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write(new ObjectMapper().writeValueAsString(new ErrorResponse(NOT_SIGNUP_MEMBER)));
+                response.getWriter().flush();
+//                response.sendRedirect("/member/signup");
             }
 
             // 기존 회원인 경우 (Role = STUDENT)
@@ -73,7 +82,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] accessToken : " + authToken.getAccessToken());
                 log.info("[SuccessHandler] refreshToken : " + authToken.getRefreshToken());
 
-                response.sendRedirect("/");
+//                response.sendRedirect("/");
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType("application/json");
                 response.getWriter().write(new ObjectMapper().writeValueAsString(authToken));
