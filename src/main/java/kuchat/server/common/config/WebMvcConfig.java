@@ -45,8 +45,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(authArgumentResolver);
     }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("https://www.kuchat.site");
+        log.info("[addCorsMappings] CorsMapping 호출");
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000", "http://localhost:9000", "https://www.kuchat.site")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS")
+                .exposedHeaders("location", "Authorization")
+                .allowedHeaders("Content-Type", "Authorization", "X-Requested-With", "Accept")
+                .allowCredentials(true);        // 쿠키 허용
     }
+
 }
