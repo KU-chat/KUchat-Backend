@@ -55,17 +55,26 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           envs: GITHUB_SHA
           script: |
-            echo "📂 Current working directory:"
-            pwd
+            echo "🔍 Searching for docker-compose-dev.yml file"
+            COMPOSE_FILE_PATH=$(find . -name "docker-compose-dev.yml" -print -quit)
             
-            echo "✋🏻Stopping existing services..."
+            if [ -z "$COMPOSE_FILE_PATH" ]; then
+            echo "❌ docker-compose-dev.yml file not found!"
+            exit 1
+            fi
+            
+            COMPOSE_DIR=$(dirname "$COMPOSE_FILE_PATH")
+            echo "📂 Found docker-compose-dev.yml in $COMPOSE_DIR, moving to that directory"
+            cd "$COMPOSE_DIR"
+            
+            echo "✋🏻Stopping existing services"
             sudo docker-compose -f docker-compose-dev.yml down
             
-            echo "🥳Pulling new images..."
+            echo "🥳Pulling new images"
             sudo docker-compose -f docker-compose-dev.yml pull
             
-            echo "🌱Starting services with new images..."
+            echo "🌱Starting services with new images"
             sudo docker-compose -f docker-compose-dev.yml up -d
       
-            echo "🚮Cleaning up old images..."
+            echo "🚮Cleaning up old images"
             sudo docker image prune -f
