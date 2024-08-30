@@ -47,7 +47,7 @@ jobs:
           docker build -f Dockerfile-dev -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }} .
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
 
-      - name: 🚀 deploy to dev-server
+      - name: 🚀 deploy to dev-server with docker compose
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -56,14 +56,14 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           envs: GITHUB_SHA
           script: |
-            echo "Stopping existing container..."
-            sudo docker stop kuchat
-            sudo docker rm kuchat
+            echo "✋🏻Stopping existing services..."
+            sudo docker-compose -f docker-compose-dev.yml down
             
-            sudo docker ps -a
-            echo "Pulling new image..."
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
-            echo "Running new container..."
-            sudo docker run -d -p 8000:9000 --name kuchat ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
-            echo "Cleaning up old images..."
+            echo "🥳Pulling new images..."
+            sudo docker-compose -f docker-compose-dev.yml pull
+            
+            echo "🌱Starting services with new images..."
+            sudo docker-compose -f docker-compose-dev.yml up -d
+      
+            echo "🚮Cleaning up old images..."
             sudo docker image prune -f
