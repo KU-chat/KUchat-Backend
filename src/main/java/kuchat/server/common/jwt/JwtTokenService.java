@@ -28,7 +28,7 @@ public class JwtTokenService {
     private final MemberRepository memberRepository;
     private final RedisService redisService;
 
-    @Value("${secret.jwt.secret-key}")
+    @Value("${secret.jwt.key}")
     private String secretKey;
 
     @Value("${secret.jwt.access.expiration}")
