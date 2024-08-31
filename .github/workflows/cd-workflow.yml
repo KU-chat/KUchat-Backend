@@ -46,7 +46,7 @@ jobs:
           docker build -f Dockerfile-dev -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }} .
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
 
-      - name: 🚀 deploy to dev-server with docker compose
+      - name: 🚀 deploy to dev-server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -55,26 +55,17 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           envs: GITHUB_SHA
           script: |
-            echo "🔍 Searching for docker-compose-dev.yml file"
-            COMPOSE_FILE_PATH=$(find . -name "docker-compose-dev.yml" -print -quit)
+            echo "✋🏻Stopping existing container"
+            sudo docker stop kuchat
+            sudo docker rm kuchat
+        
+            sudo docker ps -a
             
-            if [ -z "$COMPOSE_FILE_PATH" ]; then
-            echo "❌ docker-compose-dev.yml file not found!"
-            exit 1
-            fi
+            echo "🥳Pulling new image"
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
             
-            COMPOSE_DIR=$(dirname "$COMPOSE_FILE_PATH")
-            echo "📂 Found docker-compose-dev.yml in $COMPOSE_DIR, moving to that directory"
-            cd "$COMPOSE_DIR"
-            
-            echo "✋🏻Stopping existing services"
-            sudo docker-compose -f docker-compose-dev.yml down
-            
-            echo "🥳Pulling new images"
-            sudo docker-compose -f docker-compose-dev.yml pull
-            
-            echo "🌱Starting services with new images"
-            sudo docker-compose -f docker-compose-dev.yml up -d
-      
+            echo "🌱Running new container"
+            sudo docker run -d -p 8000:9000 --name kuchat ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
+
             echo "🚮Cleaning up old images"
             sudo docker image prune -f
