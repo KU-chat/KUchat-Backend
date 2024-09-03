@@ -20,7 +20,7 @@ public class GuestArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(Auth.class);
+        return parameter.hasParameterAnnotation(Guest.class);
     }
 
     @Override
@@ -30,8 +30,8 @@ public class GuestArgumentResolver implements HandlerMethodArgumentResolver {
         if (token == null) {
             throw new KuchatException(NOT_FOUND_TOKEN);
         }
-        String accessToken = token.replaceAll("Bearer ", "");
-        return jwtTokenService.extractMemberByGuestToken(accessToken);
+        String guestToken = token.replaceAll("Bearer ", "");
+        return jwtTokenService.extractMemberByGuestToken(guestToken);
     }
 
 }

@@ -169,6 +169,7 @@ public class JwtTokenService {
     }
 
     public Member extractMemberByGuestToken(String guestToken) {
+        log.info("[extractMemberByGuestToken] guestToken = {} ", guestToken);
         // 1. 토큰의 유효성 확인 : 리프레시 토큰이 올바르게 서명되었는지, 만료되지 않았는지 확인
         if (guestToken == null) {
             log.info("[extractMemberByGuestToken] 토큰이 존재하지 않습니다.");
