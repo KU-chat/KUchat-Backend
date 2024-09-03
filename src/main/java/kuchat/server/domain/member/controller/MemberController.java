@@ -46,6 +46,11 @@ public class MemberController {
                                                  BindingResult bindingResult) {
         log.info("[signup] 회원가입 요청");
 
+        if (member == null){
+            log.error("[signup] guest token을 가지고 찾은 멤버가 null인 오류");
+            throw new KuchatException(NOT_FOUND_MEMBER);
+        }
+
         if(bindingResult.hasErrors()) {
             String messages = getErrorMessages(bindingResult);
             log.error("[signup] bindingResult messages = {}", messages);
