@@ -55,15 +55,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
 
-                String url = "http://localhost:3000?guest-token="+guestToken;
+//                String url = "http://localhost:3000?guest-token="+guestToken;
+                String url = "http://localhost:3000/signup";
                 response.sendRedirect(url);
 
-//                Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, guestToken);
-//                cookie.setMaxAge(3600);     // 1시간
-//                cookie.setHttpOnly(true);
-//                cookie.setPath("/");
-//                response.addCookie(cookie);
-//                log.info("[회원가입 전 access token] {}", cookie);
+                Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, guestToken);
+                cookie.setMaxAge(3600);     // 1시간
+                cookie.setHttpOnly(true);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+                log.info("[회원가입 전 access token] {}", cookie);
 
 //                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 //                response.setContentType("application/json");
