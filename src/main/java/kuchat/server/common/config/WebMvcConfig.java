@@ -2,6 +2,7 @@ package kuchat.server.common.config;
 
 import kuchat.server.common.jwt.argumentResolver.AuthArgumentResolver;
 import kuchat.server.common.jwt.JwtTokenInterceptor;
+import kuchat.server.common.jwt.argumentResolver.GuestArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.view.MustacheViewResolver;
@@ -20,6 +21,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, HEAD";
     private final AuthArgumentResolver authArgumentResolver;
+    private final GuestArgumentResolver guestArgumentResolver;
     private final JwtTokenInterceptor jwtTokenInterceptor;
 
 
@@ -45,6 +47,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(authArgumentResolver);
+        resolvers.add(guestArgumentResolver);
     }
 
 //    @Override

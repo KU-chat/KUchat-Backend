@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.jwt.argumentResolver.Auth;
+import kuchat.server.common.jwt.argumentResolver.Guest;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.member.Member;
@@ -40,7 +41,7 @@ public class MemberController {
     @Operation(summary = "회원가입")
     @SecurityRequirement(name = "JWT")
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@Auth Member member,
+    public ResponseEntity<SignupResponse> signup(@Guest Member member,
                                                  @Validated @RequestBody SignupRequest signupRequest,
                                                  BindingResult bindingResult) {
         log.info("[signup] 회원가입 요청");

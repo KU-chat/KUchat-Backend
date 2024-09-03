@@ -191,6 +191,8 @@ public class JwtTokenService {
 
 
     public Member extractMemberByAccessToken(String accessToken) {
+
+        log.info("[extractMemberByAccessToken] accessToken = {} ", accessToken);
         // 1. 토큰의 유효성 확인
         if (accessToken == null) {
             log.info("[extractMemberByAccessToken] 토큰이 존재하지 않습니다.");
