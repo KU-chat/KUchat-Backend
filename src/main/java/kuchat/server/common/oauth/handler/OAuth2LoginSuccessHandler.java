@@ -55,7 +55,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
 
-                String url = "http://localhost:3000?guest-token="+guestToken;
+                String url = "http://localhost:3000/signup?guest-token="+guestToken;
                 log.info("[redirect url] " + url);
 //                String url = "http://localhost:3000/signup";
                 response.sendRedirect(url);
