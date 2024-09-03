@@ -59,7 +59,7 @@ public class SecurityConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(List.of("https://www.kuchat.site", "http://localhost:9000", "https://localhost:3000"));
+                        configuration.setAllowedOrigins(List.of("https://www.kuchat.site", "http://localhost:9000", "http://localhost:3000"));
                         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
