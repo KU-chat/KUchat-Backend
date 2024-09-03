@@ -33,9 +33,7 @@ public class MemberService {
     private final RedisService redisService;
 
     @Transactional
-    public SignupResponse signup(String guestToken, SignupRequest signupRequest) {
-        log.info("[signup] guestToken = {}", guestToken);
-        Member member = jwtTokenService.extractMemberByGuestToken(guestToken);
+    public SignupResponse signup(Member member, SignupRequest signupRequest) {
         log.info("[signup] member = {}", member.toString());
         if (duplicateStudentId(signupRequest.getStudentId())) {
             log.error("[error] 이미 존재하는 학번입니다.");

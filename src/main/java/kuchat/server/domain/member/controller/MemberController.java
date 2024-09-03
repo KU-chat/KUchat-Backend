@@ -40,13 +40,10 @@ public class MemberController {
     @Operation(summary = "회원가입")
     @SecurityRequirement(name = "JWT")
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@CookieValue(required = false, value = HttpHeaders.AUTHORIZATION) String guestToken,
-                                                 @Validated @RequestBody SignupRequest signupRequest, BindingResult bindingResult) {
+    public ResponseEntity<SignupResponse> signup(@Auth Member member,
+                                                 @Validated @RequestBody SignupRequest signupRequest,
+                                                 BindingResult bindingResult) {
         log.info("[signup] 회원가입 요청");
-        if(guestToken == null) {
-            log.error("[signup] 회원가입 요청 시 쿠키에 토큰이 존재하지 않음");
-            throw new KuchatException(NOT_FOUND_TOKEN);
-        }
 
         if(bindingResult.hasErrors()) {
             String messages = getErrorMessages(bindingResult);
@@ -54,9 +51,9 @@ public class MemberController {
             throw new KuchatException(INFO_BAD_REQUEST, messages);
         }
 
-        log.info("[signup] guestToken = {}", guestToken);
+        log.info("[signup] member = {}", member.toString());
         log.info("[signup] signupRequest = {}", signupRequest.toString());
-        SignupResponse response = memberService.signup(guestToken, signupRequest);
+        SignupResponse response = memberService.signup(member, signupRequest);
         return ResponseEntity.ok(response);
     }
 
