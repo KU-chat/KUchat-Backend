@@ -54,17 +54,21 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String providerId = customOAuth2User.getProviderId();
                 String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
-                Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, guestToken);
-                cookie.setMaxAge(3600);     // 1시간
-                cookie.setHttpOnly(true);
-                cookie.setPath("/");
-                response.addCookie(cookie);
-                log.info("[회원가입 전 access token] {}", cookie);
 
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write(new ObjectMapper().writeValueAsString(new ErrorResponse(NOT_SIGNUP_MEMBER)));
-                response.getWriter().flush();
+                String url = "http://localhost:3000?guest-token="+guestToken;
+                response.sendRedirect(url);
+
+//                Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, guestToken);
+//                cookie.setMaxAge(3600);     // 1시간
+//                cookie.setHttpOnly(true);
+//                cookie.setPath("/");
+//                response.addCookie(cookie);
+//                log.info("[회원가입 전 access token] {}", cookie);
+
+//                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                response.setContentType("application/json");
+//                response.getWriter().write(new ObjectMapper().writeValueAsString(new ErrorResponse(NOT_SIGNUP_MEMBER)));
+//                response.getWriter().flush();
 //                response.sendRedirect("/member/signup");
             }
 

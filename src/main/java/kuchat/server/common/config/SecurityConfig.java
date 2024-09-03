@@ -53,6 +53,8 @@ public class SecurityConfig {
 ////                        .anyRequest().authenticated()           // 이 외에 모든 페이지는 인증된 사용자만 접근 가능
 //                                .anyRequest().permitAll()
 //                )
+
+                // cors 설정
                 .cors(cors -> cors.configurationSource(new CorsConfigurationSource(){
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
