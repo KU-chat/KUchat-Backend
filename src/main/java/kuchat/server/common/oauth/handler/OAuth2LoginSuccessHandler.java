@@ -72,7 +72,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] accessToken : " + authToken.getAccessToken());
                 log.info("[SuccessHandler] refreshToken : " + authToken.getRefreshToken());
 
-                response.sendRedirect("/");
+                response.sendRedirect("http://localhost:3000/user");
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType("application/json");
                 response.getWriter().write(new ObjectMapper().writeValueAsString(authToken));
