@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class RedisService {
 //    private final SubscriptionManager subscriptionManager;
-    private final SimpMessageSendingOperations messageSendingOperations;
+//    private final SimpMessageSendingOperations messageSendingOperations;
 
     //    private Map<Long, Subscriber> subscribers;
 //    private Map<Long, ChannelTopic> channels;         // chatroom id - ChannelTopic

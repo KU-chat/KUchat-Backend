@@ -2,31 +2,24 @@ package kuchat.server.common.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.oauth.CustomOAuth2User;
-import kuchat.server.common.response.ErrorResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.Duration;
-
-import static kuchat.server.common.response.BaseResponseStatus.NOT_SIGNUP_MEMBER;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,7 +32,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Transactional
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         log.info("[onAuthenticationSuccess] 사용자가 로그인 성공 이후!");
 
         try {
@@ -55,17 +48,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
 
-                String url = "http://localhost:3000/signup?guest-token="+guestToken;
-                log.info("[redirect url] " + url);
-//                String url = "http://localhost:3000/signup";
-                response.sendRedirect(url);
+                // 프론트와 api 연동 시 redirect url
+                String url = "http://localhost:3000/signup?guest-token=" + guestToken;
 
-//                Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, guestToken);
-//                cookie.setMaxAge(3600);     // 1시간
-//                cookie.setHttpOnly(true);
-//                cookie.setPath("/");
-//                response.addCookie(cookie);
-//                log.info("[회원가입 전 access token] {}", cookie);
+                // 백에서 테스트 시 redirect url
+//                String url = "http://localhost:9000/signup?guest-token=" + guestToken;
+
+                log.info("[redirect url] " + url);
+                response.sendRedirect(url);
             }
 
             // 기존 회원인 경우 (Role = STUDENT)
@@ -82,7 +72,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] accessToken : " + authToken.getAccessToken());
                 log.info("[SuccessHandler] refreshToken : " + authToken.getRefreshToken());
 
-//                response.sendRedirect("/");
+                response.sendRedirect("/");
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType("application/json");
                 response.getWriter().write(new ObjectMapper().writeValueAsString(authToken));

@@ -84,7 +84,7 @@ public class MemberController {
             log.error("[updateMyProfile] bindingResult messages = {}", messages);
             throw new KuchatException(INFO_BAD_REQUEST, messages);
         }
-        log.info("[getMyProfile] 나의 프로필 수정 요청");
+        log.info("[getMyProfile] 수정할 프로필 기록 = {}", requestBody.toString());
         memberService.updateProfile(member.getId(), requestBody);
         return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
     }

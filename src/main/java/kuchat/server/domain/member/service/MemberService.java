@@ -95,10 +95,12 @@ public class MemberService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 
+    @Transactional
     public void logout(Member member) {
         redisService.removeRefreshToken(member.getId());
     }
 
+    @Transactional
     public BaseResponseStatus quit(Member member) {
         redisService.removeRefreshToken(member.getId());      // 로그아웃 처리
         memberRepository.delete(member);                      // 탈퇴 처리

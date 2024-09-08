@@ -1,6 +1,5 @@
 package kuchat.server.common.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kuchat.server.common.jwt.JwtTokenInterceptor;
 import kuchat.server.common.oauth.handler.OAuth2LoginFailureHandler;
 import kuchat.server.common.oauth.handler.OAuth2LoginSuccessHandler;
@@ -14,13 +13,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
@@ -47,29 +39,12 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 )
 //                .authorizeHttpRequests((authorize) -> authorize                             // 인증, 인가 설정 시 HttpServletRequest 를 사용한다는 의미
-////                        .requestMatchers("/index.html", "/", "/css/**", "/images/**", "/js/**", "/h2-console/**",
+//                        .requestMatchers("/index.html", "/", "/css/**", "/images/**", "/js/**", "/h2-console/**",
 ////                                "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
 ////                        .requestMatchers("/oauth/login", "/member/signup", "/ws/**", "/ws-connect").permitAll()       // 인증 절차 없이 접근 가능해야 하는 페이지 모두 추가하기
 ////                        .anyRequest().authenticated()           // 이 외에 모든 페이지는 인증된 사용자만 접근 가능
 //                                .anyRequest().permitAll()
 //                )
-
-                // cors 설정
-                .cors(cors -> cors.configurationSource(new CorsConfigurationSource(){
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(List.of("https://www.kuchat.site", "http://localhost:9000", "http://localhost:3000"));
-                        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-                        configuration.setExposedHeaders(Arrays.asList("Authorization", "location"));
-                        configuration.setAllowCredentials(true);         // 쿠키 허용
-
-
-                        return configuration;
-                    }
-        }))
                 .oauth2Login(oauth2Login -> oauth2Login                                      // oauth2 로그인에 관한 다양한 기능 제공
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)
