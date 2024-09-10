@@ -7,6 +7,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.enums.Role;
+import kuchat.server.domain.enums.Status;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.Getter;
@@ -127,7 +128,8 @@ public class JwtTokenService {
         Long memberId = getMemberId(refreshToken);
         Claims claims = getClaims(refreshToken);
         String role = claims.get("role", String.class);
-        return generateAuthToken(Role.of(role), memberId);
+        AuthToken authToken = generateAuthToken(Role.of(role), memberId);
+        return authToken;
     }
 
     public String generateGuestToken(String platform, String providerId) {

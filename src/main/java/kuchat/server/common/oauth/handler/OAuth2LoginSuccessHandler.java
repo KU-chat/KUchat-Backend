@@ -9,6 +9,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.oauth.CustomOAuth2User;
+import kuchat.server.common.redis.RedisService;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;
@@ -29,6 +30,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenService jwtTokenService;
     private final MemberRepository memberRepository;
     private static final String REFRESH_TOKEN = "Authorization-refresh";
+    private final RedisService redisService;
 
     @Transactional
     @Override
@@ -49,10 +51,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
 
                 // 프론트와 api 연동 시 redirect url
-                String url = "http://localhost:3000/signup?guest-token=" + guestToken;
+//                String url = "http://localhost:3000/signup?guest-token=" + guestToken;
 
                 // 백에서 테스트 시 redirect url
-//                String url = "http://localhost:9000/signup?guest-token=" + guestToken;
+                String url = "http://localhost:9000/member/signup?guest-token=" + guestToken;
 
                 log.info("[redirect url] " + url);
                 response.sendRedirect(url);
@@ -72,7 +74,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] accessToken : " + authToken.getAccessToken());
                 log.info("[SuccessHandler] refreshToken : " + authToken.getRefreshToken());
 
-                response.sendRedirect("http://localhost:3000/user");
+//                response.sendRedirect("http://localhost:3000/user");
+                response.sendRedirect("/");
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType("application/json");
                 response.getWriter().write(new ObjectMapper().writeValueAsString(authToken));

@@ -96,6 +96,9 @@ public class Member extends BaseTime {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
 //    @OneToMany(mappedBy = "member")
 //    private List<Notification> notifications = new ArrayList<>();
 
@@ -115,6 +118,7 @@ public class Member extends BaseTime {
         this.platform = platform;
         this.providerId = providerId;
         this.profileImage = profileImage;
+        status = Status.PENDING;
         role = Role.GUEST;
     }
 
@@ -130,6 +134,7 @@ public class Member extends BaseTime {
         this.gender = Gender.of(request.getGender());
         this.plusId = generatePlusId(10);
 
+        this.status = Status.ACTIVE;
         this.role = Role.STUDENT;           // 추가정보 받은 후 처리
     }
 
@@ -195,5 +200,9 @@ public class Member extends BaseTime {
 
     public void deleteBlock(Block block) {
         blocks.remove(block);
+    }
+
+    public void withdraw(){
+        this.status = Status.WITHDRAWN;
     }
 }

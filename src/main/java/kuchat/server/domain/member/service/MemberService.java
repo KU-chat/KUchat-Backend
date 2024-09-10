@@ -51,8 +51,7 @@ public class MemberService {
     }
 
     private boolean duplicateStudentId(String studentId) {
-        return !memberRepository.findAllByStudentId(studentId)
-                .isEmpty();
+        return !memberRepository.findAllByStudentId(studentId).isEmpty();
     }
 
     public Member findMemberByEmail(String email) {
@@ -103,7 +102,8 @@ public class MemberService {
     @Transactional
     public BaseResponseStatus quit(Member member) {
         redisService.removeRefreshToken(member.getId());      // 로그아웃 처리
-        memberRepository.delete(member);                      // 탈퇴 처리
+//        memberRepository.delete(member);                      // 탈퇴 처리
+        member.withdraw();
         return SUCCESS;
     }
 

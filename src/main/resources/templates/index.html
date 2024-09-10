@@ -12,17 +12,18 @@
 
 <div id="user-info">
     <!-- 사용자가 로그인했을 경우, Thymeleaf 조건문 사용 -->
-<!--    <div th:if="${id}">-->
-        <p th:text="'id is : ' + ${id}"></p>
-        <p>Logged in as: <span th:text="'ID : ' + ${id} + ' 회원이 로그인 된 상태입니다.'"></span></p>
+    <div th:if="${member != null}">
+        <p th:text="'member name : ' + ${member.name}"></p>
+        <p>Logged in as: <span th:text="'ID : ' + ${member.id} + ' 회원이 로그인 된 상태입니다.'"></span></p>
         <a href="/logout" class="btn btn-info active" role="button">Logout</a>
         <a href="/ws/message" class="btn btn-primary active" role="button">채팅 참여하기</a>
-<!--    </div>-->
+    </div>
 
-    <!-- 사용자가 로그인하지 않았을 경우 -->
-<!--    <div th:unless="${id}">-->
+    <!-- member 객체가 없을 때 -->
+    <div th:unless="${member != null}">
+        <p>로그인되지 않은 상태입니다. 로그인 후 이용해 주세요.</p>
         <a href="/oauth2/authorization/google" class="btn btn-sm btn-success active" role="button">Google Login</a>
-<!--    </div>-->
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

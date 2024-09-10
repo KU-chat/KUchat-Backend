@@ -17,17 +17,20 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select m from Member m " +
-            "where m.platform=:platform and m.providerId=:providerId")
-    Optional<Member> findByPlatformAndProviderId(@Param("platform") Platform platform, @Param("providerId") String providerId);
+            "where m.platform=:platform and m.providerId=:providerId and m.status!='WITHDRAWN'")
+    Optional<Member> findByPlatformAndProviderId(@Param("platform") Platform platform,
+                                                 @Param("providerId") String providerId);
 
-    List<Member> findAllByStudentId(String studentId);
+    @Query("select m from Member m where m.studentId = :studentId and m.status != 'WITHDRAWN'")
+    List<Member> findAllByStudentId(@Param("studentId") String studentId);
 
-    Optional<Member> findByEmail(String email);
+    @Query("select m from Member m where m.email = :email and m.status != 'WITHDRAWN'")
+    Optional<Member> findByEmail(@Param("email") String email);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select m from Member m where m.plusId = :plusId")
+    @Query("select m from Member m where m.plusId = :plusId and m.status!='WITHDRAWN'")
     List<Member> findAllByPlusIdWithLock(@Param("plusId") String plusId);
 
-    @Query("select m from Member m where m.plusId = :plusId")
+    @Query("select m from Member m where m.plusId = :plusId and m.status!='WITHDRAWN'")
     Optional<Member> findByPlusId(@Param("plusId") String plusId);
 }

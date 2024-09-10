@@ -2,6 +2,8 @@ package kuchat.server.domain;
 
 import kuchat.server.common.exception.JwtTokenException;
 import kuchat.server.common.jwt.JwtTokenService;
+import kuchat.server.common.jwt.argumentResolver.Auth;
+import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -23,8 +25,13 @@ public class HomeController {
     private final JwtTokenService jwtTokenService;
 
     @GetMapping("")
-    public String home() {
+    public String home(@RequestHeader(value = "Authorization", required = false) String auth, Model model) {
+        if (auth != null) {
+            Member member = jwtTokenService.extractMemberByAccessToken(auth);
+            model.addAttribute("member", member);
+        }
         log.info("[home] 홈화면으로 이동~");
+        log.info("[home] model = {}", model);
         return "index";
     }
 

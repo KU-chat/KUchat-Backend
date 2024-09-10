@@ -37,6 +37,7 @@ public enum BaseResponseStatus {
     NOT_FOUND_ROLE(4004, HttpStatus.BAD_REQUEST, "사용자 권한 정보가 유효하지 않습니다. 다시 시도해주세요."),
     DUPLICATED_STUDENT_ID(4005, HttpStatus.BAD_REQUEST, "이미 회원가입 처리된 학번입니다. 다시 시도해 주세요."),
     NOT_SIGNUP_MEMBER(4006, HttpStatus.UNAUTHORIZED, "아직 회원가입 하지 않은 회원입니다. 회원가입 페이지로 이동해 주세요."),
+    NOT_FOUND_STATUS(4007, HttpStatus.NOT_FOUND, "사용자 계정 상태가 유효하지 않습니다. 다시 시도해주세요."),
 
     //- 5000번대 : 채팅방(chatroom) 관련 코드
     NOT_FOUND_CHATROOM(5000, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
