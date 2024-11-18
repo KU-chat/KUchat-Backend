@@ -70,7 +70,9 @@ public class JwtTokenService {
 
     private boolean isExpired(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey)
+            log.info("[isExpired] token: " + token);
+            Jws<Claims> claims = Jwts.parser()
+                    .setSigningKey(secretKey)
                     .parseClaimsJws(token);
             log.info("[isExpired] 토큰 만료 시간 = {} ", claims.getBody().getExpiration());
             log.info("[isExpired] 현재 시간 = {}", new Date());
@@ -98,15 +100,16 @@ public class JwtTokenService {
         if (refreshToken == null) {
             return false;
         }
+        String token = refreshToken.replaceAll("Bearer ", "");
 
-        if (isExpired(refreshToken)) {
+        if (isExpired(token)) {
             return false;
         }
 
         // 2. redis에 저장된 최신 리프레시 토큰과 일치 여부 확인 -> 토큰 무효화 및 재발급에 중요
-        Long memberId = getMemberId(refreshToken);
+        Long memberId = getMemberId(token);
         String stored = redisService.getRefreshToken(memberId);
-        return refreshToken.equals(stored);
+        return token.equals(stored);
     }
 
     public Claims getClaims(String token) {
@@ -122,11 +125,13 @@ public class JwtTokenService {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("memberId", Long.class);
+
     }
 
     public AuthToken reissue(String refreshToken) {
-        Long memberId = getMemberId(refreshToken);
-        Claims claims = getClaims(refreshToken);
+        String token = refreshToken.replaceAll("Bearer ", "");
+        Long memberId = getMemberId(token);
+        Claims claims = getClaims(token);
         String role = claims.get("role", String.class);
         AuthToken authToken = generateAuthToken(Role.of(role), memberId);
         return authToken;
@@ -177,13 +182,15 @@ public class JwtTokenService {
             log.info("[extractMemberByGuestToken] 토큰이 존재하지 않습니다.");
             throw new JwtTokenException(NOT_FOUND_TOKEN);
         }
-        if (isExpired(guestToken)) {
+        String token = guestToken.replaceAll("Bearer ", "");
+
+        if (isExpired(token)) {
             log.info("[extractMemberByGuestToken] 토큰이 만료되었습니다.");
             throw new JwtTokenException(EXPIRED_TOKEN);
         }
         Claims body = Jwts.parser()
                 .setSigningKey(secretKey)
-                .parseClaimsJws(guestToken)
+                .parseClaimsJws(token)
                 .getBody();
         Platform platform = Platform.of(body.get("platform", String.class));
         String providerId = body.get("providerId", String.class);
@@ -196,18 +203,20 @@ public class JwtTokenService {
     public Member extractMemberByAccessToken(String accessToken) {
 
         log.info("[extractMemberByAccessToken] accessToken = {} ", accessToken);
+
         // 1. 토큰의 유효성 확인
         if (accessToken == null) {
             log.info("[extractMemberByAccessToken] 토큰이 존재하지 않습니다.");
             throw new JwtTokenException(NOT_FOUND_TOKEN);
         }
+        String token = accessToken.replaceAll("Bearer ", "");
 
-        if (isExpired(accessToken)) {
+        if (isExpired(token)) {
             log.info("[extractMemberByAccessToken] 토큰이 만료되었습니다.");
             throw new JwtTokenException(EXPIRED_TOKEN);
         }
 
-        Long memberId = getMemberId(accessToken);
+        Long memberId = getMemberId(token);
 
         log.info("[extractMemberByAccessToken] member의 id = {}", memberId);
         return memberRepository.findById(memberId)
