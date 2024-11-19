@@ -1,21 +1,22 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>KUchat localhost</title>
+    <title>KUchat</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 
 <body>
-<!--layout/header-->
-<h1> KUchat localhost </h1>
+<h1 style="padding: 10px;">
+    KUchat
+</h1>
 
-<div id="user-info">
+<div id="user-info" style="padding: 20px;">
     <div th:if="${member != null}">
         <p th:text="'member name : ' + ${member.name}"></p>
         <p>Logged in as: <span th:text="'ID : ' + ${member.id} + ' 회원이 로그인 된 상태입니다.'"></span></p>
         <a href="/logout" class="btn btn-info active" role="button">Logout</a>
-        <a href="/ws/message" class="btn btn-primary active" role="button">채팅 참여하기</a>
+        <a href="/room" class="btn btn-primary active" role="button">채팅 참여하기</a>
     </div>
 
     <!-- member 객체가 없을 때 -->

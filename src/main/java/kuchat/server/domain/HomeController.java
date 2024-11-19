@@ -1,5 +1,8 @@
 package kuchat.server.domain;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
@@ -19,15 +22,19 @@ public class HomeController {
     private final JwtTokenService jwtTokenService;
 
     @GetMapping("")
-    public String home(@CookieValue(name = "Authorization", required = false) String auth, Model model) {
-        if (auth != null) {
-            log.info("[home] auth = {}", auth);
+    public String home(@CookieValue(name = "Authorization", required = false) String auth,
+                       Model model, HttpServletResponse response) {
+        log.info("[home] 홈화면으로 이동");
+        try {
             Member member = jwtTokenService.extractMemberByAccessToken(auth);
+            log.info("[home] 쿠키에 담긴 회원 정보 = {}", member.toString());
             model.addAttribute("member", member);
+        } catch (KuchatException e) {
+            Cookie cookie = new Cookie("Authorization", "");
+            cookie.setPath("/");
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
         }
-        log.info("[home] 홈화면으로 이동~");
-        log.info("[home] 쿠키에 담긴 토큰 = {}", auth);
-        log.info("[home] model = {}", model);
         return "index";
     }
 
@@ -36,4 +43,11 @@ public class HomeController {
         log.info("[signup] 토큰이 없어도 회원가입 페이지로 이동 가능");
         return "signup";
     }
+
+    @GetMapping("/room")
+    public String chatroomList() {
+        log.info("[chatroomList] 채팅방 목록 조회");
+        return "chatroom";
+    }
+
 }
