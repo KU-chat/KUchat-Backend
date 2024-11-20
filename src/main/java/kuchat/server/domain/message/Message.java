@@ -37,7 +37,7 @@ public class Message extends BaseTime {
 
     public Message(ChatMessage chatMessage, Chatroom chatroom) {
         this.chatroom = chatroom;
-        this.messageType = MessageType.valueOf(chatMessage.getMessageType());
+        this.messageType = chatMessage.getMessageType();
         this.senderId = chatMessage.getSenderId();
         this.text = chatMessage.getText();
     }
@@ -46,7 +46,7 @@ public class Message extends BaseTime {
     // 답장, 번역 메세지처럼 부모가 있는 메세지에 대한 생성자
     public Message(ChatMessage chatMessage, Chatroom chatroom, Message parent) {
         this.chatroom = chatroom;
-        this.messageType = MessageType.valueOf(chatMessage.getMessageType());
+        this.messageType = chatMessage.getMessageType();
         this.senderId = chatMessage.getSenderId();
         this.parent = parent;
         this.text = chatMessage.getText();

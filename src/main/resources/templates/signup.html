@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-<!--layout/header-->
 <h3>Enter Member Information</h3>
 <div class="col-md-12">
     <div class="col-md-4">
@@ -18,12 +17,14 @@
 
             <div class="form-group">
                 <label for="firstLanguage">1st Learning Language</label>
-                <input class="form-control" id="firstLanguage" placeholder="Enter the first language you want to learn.">
+                <input class="form-control" id="firstLanguage"
+                       placeholder="Enter the first language you want to learn.">
             </div>
 
             <div class="form-group">
                 <label for="secondLanguage">2nd Learning Language</label>
-                <input class="form-control" id="secondLanguage" placeholder="Enter the second language you want to learn.">
+                <input class="form-control" id="secondLanguage"
+                       placeholder="Enter the second language you want to learn.">
             </div>
 
             <div class="form-group">
@@ -38,7 +39,8 @@
 
             <div class="form-group">
                 <label for="birthday">Birthday</label>
-                <input type="text" class="form-control" id="birthday" placeholder="Enter your date of birth. (ex. 010323)">
+                <input type="text" class="form-control" id="birthday"
+                       placeholder="Enter your date of birth. (ex. 010323)">
             </div>
 
             <div class="form-group">
@@ -48,7 +50,8 @@
 
             <div class="form-group">
                 <label for="studentId">Student ID</label>
-                <input type="text" class="form-control" id="studentId" placeholder="Enter your student ID. (ex. 202212368)">
+                <input type="text" class="form-control" id="studentId"
+                       placeholder="Enter your student ID. (ex. 202212368)">
             </div>
 
             <div class="form-group">
@@ -69,15 +72,20 @@
 <script src="/js/app/index.js"></script>
 
 <script>
-    $(document).ready(function() {
-        // 서버에서 전달된 guestToken을 Thymeleaf로 JavaScript 변수에 할당
-        var guestToken = /*[[${guestToken}]]*/ '';
+    $(document).ready(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const guestToken = urlParams.get('guest-token');
+
+        if (!guestToken) {
+            console.error('Guest token not found in URL.');
+            return;
+        }
 
         // 폼 제출 시 Ajax 요청 처리
-        $('#signupForm').submit(function(event) {
+        $('#signupForm').submit(function (event) {
             event.preventDefault(); // 기본 제출 동작 방지
 
-            var formData = {
+            const formData = {
                 setLanguage: $('#setLanguage').val(),
                 firstLanguage: $('#firstLanguage').val(),
                 secondLanguage: $('#secondLanguage').val(),
@@ -89,24 +97,42 @@
                 gender: $('#gender').val()
             };
 
-            $.ajax({
-                type: 'POST',
-                url: '/member/signup',
-                contentType: 'application/json',
+            // 회원가입 요청
+            fetch('/member/signup', {
+                method: 'POST',
                 headers: {
-                    'Authorization': guestToken // 헤더에 guestToken 추가
+                    'Content-Type': 'application/json',
+                    'Authorization': guestToken // guestToken 헤더 추가
                 },
-                data: JSON.stringify(formData),
-                success: function(response) {
-                    console.log('Successfully sent signup request.');
-                    console.log(response); // 서버에서 받은 응답
-                    // window.location.href = '/'; // 홈으로 redirect
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error occurred while sending signup request.');
-                    console.error(xhr.responseText);
-                }
-            });
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // 응답 데이터를 JSON으로 파싱
+                    } else {
+                        throw new Error(`Signup request failed with status: ${response.status}`);
+                    }
+                })
+                .then(data => {
+                    console.log('Signup response:', data);
+
+                    const accessToken = data.accessToken;
+                    if (!accessToken) {
+                        throw new Error('Access token not found in response.');
+                    }
+
+                    console.log('Access Token:', accessToken);
+
+                    // Local Storage에 Access Token 저장
+                    localStorage.setItem('accessToken', accessToken);
+
+                    // 홈으로 이동 요청
+                    document.cookie = `Authorization=Bearer%20${encodeURIComponent(accessToken)}; path=/; Max-Age=3600`;
+                    window.location.href = '/';
+                })
+                .catch(error => {
+                    console.error('Error occurred:', error.message);
+                });
         });
     });
 </script>

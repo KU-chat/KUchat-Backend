@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>KUchat websocket</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!--  <link href="/main.css" rel="stylesheet">-->
+      <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <!--  <script src="../static/app.js"></script>-->
+    <style>
+        #conversation {
+            max-height: 400px;      /* 테이블 최대 높이 */
+            overflow-y: auto;        /* 세로 스크롤 활성화 */
+        }
+    </style>
+</head>
+<body>
+<noscript>
+    <h2 style="color: #ff0000">
+        Seems your browser doesn't support Javascript!
+        Websocket relies on Javascript being enabled.
+        Please enable Javascript and reload this page!
+    </h2>
+</noscript>
+
+<div id="main-content" class="container" >
+    <div class="row">
+        <div class="col-md-6" style="padding: 20px;">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="connect">websocket connection:</label>
+                    <button id="connect" class="btn btn-default" type="submit">
+                        connect ✅
+                    </button>
+                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">
+                        disconnect ❎
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6" style="padding: 20px;">
+            <form class="form-inline">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="chatroomId">chatroomId</label>
+                    <input type="text" id="chatroomId" class="form-control">
+
+                    <label for="na">name</label>
+                    <input type="text" id="na" class="form-control">
+
+                    <label for="name">content</label>
+                    <input type="text" id="name" class="form-control">
+                </div>
+                <button id="send" class="btn btn-default mt-3" type="submit" style="margin-top: 20px;">Send</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" style="padding: 10px;">
+            <table id="conversation" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Chat messages</th>
+                </tr>
+                </thead>
+                <tbody id="greetings">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    const stompClient = new StompJs.Client({
+        brokerURL: 'ws://localhost:9000/ws-connect'
+    });
+
+    stompClient.onConnect = (frame) => {
+        setConnected(true);
+        console.log('Connected: ' + frame);
+
+        stompClient.subscribe('/subscribe/chat.' + $("#chatroomId").val(), (message) => {
+            let body = JSON.parse(message.body);
+            let username = body.username;
+            let content = body.content;
+            showChat(username + ": " + content);
+        });
+    };
+
+    function sendChat() {
+        const username = $("#na").val();
+        const content = $("#name").val();
+        const chatroomId = $("#chatroomId").val();
+
+        // 클라이언트 화면에 바로 추가
+        if (username && content) {
+            showChat(username + ": " + content); // 메시지를 즉시 화면에 표시
+        }
+        stompClient.publish({
+            destination: "/publish/chat." + $("#chatroomId").val(),
+            body: JSON.stringify({'username': $("#na").val(), 'content': $("#name").val()})
+        });
+        document.getElementById('name').value = '';
+    }
+
+    stompClient.onWebSocketError = (error) => {
+        console.error('Error with websocket', error);
+    };
+
+    stompClient.onStompError = (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+    };
+
+    function setConnected(connected) {
+        $("#connect").prop("disabled", connected);
+        $("#disconnect").prop("disabled", !connected);
+        if (connected) {
+            $("#conversation").show();
+        } else {
+            $("#conversation").hide();
+        }
+        $("#greetings").html("");
+    }
+
+    function connect() {
+        stompClient.activate();
+    }
+
+    function disconnect() {
+        stompClient.deactivate();
+        setConnected(false);
+        console.log("Disconnected");
+    }
+
+    function showChat(message) {
+        // $("#greetings").append("<tr><td>" + message + "</td></tr>");
+
+
+        // 메시지를 테이블에 추가
+        const row = `<tr><td>${message}</td></tr>`;
+        $("#greetings").append(row);
+
+        // 스크롤을 최신 메시지로 이동
+        const conversationDiv = document.getElementById("conversation");
+        conversationDiv.scrollTop = conversationDiv.scrollHeight;
+    }
+
+    $(function () {
+        $("form").on('submit', (e) => e.preventDefault());
+        $("#connect").click(() => connect());
+        $("#disconnect").click(() => disconnect());
+        $("#send").click(() => sendChat());
+    });
+
+</script>
+</body>
+</html>

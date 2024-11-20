@@ -31,6 +31,8 @@ import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MESSAGE
 public class MessageService {
 
     public static final Long SERVER_ID = (long) -1;
+    public static final String SERVER_NAME = "--";
+
     private final MessageRepository messageRepository;
     private final MemberRepository memberRepository;
     private final RedisService redisService;
@@ -56,7 +58,7 @@ public class MessageService {
                 .map(Member::getName)
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
 
-        ChatMessage joinMessage = new ChatMessage(chatroom.getId(), "TALK", SERVER_ID, text);
+        ChatMessage joinMessage = new ChatMessage(chatroom.getId(),"TALK", SERVER_ID, SERVER_NAME, text);
         log.info("[sendJoinMessage] 서버에서 새로 만든 enterMessage = {}", joinMessage.toString());
         Message saved = messageRepository.save(new Message(joinMessage, chatroom));
         return MessageResponse.serverNotice(saved);
@@ -66,7 +68,7 @@ public class MessageService {
     @Transactional
     public MessageResponse createLeaveMessage(Member member, Chatroom chatroom) {
         String text = member.getName() + " 님이 채팅방을 나갔습니다.";
-        ChatMessage leaveMessage = new ChatMessage(chatroom.getId(), "LEAVE", member.getId(), text);
+        ChatMessage leaveMessage = new ChatMessage(chatroom.getId(), "LEAVE", member.getId(), SERVER_NAME, text);
         Message saved = messageRepository.save(new Message(leaveMessage, chatroom));
         return MessageResponse.serverNotice(saved);
     }
