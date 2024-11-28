@@ -17,11 +17,11 @@ public class Block extends BaseTime {
     @Column(name = "block_id")
     protected Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "blocker_id")
     protected Member blocker;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "blocked_member_id")
     protected Member blocked;
 

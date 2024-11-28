@@ -17,11 +17,11 @@ public class ChatroomMember extends BaseTime {
     @Column(name = "chatroom_member_id", nullable = false)
     private Long id;
 
-    @ManyToOne              // member : roomMember = 1:다 -> roomMember에는 ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)             // member : roomMember = 1:다 -> roomMember에는 ManyToOne
     @JoinColumn(name = "member_id")         // fk 이름이 member_id가 된다. 얘(Member)가 연관관계 주인
     private Member member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chatroom_id")
     private Chatroom chatroom;
 

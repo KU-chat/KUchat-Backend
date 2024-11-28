@@ -2,8 +2,8 @@ package kuchat.server.domain.chatroom.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.dto.*;
 import kuchat.server.domain.chatroom.service.ChatroomService;
@@ -11,6 +11,9 @@ import kuchat.server.domain.member.service.MemberService;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -41,7 +44,7 @@ public class ChatroomController {
         if (request.getMemberIds().isEmpty()) {
             throw new KuchatException(EMPTY_CHATROOM);
         }
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             String messages = getErrorMessages(bindingResult);
             log.error("[create] bindingResult messages = {}", messages);
             throw new KuchatException(CHATROOM_BAD_REQUEST, messages);
@@ -59,9 +62,16 @@ public class ChatroomController {
 
     @Operation(summary = "채팅방 이름으로 채팅방 목록 조회")
     @GetMapping("")
-    public ResponseEntity<FindChatroomsResponse> search(@RequestParam("name") String name) {
+    public ResponseEntity<FindChatroomsResponse> search(@RequestParam("name") String name,
+                                                        @PageableDefault(
+                                                                page = 0,
+                                                                size = 15,
+                                                                sort = "modifedDate",
+                                                                direction = Sort.Direction.DESC
+                                                        )
+                                                        Pageable pageable) {
         log.info("[search] 검색어 : {}", name);
-        FindChatroomsResponse response = chatroomService.findChatrooms(name);
+        FindChatroomsResponse response = chatroomService.findByName(name, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -72,7 +82,7 @@ public class ChatroomController {
                                                          BindingResult bindingResult) {
         String newName = request.getNewName();
         log.info("[updateName] 채팅방 번호 = {}, 바꿀 이름 = {}", chatroomId, newName);
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             String messages = getErrorMessages(bindingResult);
             log.error("[updateName] bindingResult messages = {}", messages);
             throw new KuchatException(CHATROOM_BAD_REQUEST, messages);

@@ -7,6 +7,9 @@ import kuchat.server.domain.enums.MessageType;
 import kuchat.server.domain.message.dto.ChatMessage;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "message")
 @Getter
@@ -18,13 +21,16 @@ public class Message extends BaseTime {
     @Column(name = "message_id")
     private Long messageId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chatroom_id")
     private Chatroom chatroom;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_message_id", referencedColumnName = "message_id")
     private Message parent = null;       // chatroomId 없이 messageId만 가지면 된다.
+
+    @OneToMany(mappedBy = "parent")
+    private List<Message> children = new ArrayList<>();
 
     @Column(name = "sender_id")
     private Long senderId;

@@ -18,11 +18,11 @@ public class Friend extends BaseTime {
     @Column(name = "friend_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "friend_member_id")      // 팔로우 당한 사람 (친구)
     private Member followed;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follower_id")            // 팔로우한 사람 (자기 자신)
     private Member follower;
 
