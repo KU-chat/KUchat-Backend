@@ -16,15 +16,10 @@ import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
@@ -58,15 +53,17 @@ public class ChatroomService {
     }
 
 
-    public FindChatroomsResponse findByName(String name, Pageable pageable) {
-        Page<Chatroom> chatrooms = Optional.ofNullable(chatroomRepository.findByName(name, pageable))
-                .orElse(Page.empty());
+    public FindChatroomsResponse findChatrooms(String name) {
+        List<Chatroom> chatrooms = Optional.ofNullable(chatroomRepository.findByName(name))
+                .orElse(Collections.emptyList());
         List<FindChatroomResponse> findChatroomResponse = chatrooms.stream()
-                .map(chatroom -> {
-                    return new FindChatroomResponse(chatroom.getId(), chatroom.getName());
-                })
+                .map(this::toResponse)
                 .collect(Collectors.toList());
         return new FindChatroomsResponse(findChatroomResponse, SUCCESS);
+    }
+
+    private FindChatroomResponse toResponse(Chatroom chatroom) {
+        return new FindChatroomResponse(chatroom.getId(), chatroom.getName());
     }
 
     @Transactional

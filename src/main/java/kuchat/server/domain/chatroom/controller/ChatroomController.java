@@ -11,9 +11,6 @@ import kuchat.server.domain.member.service.MemberService;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -62,16 +59,9 @@ public class ChatroomController {
 
     @Operation(summary = "채팅방 이름으로 채팅방 목록 조회")
     @GetMapping("")
-    public ResponseEntity<FindChatroomsResponse> search(@RequestParam("name") String name,
-                                                        @PageableDefault(
-                                                                page = 0,
-                                                                size = 15,
-                                                                sort = "modifedDate",
-                                                                direction = Sort.Direction.DESC
-                                                        )
-                                                        Pageable pageable) {
+    public ResponseEntity<FindChatroomsResponse> search(@RequestParam("name") String name) {
         log.info("[search] 검색어 : {}", name);
-        FindChatroomsResponse response = chatroomService.findByName(name, pageable);
+        FindChatroomsResponse response = chatroomService.findChatrooms(name);
         return ResponseEntity.ok(response);
     }
 
