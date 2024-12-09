@@ -2,9 +2,9 @@
 
 ### ⚙️ Introduction
 <div style="display: flex; justify-content: center; gap: 10px;">
-  <img src="https://github.com/user-attachments/assets/20cf2d95-af28-4d4b-9992-4d41d5dac7a9" style="width: 500px; height: auto;"> 
-  <img src="https://github.com/user-attachments/assets/0c8c6dc6-4fdc-4a97-b82f-f05ecc7a1781" style="width: 500px; height: auto;">
-  <img src="https://github.com/user-attachments/assets/98009008-d776-4741-8b69-c570a0f47f79" style="width: 500px; height: auto;">
+  <img src="https://github.com/user-attachments/assets/20cf2d95-af28-4d4b-9992-4d41d5dac7a9" style="width: 400px; height: auto;"> 
+  <img src="https://github.com/user-attachments/assets/0c8c6dc6-4fdc-4a97-b82f-f05ecc7a1781" style="width: 400px; height: auto;">
+  <img src="https://github.com/user-attachments/assets/98009008-d776-4741-8b69-c570a0f47f79" style="width: 400px; height: auto;">
 </div>
 
 
