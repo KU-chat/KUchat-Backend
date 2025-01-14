@@ -2,13 +2,14 @@ package kuchat.server.common.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kuchat.server.common.response.BaseResponseStatus;
-import kuchat.server.common.exception.JwtTokenException;
+import kuchat.server.common.exception.KuchatException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (accessToken == null) {
             log.info("[validateToken] token is null");
-            throw new JwtTokenException(BaseResponseStatus.NOT_FOUND_TOKEN);
+            throw new KuchatException(NOT_FOUND_TOKEN);
         }
         accessToken = accessToken.replaceAll("Bearer ", "");
         log.info("[preHandle] access token = {}", accessToken);

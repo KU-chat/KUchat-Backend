@@ -2,12 +2,10 @@ package kuchat.server.common.jwt;
 
 
 import io.jsonwebtoken.*;
-import kuchat.server.common.exception.JwtTokenException;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.enums.Role;
-import kuchat.server.domain.enums.Status;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.Getter;
@@ -38,60 +36,46 @@ public class JwtTokenService {
     @Value("${secret.jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
-
     // GoogleOAuth2UserInfo의 email을 사용하여 token 발급
     public AuthToken generateAuthToken(Role role, Long memberId) {
         final Claims claims = Jwts.claims();        // claims = jwt token에 들어갈 정보, claim에 email을 넣어줘야 회원 식별 가능
         claims.put("role", role.getKey());
         claims.put("memberId", memberId);
-
-        log.info("[generateAuthToken] secretKey: " + secretKey);
-        log.info("[generateAuthToken] memberId: " + memberId);
-
-        String accessToken = Jwts.builder()
-                .setClaims(claims)
-                .setSubject(String.valueOf(memberId))       // subject : 토큰의 주체/사용자를 식별하기 위해 사용됨 -> "{provider}_{providerId}"
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-
-        String refreshToken = Jwts.builder()
-                .setClaims(claims)
-                .setSubject(String.valueOf(memberId))       // subject : 토큰의 주체/사용자를 식별하기 위해 사용됨 -> "{provider}_{providerId}"
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+        String accessToken = getToken(memberId, claims, accessTokenExpiration);
+        String refreshToken = getToken(memberId, claims, refreshTokenExpiration);
         redisService.setRefreshToken(memberId, refreshToken);
-
         return new AuthToken(accessToken, refreshToken);
     }
 
-    private boolean isExpired(String token) {
+    private String getToken(Long memberId, Claims claims, long expiration) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(String.valueOf(memberId))       // subject : 토큰의 주체/사용자를 식별하기 위해 사용됨 -> "{provider}_{providerId}"
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    private void isExpired(String token) {
         try {
             log.info("[isExpired] token: " + token);
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(secretKey)
                     .parseClaimsJws(token);
-            log.info("[isExpired] 토큰 만료 시간 = {} ", claims.getBody().getExpiration());
-            log.info("[isExpired] 현재 시간 = {}", new Date());
-            return claims.getBody().getExpiration().before(new Date());
+            if (claims.getBody().getExpiration().before(new Date())) {
+                throw new KuchatException(EXPIRED_TOKEN);
+            }
         } catch (ExpiredJwtException e) {
-            log.info("[isExpired] ExpiredJwtException 발생 : {}", e.getMessage());
-            throw new JwtTokenException(EXPIRED_TOKEN);
+            throw new KuchatException(EXPIRED_TOKEN);
         } catch (UnsupportedJwtException e) {
-            log.info("[isExpired] UnsupportedJwtException 발생 : {}", e.getMessage());
-            throw new JwtTokenException(UNSUPPORTED_TOKEN);
+            throw new KuchatException(UNSUPPORTED_TOKEN);
         } catch (MalformedJwtException e) {
-            log.info("[isExpired] MalformedJwtException 발생 : {}", e.getMessage());
-            throw new JwtTokenException(MALFORMED_TOKEN);
+            throw new KuchatException(MALFORMED_TOKEN);
         } catch (SignatureException e) {
-            log.info("[isExpired] SignatureException 발생 : {}", e.getMessage());
-            throw new JwtTokenException(INVALID_SIGNATURE);
+            throw new KuchatException(INVALID_SIGNATURE);
         } catch (JwtException e) {
-            log.error("[isExpired] jwt 토큰 오류 = {}", e.getMessage());
-            throw new JwtTokenException(INVALID_TOKEN);
+            throw new KuchatException(INVALID_TOKEN);
         }
     }
 
@@ -101,10 +85,7 @@ public class JwtTokenService {
             return false;
         }
         String token = refreshToken.replaceAll("Bearer ", "");
-
-        if (isExpired(token)) {
-            return false;
-        }
+        isExpired(token);
 
         // 2. redis에 저장된 최신 리프레시 토큰과 일치 여부 확인 -> 토큰 무효화 및 재발급에 중요
         Long memberId = getMemberId(token);
@@ -125,7 +106,6 @@ public class JwtTokenService {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("memberId", Long.class);
-
     }
 
     public AuthToken reissue(String refreshToken) {
@@ -142,9 +122,6 @@ public class JwtTokenService {
         claims.put("platform", platform);
         claims.put("providerId", providerId);
 
-        log.info("[generateGuestToken] platform: " + platform);
-        log.info("[generateGuestToken] providerId: " + providerId);
-
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -153,50 +130,29 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public boolean isValidGuestToken(String guestToken) {
-        log.info("[isValidGuestToken] guestToken = {} ", guestToken);
-        // 1. 토큰의 유효성 확인
-        if (guestToken == null) {
-            log.info("[isValidGuestToken] 토큰이 존재하지 않습니다.");
-            return false;  // 토큰이 없을 경우 false 반환
-        }
-
-        try {
-            if (isExpired(guestToken)) {
-                log.info("[isValidGuestToken] 토큰이 만료되었습니다.");
-                return false;  // 토큰이 만료되었을 경우 false 반환
-            }
-            log.info("[isValidGuestToken] jwt parse 전");
-            Jwts.parser().setSigningKey(secretKey)
-                    .parseClaimsJws(guestToken);
-            return true;  // 토큰이 유효하면 true 반환
-        } catch (JwtException e) {
-            return false;  // 토큰이 유효하지 않으면 false 반환
-        }
-    }
-
     public Member extractMemberByGuestToken(String guestToken) {
         log.info("[extractMemberByGuestToken] guestToken = {} ", guestToken);
         // 1. 토큰의 유효성 확인 : 리프레시 토큰이 올바르게 서명되었는지, 만료되지 않았는지 확인
         if (guestToken == null) {
-            log.info("[extractMemberByGuestToken] 토큰이 존재하지 않습니다.");
-            throw new JwtTokenException(NOT_FOUND_TOKEN);
+            throw new KuchatException(NOT_FOUND_TOKEN);
         }
         String token = guestToken.replaceAll("Bearer ", "");
+        isExpired(token);
 
-        if (isExpired(token)) {
-            log.info("[extractMemberByGuestToken] 토큰이 만료되었습니다.");
-            throw new JwtTokenException(EXPIRED_TOKEN);
-        }
-        Claims body = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
-        Platform platform = Platform.of(body.get("platform", String.class));
+        Claims body = getClaims(token);
+        Platform platform = validatePlatform(body);
         String providerId = body.get("providerId", String.class);
         log.info("[extractMemberByGuestToken] member의 platform = {}, providerId = {}", platform, providerId);
         return memberRepository.findByPlatformAndProviderId(platform, providerId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
+
+    private Platform validatePlatform(Claims body) {
+        Platform platform = Platform.of(body.get("platform", String.class));
+        if (platform == null) {
+            throw new KuchatException(MALFORMED_TOKEN);
+        }
+        return platform;
     }
 
 
@@ -204,21 +160,13 @@ public class JwtTokenService {
 
         log.info("[extractMemberByAccessToken] accessToken = {} ", accessToken);
 
-        // 1. 토큰의 유효성 확인
         if (accessToken == null) {
-            log.info("[extractMemberByAccessToken] 토큰이 존재하지 않습니다.");
-            throw new JwtTokenException(NOT_FOUND_TOKEN);
+            throw new KuchatException(NOT_FOUND_TOKEN);
         }
         String token = accessToken.replaceAll("Bearer ", "");
 
-        if (isExpired(token)) {
-            log.info("[extractMemberByAccessToken] 토큰이 만료되었습니다.");
-            throw new JwtTokenException(EXPIRED_TOKEN);
-        }
-
+        isExpired(token);
         Long memberId = getMemberId(token);
-
-        log.info("[extractMemberByAccessToken] member의 id = {}", memberId);
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }

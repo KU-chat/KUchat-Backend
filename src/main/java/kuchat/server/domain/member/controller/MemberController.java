@@ -5,29 +5,34 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.jwt.argumentResolver.Auth;
 import kuchat.server.common.jwt.argumentResolver.Guest;
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
-import kuchat.server.common.exception.KuchatException;
+import kuchat.server.domain.Validator;
+import kuchat.server.domain.enums.LearnLanguage;
+import kuchat.server.domain.enums.SettingLanguage;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
+import kuchat.server.domain.member.dto.SignupInfoResponse;
 import kuchat.server.domain.member.dto.SignupRequest;
-import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
 
-import static kuchat.server.common.response.BaseResponseStatus.*;
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MEMBER;
+import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @Tag(name = "Member", description = "회원")
@@ -43,26 +48,35 @@ public class MemberController {
     @Operation(summary = "회원가입")
     @SecurityRequirement(name = "JWT")
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@Guest Member member,
-                                                 @Validated @RequestBody SignupRequest signupRequest,
-                                                 BindingResult bindingResult) {
+    public ResponseEntity<BaseResponse> signup(@Guest Member member,
+                                               @Validated @RequestBody SignupRequest signupRequest,
+                                               BindingResult bindingResult) {
         log.info("[signup] 회원가입 요청");
+        log.info("[signup] signupRequest = {}", signupRequest.toString());
 
-        if (member == null){
+        validateGuestToken(member);
+        Validator.validateRequest(bindingResult);
+        return memberService.signup(member, signupRequest);
+    }
+
+    @GetMapping("/signup")
+    public ResponseEntity<BaseResponse> signup(@RequestParam("guest-token") String token) {
+        log.info("[signup] 토큰이 없어도 회원가입 페이지로 이동 가능");
+        List<String> languages = Arrays.stream(LearnLanguage.values())
+                .map(LearnLanguage::getValue)
+                .toList();
+
+        List<String> settingLanguages = SettingLanguage.getValues();
+        SignupInfoResponse response = new SignupInfoResponse(token, languages, settingLanguages);
+
+        return ResponseEntity.ok(response);
+    }
+
+    private static void validateGuestToken(Member member) {
+        if (member == null) {
             log.error("[signup] guest token을 가지고 찾은 멤버가 null인 오류");
             throw new KuchatException(NOT_FOUND_MEMBER);
         }
-
-        if(bindingResult.hasErrors()) {
-            String messages = getErrorMessages(bindingResult);
-            log.error("[signup] bindingResult messages = {}", messages);
-            throw new KuchatException(INFO_BAD_REQUEST, messages);
-        }
-
-        log.info("[signup] member = {}", member.toString());
-        log.info("[signup] signupRequest = {}", signupRequest.toString());
-        SignupResponse response = memberService.signup(member, signupRequest);
-        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "나의 프로필 조회")
@@ -81,11 +95,7 @@ public class MemberController {
                                                               @Validated @RequestBody ProfileUpdateRequest requestBody,
                                                               BindingResult bindingResult) {
         log.info("[updateMyProfile] 프로필 수정 요청");
-        if(bindingResult.hasErrors()) {
-            String messages = getErrorMessages(bindingResult);
-            log.error("[updateMyProfile] bindingResult messages = {}", messages);
-            throw new KuchatException(INFO_BAD_REQUEST, messages);
-        }
+        Validator.validateRequest(bindingResult);
         log.info("[getMyProfile] 수정할 프로필 기록 = {}", requestBody.toString());
         memberService.updateProfile(member.getId(), requestBody);
         return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
@@ -117,10 +127,4 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-
-    private static String getErrorMessages(BindingResult bindingResult) {
-        return bindingResult.getAllErrors().stream()
-                .map(error -> error.getDefaultMessage())
-                .collect(Collectors.joining("$"));
-    }
 }

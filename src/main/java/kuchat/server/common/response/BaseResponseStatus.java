@@ -1,5 +1,6 @@
 package kuchat.server.common.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public enum BaseResponseStatus {
     // 1000 번대 : 요청 성공
@@ -38,6 +40,8 @@ public enum BaseResponseStatus {
     DUPLICATED_STUDENT_ID(4005, HttpStatus.BAD_REQUEST, "이미 회원가입 처리된 학번입니다. 다시 시도해 주세요."),
     NOT_SIGNUP_MEMBER(4006, HttpStatus.UNAUTHORIZED, "아직 회원가입 하지 않은 회원입니다. 회원가입 페이지로 이동해 주세요."),
     NOT_FOUND_STATUS(4007, HttpStatus.NOT_FOUND, "사용자 계정 상태가 유효하지 않습니다. 다시 시도해주세요."),
+    DATE_BAD_REQUEST(4008, HttpStatus.BAD_REQUEST, "날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식에 맞게 다시 입력해주세요."),
+
 
     //- 5000번대 : 채팅방(chatroom) 관련 코드
     NOT_FOUND_CHATROOM(5000, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),

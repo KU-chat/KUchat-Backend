@@ -61,8 +61,7 @@ public class Member extends BaseTime {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Size(min = 6, max = 6, message = "생일은 6자리 숫자 형태여야 합니다.")
-    private String birthday;
+    private LocalDate birthday;
 
     @Column(name = "setting_language")
     @Enumerated(EnumType.STRING)
@@ -77,8 +76,6 @@ public class Member extends BaseTime {
     private LearnLanguage secondLanguage;
 
     private String hometown;
-
-//    private String fcmToken;
 
     private String profileImage;
 
@@ -122,7 +119,7 @@ public class Member extends BaseTime {
         role = Role.GUEST;
     }
 
-    public void updateInfo(@Valid SignupRequest request) {
+    public void updateInfo(SignupRequest request) {
         this.setLanguage = SettingLanguage.of(request.getSetLanguage());
         this.firstLanguage = LearnLanguage.of(request.getFirstLanguage());
         this.secondLanguage = LearnLanguage.of(request.getSecondLanguage());
@@ -157,10 +154,8 @@ public class Member extends BaseTime {
     }
 
     public int getAge() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
-        LocalDate birthDate = LocalDate.parse(birthday, formatter);         // 입력받은 생일 문자열을 LocalDate로 변환합니다
         LocalDate currentDate = LocalDate.now();                    // 현재 날짜
-        Period age = Period.between(birthDate, currentDate);        // 생일과 현재 날짜를 비교하여 나이를 계산
+        Period age = Period.between(birthday, currentDate);        // 생일과 현재 날짜를 비교하여 나이를 계산
         return age.getYears();                                      // 현재 연도를 기준으로 나이를 반환
     }
 

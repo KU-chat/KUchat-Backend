@@ -1,25 +1,21 @@
 package kuchat.server.common.exception;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
+import kuchat.server.common.response.SimpleErrorResponse;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
-//@RequiredArgsConstructor
 public class KuchatException extends RuntimeException {
 
-    private BaseResponseStatus baseResponseStatus;
+    private BaseResponse response;
 
-    public KuchatException(BaseResponseStatus baseResponseStatus){
-        this.baseResponseStatus = baseResponseStatus;
+    public KuchatException(BaseResponse response) {
+        this.response = response;
     }
 
-    public KuchatException(BaseResponseStatus baseResponseStatus, String message){
-        this.baseResponseStatus = baseResponseStatus;
-        baseResponseStatus.setMessage(message);
-    }
-
-    public HttpStatus getHttpStatus(){
-        return baseResponseStatus.getHttpStatus();
+    public KuchatException(BaseResponseStatus responseStatus) {
+        response = new SimpleErrorResponse(responseStatus);
     }
 }

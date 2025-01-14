@@ -1,31 +1,18 @@
 package kuchat.server.common.response;
 
 import lombok.*;
-import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
-public class ErrorResponse {
-//    private int code;
-//    private HttpStatus httpStatus;
-//    private String message;
-    private BaseResponseStatus baseResponseStatus;
+public class ErrorResponse extends BaseResponse {
+    private List<Error> errors;
 
-    public int getCode() {
-        return baseResponseStatus.getCode();
-    }
-
-    public HttpStatus getHttpStatus() {
-        return baseResponseStatus.getHttpStatus();
-    }
-
-    public String getMessage() {
-        return baseResponseStatus.getMessage();
-    }
-
-    public void setMessage(String message) {
-        baseResponseStatus.setMessage(message);
+    public ErrorResponse(BaseResponseStatus responseStatus, List<Error> errors) {
+        this.responseStatus = responseStatus;
+        this.errors = errors;
     }
 }

@@ -1,10 +1,7 @@
 package kuchat.server.domain.enums;
 
-import kuchat.server.common.exception.KuchatException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_PLATFORM;
 
 @Slf4j
 @Getter
@@ -26,6 +23,6 @@ public enum Platform {
                 return platform;
             }
         }
-        throw new KuchatException(NOT_FOUND_PLATFORM);
+        return null;
     }
 }

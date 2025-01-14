@@ -38,11 +38,19 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/member/signup")
-    public String signup() {
-        log.info("[signup] 토큰이 없어도 회원가입 페이지로 이동 가능");
-        return "signup";
-    }
+//    @GetMapping("/member/signup")
+//    public String signup(Model model) {
+//        log.info("[signup] 토큰이 없어도 회원가입 페이지로 이동 가능");
+//        List<String> languages = Arrays.stream(LearnLanguage.values())
+//                .map(LearnLanguage::getValue)
+//                .toList();
+//        model.addAttribute("languages", languages);
+//
+//        List<String> settingLanguages = SettingLanguage.getValues();
+//        model.addAttribute("settingLanguages", settingLanguages);
+//
+//        return "signup";
+//    }
 
     @GetMapping("/room")
     public String chatroomList() {

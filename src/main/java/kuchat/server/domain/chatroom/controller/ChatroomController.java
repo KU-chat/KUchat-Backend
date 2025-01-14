@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponseStatus;
+import kuchat.server.domain.Validator;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.dto.*;
 import kuchat.server.domain.chatroom.service.ChatroomService;
@@ -18,9 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.stream.Collectors;
 
-import static kuchat.server.common.response.BaseResponseStatus.*;
+import static kuchat.server.common.response.BaseResponseStatus.EMPTY_CHATROOM;
+import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @Tag(name = "Chatroom", description = "채팅방")
@@ -41,12 +42,7 @@ public class ChatroomController {
         if (request.getMemberIds().isEmpty()) {
             throw new KuchatException(EMPTY_CHATROOM);
         }
-        if (bindingResult.hasErrors()) {
-            String messages = getErrorMessages(bindingResult);
-            log.error("[create] bindingResult messages = {}", messages);
-            throw new KuchatException(CHATROOM_BAD_REQUEST, messages);
-        }
-
+        Validator.validateRequest(bindingResult);
         ChatroomResponse response = chatroomService.create(request);
 
         URI location = ServletUriComponentsBuilder      // 새롭게 생성된 채팅방의 uri를 알려주는 용도
@@ -72,11 +68,8 @@ public class ChatroomController {
                                                          BindingResult bindingResult) {
         String newName = request.getNewName();
         log.info("[updateName] 채팅방 번호 = {}, 바꿀 이름 = {}", chatroomId, newName);
-        if (bindingResult.hasErrors()) {
-            String messages = getErrorMessages(bindingResult);
-            log.error("[updateName] bindingResult messages = {}", messages);
-            throw new KuchatException(CHATROOM_BAD_REQUEST, messages);
-        }
+        Validator.validateRequest(bindingResult);
+
         chatroomService.updateName(chatroomId, newName);
         return ResponseEntity.ok(SUCCESS);
     }
@@ -90,12 +83,5 @@ public class ChatroomController {
         response.setMemberInfos(memberService.findMembersByChatroomId(chatroom));
         response.setBaseResponseStatus(SUCCESS);
         return ResponseEntity.ok().body(response);
-    }
-
-
-    private static String getErrorMessages(BindingResult bindingResult) {
-        return bindingResult.getAllErrors().stream()
-                .map(error -> error.getDefaultMessage())
-                .collect(Collectors.joining("$"));
     }
 }

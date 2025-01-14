@@ -3,68 +3,120 @@
 <head>
     <title>KUchat localhost</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-<h3>Enter Member Information</h3>
-<div class="col-md-12">
-    <div class="col-md-4">
-        <form id="signupForm">
-            <div class="form-group">
-                <label for="setLanguage">Set Language</label>
-                <input type="text" class="form-control" id="setLanguage" placeholder="Please enter the site language.">
-            </div>
+<header class="bg-primary text-white text-center py-4">
+    <h3>Enter Member Information</h3>
+</header>
 
-            <div class="form-group">
-                <label for="firstLanguage">1st Learning Language</label>
-                <input class="form-control" id="firstLanguage"
-                       placeholder="Enter the first language you want to learn.">
-            </div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form id="signupForm" class="p-4 border rounded bg-light">
+                <div class="form-group">
+                    <label for="setLanguage">희망 설정 언어</label>
+                    <select class="form-control" id="setLanguage">
+                        <option th:each="setlang : ${settingLanguages}" th:value="${setlang}" th:text="${setlang}"></option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="secondLanguage">2nd Learning Language</label>
-                <input class="form-control" id="secondLanguage"
-                       placeholder="Enter the second language you want to learn.">
-            </div>
+                <div class="form-group">
+                    <label>희망 학습 언어</label>
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-auto">
+                            <label for="firstLanguage" class="col-form-label">1순위</label>
+                        </div>
+                        <div class="col">
+                            <select class="form-control" id="firstLanguage">
+                                <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang}"></option>
+                            </select>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label for="hometown">Home Town</label>
-                <input class="form-control" id="hometown" placeholder="Enter your country of origin.">
-            </div>
+                    <div class="form-row align-items-center mt-2">
+                        <div class="col-auto">
+                            <label for="secondLanguage" class="col-form-label">2순위</label>
+                        </div>
+                        <div class="col">
+                            <select class="form-control" id="secondLanguage">
+                                <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" placeholder="Please enter your name.">
-            </div>
+                <div class="form-group">
+                    <label for="hometown">출신 국가를 알려주세요</label>
+                    <input class="form-control" id="hometown" placeholder="출신 국가를 알려주세요.">
+                </div>
 
-            <div class="form-group">
-                <label for="birthday">Birthday</label>
-                <input type="text" class="form-control" id="birthday"
-                       placeholder="Enter your date of birth. (ex. 010323)">
-            </div>
+                <div class="form-group">
+                    <label for="name">사용하실 이름을 알려주세요</label>
+                    <input type="text" class="form-control" id="name" placeholder="사용하실 이름을 알려주세요.">
+                </div>
 
-            <div class="form-group">
-                <label for="department">Department</label>
-                <input type="text" class="form-control" id="department" placeholder="Enter your current department.">
-            </div>
+                <div class="form-group">
+                    <label for="birthday">생년월일을 알려주세요</label>
+                    <div class="form-row">
+                        <div class="col">
+                            <select class="form-control" id="birthYear">
+                                <option value="">Year</option>
+                                <option th:each="year : ${#numbers.sequence(2025, 1925)}" th:value="${year}"
+                                        th:text="${year}"></option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select class="form-control" id="birthMonth">
+                                <option value="">Month</option>
+                                <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}"
+                                        th:text="${month}"></option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select class="form-control" id="birthDay">
+                                <option value="">Day</option>
+                                <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}"
+                                        th:text="${day}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label for="studentId">Student ID</label>
-                <input type="text" class="form-control" id="studentId"
-                       placeholder="Enter your student ID. (ex. 202212368)">
-            </div>
+                <div class="form-group">
+                    <label for="department">학과와 학번을 알려주세요</label>
+                    <div class="form-row">
+                        <div class="col mb-2">
+                            <input type="text" class="form-control" id="department" placeholder="학과를 입력해주세요.">
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" id="studentId" placeholder="9자리 학번을 입력해주세요.">
+                        </div>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label for="gender">Gender</label>
-                <input type="text" class="form-control" id="gender" placeholder="Enter gender. (Male/Female)">
-            </div>
+                <div class="form-group">
+                    <label for="gender">성별을 알려주세요</label>
+                    <select class="form-control" id="gender">
+                        <option value="남성">남자</option>
+                        <option value="여성">여자</option>
+                    </select>
+                </div>
 
-            <button type="submit" class="btn btn-sm btn-success active">Sign Up</button>
-            <a th:href="@{/}" role="button" class="btn btn-secondary">Cancel</a>
-        </form>
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">회원가입 하기</button>
+                    <a th:href="@{/}" role="button" class="btn btn-secondary">취소</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-<!--layout/footer-->
+
+<footer class="bg-light text-center py-3 mt-5">
+    <p class="mb-0">&copy; 2025 KUchat. All Rights Reserved.</p>
+</footer>
+
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
@@ -85,13 +137,22 @@
         $('#signupForm').submit(function (event) {
             event.preventDefault(); // 기본 제출 동작 방지
 
+            function padZero(value) {
+                return value.toString().padStart(2, '0');
+            }
+
+            const year = $('#birthYear').val();
+            const month = padZero($('#birthMonth').val());
+            const day = padZero($('#birthDay').val());
+
+
             const formData = {
                 setLanguage: $('#setLanguage').val(),
                 firstLanguage: $('#firstLanguage').val(),
                 secondLanguage: $('#secondLanguage').val(),
                 hometown: $('#hometown').val(),
                 name: $('#name').val(),
-                birthday: $('#birthday').val(),
+                birthday: `${year}-${month}-${day}`,     /*YYYY-MM-DD 형식으로 결합되어 서버로 전송*/
                 department: $('#department').val(),
                 studentId: $('#studentId').val(),
                 gender: $('#gender').val()

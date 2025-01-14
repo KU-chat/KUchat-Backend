@@ -40,5 +40,4 @@ public class GuestArgumentResolver implements HandlerMethodArgumentResolver {
         }
         log.debug("[resolveArgument] 토큰 = {}", token);
     }
-
 }

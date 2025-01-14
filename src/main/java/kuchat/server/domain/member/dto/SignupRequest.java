@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class SignupRequest {
 
@@ -31,6 +33,5 @@ public class SignupRequest {
     @NotBlank
     private String gender;
 
-    @Pattern(regexp = "^[0-9]{6}$", message = "생일은 6자리 숫자여야 합니다.")
-    private String birthday;
+    private LocalDate birthday;
 }

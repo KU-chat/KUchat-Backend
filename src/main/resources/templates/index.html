@@ -3,31 +3,39 @@
 <head>
     <title>KUchat</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 
 <body>
-<h1 style="padding: 10px;">
-    KUchat
-</h1>
+<header class="bg-primary text-white text-center py-4">
+    <h1>KUchat</h1>
+</header>
 
-<div id="user-info" style="padding: 20px;">
-    <div th:if="${member != null}">
-        <p th:text="'member name : ' + ${member.name}"></p>
-        <p>Logged in as: <span th:text="'ID : ' + ${member.id} + ' 회원이 로그인 된 상태입니다.'"></span></p>
-        <a href="/logout" class="btn btn-info active" role="button">Logout</a>
-        <a href="/room" class="btn btn-primary active" role="button">채팅 참여하기</a>
-    </div>
+<div class="container mt-5">
+    <div id="user-info" class="text-center">
+        <!-- 로그인된 상태 -->
+        <div th:if="${member != null}">
+            <h4 th:text="'환영합니다, ' + ${member.name} + ' 님!'" class="mb-3"></h4>
+            <p class="mb-3" th:text="'ID : ' + ${member.id} + ' 회원이 로그인된 상태입니다.'"></p>
+            <a href="/logout" class="btn btn-danger mb-2">Logout</a>
+            <a href="/room" class="btn btn-primary mb-2">채팅 참여하기</a>
+        </div>
 
-    <!-- member 객체가 없을 때 -->
-    <div th:unless="${member != null}">
-        <p>로그인되지 않은 상태입니다. 로그인 후 이용해 주세요.</p>
-        <a href="/oauth2/authorization/google" class="btn btn-sm btn-success active" role="button">Google Login</a>
+        <!-- 로그인되지 않은 상태 -->
+        <div th:unless="${member != null}">
+            <h4 class="mb-3">로그인되지 않은 상태입니다.</h4>
+            <p class="mb-3">로그인 후 이용해 주세요.</p>
+            <a href="/oauth2/authorization/google" class="btn btn-success btn-lg">Google Login</a>
+        </div>
     </div>
 </div>
 
+<footer class="bg-light text-center py-3 mt-5">
+    <p class="mb-0">&copy; 2025 KUchat. All Rights Reserved.</p>
+</footer>
+
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
 </body>
 </html>

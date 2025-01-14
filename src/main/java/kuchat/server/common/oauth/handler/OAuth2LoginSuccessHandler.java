@@ -71,9 +71,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] 기존 회원인 경우 platform = {}, provider id = {}",
                         customOAuth2User.getPlatform(), customOAuth2User.getProviderId());
                 AuthToken authToken = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
-                log.info("[SuccessHandler] accessToken : " + authToken.getAccessToken());
-                log.info("[SuccessHandler] refreshToken : " + authToken.getRefreshToken());
-
 //                response.sendRedirect("http://localhost:3000/user");
                 response.sendRedirect("/");
                 response.setStatus(HttpServletResponse.SC_OK);
