@@ -1,17 +1,20 @@
 package kuchat.server.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Gender {
     MALE("남성"),
     FEMALE("여성");
 
-    private String value;
+    private String korean;
 
     Gender(String value) {
-        this.value = value;
+        this.korean = korean;
     }
 
-    public static Gender of(String value) {
-        if (value.equals("남성")) {
+    public static Gender of(String korean) {
+        if (korean.equals("남성")) {
             return MALE;
         }
         return FEMALE;

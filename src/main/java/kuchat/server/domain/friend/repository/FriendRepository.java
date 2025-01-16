@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     @Query("select f from Friend f " +
-            "where (f.follower = :member and f.followed.name like %:name%)")
+            "where (f.follower = :member and f.followed.profile.name like %:name%)")
     List<Friend> findAllByName(@Param("member") Member member, @Param("name") String name);       // member 의 친구들 검색
 
     @Query("select f from Friend f " +

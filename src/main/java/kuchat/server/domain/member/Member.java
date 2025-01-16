@@ -6,16 +6,18 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import kuchat.server.domain.BaseTime;
-import kuchat.server.domain.enums.*;
-import kuchat.server.domain.member.dto.ProfileResponse;
+import kuchat.server.domain.enums.Platform;
+import kuchat.server.domain.enums.Role;
+import kuchat.server.domain.enums.Status;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.SecureRandom;
-import java.time.LocalDate;
-import java.time.Period;
 
 @Getter
 @Slf4j
@@ -35,12 +37,6 @@ public class Member extends BaseTime {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "department")
-    private String department;
-
     @Size(min = 9, max = 9, message = "학번은 9자리 숫자 형태여야 합니다.")
     @Column(name = "student_id")
     private String studentId;
@@ -49,20 +45,11 @@ public class Member extends BaseTime {
     @Column(name = "plus_id")
     private String plusId;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    @Embedded
+    private Profile profile;
 
     @Embedded
     private Language language;
-
-    private LocalDate birthday;
-
-    private String hometown;
-
-    private String profileImage;
-
-    @Setter
-    private String aboutMe;         // 한줄 자기소개
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -82,21 +69,17 @@ public class Member extends BaseTime {
         this.email = email;
         this.platform = platform;
         this.providerId = providerId;
-        this.profileImage = profileImage;
+        this.profile = new Profile(profileImage);
         status = Status.PENDING;
         role = Role.GUEST;
     }
 
     public void updateInfo(SignupRequest request) {
         this.language = new Language(request);
-        this.hometown = request.getHometown();
-        this.name = request.getName();
-        this.birthday = request.getBirthday();
-        this.department = request.getDepartment();
-        this.studentId = request.getStudentId();
-        this.gender = Gender.of(request.getGender());
-        this.plusId = generatePlusId(10);
+        profile.update(request);
 
+        this.studentId = request.getStudentId();
+        this.plusId = generatePlusId(10);
         this.status = Status.ACTIVE;
         this.role = Role.STUDENT;           // 추가정보 받은 후 처리
     }
@@ -111,21 +94,12 @@ public class Member extends BaseTime {
         return stringBuilder.toString();
     }
 
-    public int getAge() {
-        LocalDate currentDate = LocalDate.now();                    // 현재 날짜
-        Period age = Period.between(birthday, currentDate);        // 생일과 현재 날짜를 비교하여 나이를 계산
-        return age.getYears();                                      // 현재 연도를 기준으로 나이를 반환
-    }
-
     public void updateProfile(ProfileUpdateRequest request) {
-        name = request.getName();
-        department = request.getDepartment();
-        profileImage = request.getProfileImage();
-        aboutMe = request.getAboutMe();
+        profile.update(request);
         language.update(request);
     }
 
-    public void getLanguage(ProfileResponse response) {
-        language.getLanguages(response);
+    public String getName() {
+        return profile.getName();
     }
 }

@@ -15,7 +15,7 @@ import kuchat.server.domain.Validator;
 import kuchat.server.domain.enums.LearnLanguage;
 import kuchat.server.domain.enums.SettingLanguage;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.ProfileResponse;
+import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupInfoResponse;
 import kuchat.server.domain.member.dto.SignupRequest;
@@ -82,9 +82,9 @@ public class MemberController {
     @Operation(summary = "나의 프로필 조회")
     @SecurityRequirement(name = "JWT")
     @GetMapping("/my-profile")
-    public ResponseEntity<ProfileResponse> getMyProfile(@Auth Member member) {
+    public ResponseEntity<DetailProfileResponse> getMyProfile(@Auth Member member) {
         log.info("[getMyProfile] 나의 프로필 조회 요청 memberId = {}", member.getId());
-        ProfileResponse response = memberService.getProfile(member);
+        DetailProfileResponse response = memberService.getProfile(member);
         return ResponseEntity.ok(response);
     }
 
