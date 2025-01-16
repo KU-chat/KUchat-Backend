@@ -6,12 +6,13 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import kuchat.server.domain.enums.LearnLanguage;
 import kuchat.server.domain.enums.SettingLanguage;
-import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
 
 @Getter
 @Slf4j
@@ -39,5 +40,18 @@ public class Language {
     public void update(ProfileUpdateRequest request) {
         firstLanguage = LearnLanguage.of(request.getFirstLanguage());
         secondLanguage = LearnLanguage.of(request.getSecondLanguage());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Language language = (Language) o;
+        return getSetLanguage() == language.getSetLanguage() && getFirstLanguage() == language.getFirstLanguage() && getSecondLanguage() == language.getSecondLanguage();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSetLanguage(), getFirstLanguage(), getSecondLanguage());
     }
 }

@@ -72,7 +72,7 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-    private static void validateGuestToken(Member member) {
+    private void validateGuestToken(Member member) {
         if (member == null) {
             log.error("[signup] guest token을 가지고 찾은 멤버가 null인 오류");
             throw new KuchatException(NOT_FOUND_MEMBER);

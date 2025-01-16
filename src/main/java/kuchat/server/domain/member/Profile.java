@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Objects;
 
 
 @Getter
@@ -62,5 +63,18 @@ public class Profile {
         LocalDate currentDate = LocalDate.now();                    // 현재 날짜
         Period age = Period.between(birthday, currentDate);        // 생일과 현재 날짜를 비교하여 나이를 계산
         return age.getYears();                                      // 현재 연도를 기준으로 나이를 반환
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile profile = (Profile) o;
+        return Objects.equals(getName(), profile.getName()) && Objects.equals(getDepartment(), profile.getDepartment()) && Objects.equals(getBirthday(), profile.getBirthday()) && getGender() == profile.getGender() && Objects.equals(getHometown(), profile.getHometown()) && Objects.equals(getProfileImage(), profile.getProfileImage()) && Objects.equals(getAboutMe(), profile.getAboutMe());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getDepartment(), getBirthday(), getGender(), getHometown(), getProfileImage(), getAboutMe());
     }
 }
