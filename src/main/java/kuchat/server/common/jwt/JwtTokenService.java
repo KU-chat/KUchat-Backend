@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
+import static kuchat.server.domain.enums.Role.STUDENT;
 
 @Getter
 @Slf4j
@@ -83,10 +84,10 @@ public class JwtTokenService {
         }
     }
 
-    public boolean validatedRefreshToken(String refreshToken) {
+    public Long validatedRefreshToken(String refreshToken) {
         // 1. 토큰의 유효성 확인 : 리프레시 토큰이 올바르게 서명되었는지, 만료되지 않았는지 확인
         if (refreshToken == null) {
-            return false;
+            throw new KuchatException(NOT_FOUND_TOKEN);
         }
         String token = refreshToken.replaceAll("Bearer ", "");
         isExpired(token);
@@ -94,7 +95,10 @@ public class JwtTokenService {
         // 2. redis에 저장된 최신 리프레시 토큰과 일치 여부 확인 -> 토큰 무효화 및 재발급에 중요
         Long memberId = getMemberId(token);
         String stored = redisService.getRefreshToken(memberId);
-        return token.equals(stored);
+        if (token.equals(stored)){
+            return memberId;
+        }
+        throw new KuchatException(REFRESH_TOKEN_MISMATCH);
     }
 
     public Claims getClaims(String token) {
@@ -110,15 +114,6 @@ public class JwtTokenService {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("memberId", Long.class);
-    }
-
-    public AuthToken reissue(String refreshToken) {
-        String token = refreshToken.replaceAll("Bearer ", "");
-        Long memberId = getMemberId(token);
-        Claims claims = getClaims(token);
-        String role = claims.get("role", String.class);
-        AuthToken authToken = generateAuthToken(Role.of(role), memberId);
-        return authToken;
     }
 
     public String generateGuestToken(String platform, String providerId) {

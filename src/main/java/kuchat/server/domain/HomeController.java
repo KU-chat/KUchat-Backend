@@ -22,11 +22,11 @@ public class HomeController {
     private final JwtTokenService jwtTokenService;
 
     @GetMapping("")
-    public String home(@CookieValue(name = "Authorization", required = false) String auth,
+    public String home(@CookieValue(name = "Authorization", required = false) String token,
                        Model model, HttpServletResponse response) {
         log.info("[home] 홈화면으로 이동");
         try {
-            Member member = jwtTokenService.extractMemberByAccessToken(auth);
+            Member member = jwtTokenService.extractMemberByAccessToken(token);
             log.info("[home] 쿠키에 담긴 회원 정보 = {}", member.toString());
             model.addAttribute("member", member);
         } catch (KuchatException e) {

@@ -26,6 +26,7 @@ public enum BaseResponseStatus {
     EXPIRED_TOKEN(2004, HttpStatus.BAD_REQUEST, "유효기간이 만료된 토큰입니다. 다시 로그인 해주세요."),
     INVALID_SIGNATURE(2005, HttpStatus.BAD_REQUEST, "JWT 토큰의 서명이 유효하지 않습니다."),
     ACCESS_DENIED(2006, HttpStatus.UNAUTHORIZED, "요청을 처리할 권한이 없습니다."),
+    REFRESH_TOKEN_MISMATCH(2007, HttpStatus.BAD_REQUEST, "리프레시 토큰이 일치하지 않습니다. 다시 로그인 해주세요."),
 
     //- 3000 번대 : oauth 관련 상태 코드
     NOT_FOUND_PLATFORM(3000, HttpStatus.NOT_FOUND, "존재하지 않는 플랫폼입니다."),

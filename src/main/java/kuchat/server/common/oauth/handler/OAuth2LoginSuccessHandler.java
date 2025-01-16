@@ -1,7 +1,7 @@
 package kuchat.server.common.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -71,14 +71,22 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] 기존 회원인 경우 platform = {}, provider id = {}",
                         customOAuth2User.getPlatform(), customOAuth2User.getProviderId());
                 AuthToken authToken = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
-//                response.sendRedirect("http://localhost:3000/user");
-                response.sendRedirect("/");
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/json");
-                response.getWriter().write(new ObjectMapper().writeValueAsString(authToken));
-                response.getWriter().flush();
+                log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
+                        authToken.getAccessToken(), authToken.getRefreshToken());
 
-                log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급도 함!");
+                // 클라이언트와 API 통신을 하는 경우 (develop 브랜치)
+//                response.sendRedirect("http://localhost:3000/user");
+
+                // 서버 단에서 템플릿 엔진을 사용하여 구현하는 경우 (local)
+                Cookie cookie = new Cookie("Authorization", authToken.getAccessToken());
+                cookie.setHttpOnly(true); // XSS 공격 방지
+                cookie.setSecure(true);   // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
+                cookie.setPath("/");      // 쿠키 경로 설정
+                cookie.setMaxAge(60 * 60); // 쿠키 만료 시간 설정 (1시간)
+                response.addCookie(cookie);
+
+                response.sendRedirect("/");
+
             }
         } catch (Exception e) {
             log.error(e.getMessage());
