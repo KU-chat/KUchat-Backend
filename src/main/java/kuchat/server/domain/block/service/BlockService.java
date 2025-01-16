@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_BLOCK;
 import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MEMBER;
@@ -37,19 +38,13 @@ public class BlockService {
         deleteFriend(blocked, member);          // blocked 가 member 를 팔로우한 경우, 제거
 
         Block block = new Block(member, blocked);
-        Block saved = blockRepository.save(block);
-        member.addBlock(saved);
+        blockRepository.save(block);
     }
 
     // m1 이 m2를 팔로우한 경우, 그 때 생성된 friend 를 제거함
     private void deleteFriend(Member m1, Member m2) {
         friendRepository.findByMembers(m1, m2)
-                .ifPresent(
-                        friend -> {
-                            m1.deleteFriend(friend);
-                            friendRepository.delete(friend);
-                        }
-                );
+                .ifPresent(friendRepository::delete);
     }
 
     public void release(Member member, Long releaseMemberId) {
@@ -57,13 +52,13 @@ public class BlockService {
         Member released = getMember(releaseMemberId);
         Block block = blockRepository.findByMembers(member, released)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_BLOCK));
-        member.deleteBlock(block);
         blockRepository.delete(block);
     }
 
     public BlockMemberResponses getblocks(Member member) {
         log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", member.getId());
-        List<BlockMemberResponse> responses = member.getBlocks().stream()
+        List<BlockMemberResponse> responses = blockRepository.findByBlocker(member)
+                .stream()
                 .map(Block::getBlocked)
                 .map(BlockMemberResponse::new)
                 .toList();
@@ -73,5 +68,11 @@ public class BlockService {
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
+
+    public boolean isBlockOrBlocked(Member member1, Member member2){
+        Optional<Block> byMembers1 = blockRepository.findByMembers(member1, member2);
+        Optional<Block> byMembers2 = blockRepository.findByMembers(member2, member2);
+        return byMembers1.isPresent() || byMembers2.isPresent();
     }
 }

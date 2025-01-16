@@ -5,13 +5,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import kuchat.server.common.response.BaseResponseStatus;
-import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
-import kuchat.server.domain.block.Block;
-import kuchat.server.domain.chatroom.ChatroomMember;
 import kuchat.server.domain.enums.*;
-import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
 import lombok.*;
@@ -20,16 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
-@ToString
+@Getter
 @Slf4j
 @Entity
 @Table(name = "member")
-@Getter
 @NoArgsConstructor
 public class Member extends BaseTime {
 
@@ -79,25 +69,11 @@ public class Member extends BaseTime {
 
     private String profileImage;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
-    // member:roomMember = 1:다 -> member는 oneToMany     // 얘는 연관관계 종속됨 (주인은 RoomMember 클래스의 member필드)
-    private Set<ChatroomMember> chatroomMembers = new HashSet<>();           // 채팅방-사용자 테이블과 member 테이블을 이어주는 칼럼
-
-    @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)               // Member가 follower인 Friend 객체들의 집합
-    private Set<Friend> friends = new HashSet<>();      // 내가 팔로우한 사용자들 (= 내 친구들)
-
-    @OneToMany(mappedBy = "blocker", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    // Member가 blocker인 Block 객체들의 집합
-    private Set<Block> blocks = new HashSet<>();  // 내가 차단한 사람들의 목록 (sender가 나 자신인 Block 객체들의 모음)
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @Enumerated(EnumType.STRING)
     private Status status;
-
-//    @OneToMany(mappedBy = "member")
-//    private List<Notification> notifications = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -135,14 +111,6 @@ public class Member extends BaseTime {
         this.role = Role.STUDENT;           // 추가정보 받은 후 처리
     }
 
-    public void addChatroom(ChatroomMember chatroomMember) {
-        chatroomMembers.add(chatroomMember);
-    }
-
-    public void deleteChatroom(ChatroomMember chatroomMember) {
-        chatroomMembers.remove(chatroomMember);
-    }
-
     public String generatePlusId(int length) {
         String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom secureRandom = new SecureRandom();
@@ -168,36 +136,4 @@ public class Member extends BaseTime {
         aboutMe = request.getAboutMe();
     }
 
-    public boolean addFriend(Friend friend) {
-        if (containsFriend(friend.getFollowed())) {
-            throw new KuchatException(BaseResponseStatus.ALREADY_FRIEND);
-        }
-        friends.add(friend);
-        return true;
-    }
-
-    public boolean block(Member friend) {
-        return blocks.contains(friend);
-    }
-
-    public void deleteFriend(Friend friend) {
-        friends.remove(friend);
-    }
-
-    public void addBlock(Block block) {
-        blocks.add(block);
-    }
-
-    public boolean containsFriend(Member friend) {
-        return friends.stream()
-                .anyMatch(f -> Objects.equals(f.getFollowed(), friend));
-    }
-
-    public void deleteBlock(Block block) {
-        blocks.remove(block);
-    }
-
-    public void withdraw(){
-        this.status = Status.WITHDRAWN;
-    }
 }

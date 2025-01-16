@@ -5,17 +5,15 @@ import kuchat.server.domain.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     @Query("select f from Friend f " +
             "where (f.follower = :member and f.followed.name like %:name%)")
-    List<Friend> findAllByName(@Param("member")Member member, @Param("name") String name);       // member 의 친구들 검색
+    List<Friend> findAllByName(@Param("member") Member member, @Param("name") String name);       // member 의 친구들 검색
 
     @Query("select f from Friend f " +
             "where (f.follower = :follower and f.followed = :followed)")

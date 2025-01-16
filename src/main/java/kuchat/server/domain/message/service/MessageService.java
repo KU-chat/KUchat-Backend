@@ -4,7 +4,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.chatroom.Chatroom;
 import kuchat.server.domain.chatroom.dto.EnterChatroomResponse;
-import kuchat.server.domain.enums.MessageType;
+import kuchat.server.domain.chatroom.repository.ChatroomRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import kuchat.server.domain.message.Message;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_CHATROOM;
 import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MESSAGE;
 
 
@@ -34,12 +35,13 @@ public class MessageService {
     public static final String SERVER_NAME = "--";
 
     private final MessageRepository messageRepository;
-    private final MemberRepository memberRepository;
-    private final RedisService redisService;
+    private final ChatroomRepository chatroomRepository;
 
-    public EnterChatroomResponse enter(Chatroom chatroom) {
-        log.info("[findRecentMessages] 클라이언트가 접속한 채팅방 id = {}", chatroom.getId());
+    public EnterChatroomResponse enter(Long chatroomId) {
+        log.info("[findRecentMessages] 클라이언트가 접속한 채팅방 id = {}", chatroomId);
         Pageable pageable = PageRequest.of(0, 20);
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
         List<Message> messages = messageRepository.findRecent20MessagesByChatroomId(chatroom, pageable);
         EnterChatroomResponse enterChatroomResponse = new EnterChatroomResponse(chatroom.getName());
         if (messages.isEmpty()) {
@@ -58,7 +60,7 @@ public class MessageService {
                 .map(Member::getName)
                 .collect(Collectors.joining(", ")) + " 님이 입장했습니다.";
 
-        ChatMessage joinMessage = new ChatMessage(chatroom.getId(),"TALK", SERVER_ID, SERVER_NAME, text);
+        ChatMessage joinMessage = new ChatMessage(chatroom.getId(), "TALK", SERVER_ID, SERVER_NAME, text);
         log.info("[sendJoinMessage] 서버에서 새로 만든 enterMessage = {}", joinMessage.toString());
         Message saved = messageRepository.save(new Message(joinMessage, chatroom));
         return MessageResponse.serverNotice(saved);

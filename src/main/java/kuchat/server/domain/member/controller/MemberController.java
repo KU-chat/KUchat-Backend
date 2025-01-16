@@ -94,9 +94,8 @@ public class MemberController {
     public ResponseEntity<BaseResponseStatus> updateMyProfile(@Auth Member member,
                                                               @Validated @RequestBody ProfileUpdateRequest requestBody,
                                                               BindingResult bindingResult) {
-        log.info("[updateMyProfile] 프로필 수정 요청");
+        log.info("[updateMyProfile] 프로필 수정 요청 = {}", requestBody.toString());
         Validator.validateRequest(bindingResult);
-        log.info("[getMyProfile] 수정할 프로필 기록 = {}", requestBody.toString());
         memberService.updateProfile(member.getId(), requestBody);
         return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
     }

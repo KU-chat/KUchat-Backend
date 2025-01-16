@@ -78,10 +78,8 @@ public class ChatroomController {
     @GetMapping("/{id}/enter")
     public ResponseEntity<EnterChatroomResponse> enter(@PathVariable("id") Long chatroomId) {
         log.info("{}번 채팅방 화면으로 이동", chatroomId);
-        Chatroom chatroom = chatroomService.getChatroom(chatroomId);
-        EnterChatroomResponse response = messageService.enter(chatroom);        // 최근 20개 톡 가져오기
-        response.setMemberInfos(memberService.findMembersByChatroomId(chatroom));
-        response.setBaseResponseStatus(SUCCESS);
+        EnterChatroomResponse response = messageService.enter(chatroomId);        // 최근 20개 톡 가져오기
+        response.setMemberInfos(SUCCESS, chatroomService.findMembersByChatroomId(chatroomId));
         return ResponseEntity.ok().body(response);
     }
 }

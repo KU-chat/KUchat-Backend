@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -22,6 +23,7 @@ import static kuchat.server.common.response.BaseResponseStatus.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class JwtTokenService {
 
     private final MemberRepository memberRepository;
@@ -64,6 +66,8 @@ public class JwtTokenService {
                     .setSigningKey(secretKey)
                     .parseClaimsJws(token);
             if (claims.getBody().getExpiration().before(new Date())) {
+                log.info("토큰 만료 시간 = {}", claims.getBody().getExpiration());
+                log.info("현재 시간 = {}", new Date());
                 throw new KuchatException(EXPIRED_TOKEN);
             }
         } catch (ExpiredJwtException e) {
@@ -157,7 +161,6 @@ public class JwtTokenService {
 
 
     public Member extractMemberByAccessToken(String accessToken) {
-
         log.info("[extractMemberByAccessToken] accessToken = {} ", accessToken);
 
         if (accessToken == null) {

@@ -48,7 +48,7 @@ public class ChatroomService {
                         .name(request.getName())
                         .build());
         log.info("[createChatroom] 생성된 채팅방 id = {}, name = {}", chatroom.getId(), chatroom.getName());
-        join(chatroom.getId(), request.getMemberIds());
+        join(chatroom, request.getMemberIds());
         return new ChatroomResponse(chatroom.getId(), SUCCESS);
     }
 
@@ -83,36 +83,34 @@ public class ChatroomService {
         return chatroom;
     }
 
-    public boolean existChatroom(Long chatroomId) {
-        return chatroomRepository.findById(chatroomId).isPresent();
-    }
-
-    @Transactional
-    public MessageResponse join(Long chatroomId, List<Long> memberIds) {
-        Chatroom chatroom = getChatroom(chatroomId);
+    private void join(Chatroom chatroom, List<Long> memberIds) {
         List<ChatroomMember> chatroomMembers = new ArrayList<>();
         List<Member> joinMembers = memberRepository.findAllById(memberIds);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
-        if (memberIds.size() != joinMembers.size()) {
-            throw new KuchatException(NOT_FOUND_MEMBER);
-        }
+        validateMemberNum(memberIds, joinMembers);
         for (Member member : joinMembers) {
             ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
             chatroomMembers.add(chatroomMember);
-            member.addChatroom(chatroomMember);
-            chatroom.addMember(chatroomMember);
         }
-        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}]", chatroom.getChatroomMembers().stream()
-                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
-                .collect(Collectors.joining(", "))
-        );
+        saveAll(chatroomMembers);
 
+        String result = chatroomMemberRepository.findByChatroomId(chatroom.getId()).stream()
+                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
+                .collect(Collectors.joining(", "));
+        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}]", result);
+    }
+
+    private void saveAll(List<ChatroomMember> chatroomMembers) {
         try {
             chatroomMemberRepository.saveAll(chatroomMembers);      // for문 안에서 한개씩 저장하는 대신 arraylist를 한번에 저장
         } catch (DataAccessException e) {
             throw new KuchatException(DB_SAVE_FAIL);
         }
+    }
 
-        return messageService.createJoinMessage(joinMembers, chatroom);
+    private void validateMemberNum(List<Long> memberIds, List<Member> joinMembers) {
+        if (memberIds.size() != joinMembers.size()) {
+            throw new KuchatException(NOT_FOUND_MEMBER);
+        }
     }
 
     @Transactional
@@ -122,22 +120,21 @@ public class ChatroomService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
         MessageResponse leaveMessage = messageService.createLeaveMessage(member, chatroom);
         ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
-        int memberNum = chatroom.deleteMember(chatroomMember);
-        member.deleteChatroom(chatroomMember);
+        chatroomMemberRepository.delete(chatroomMember);
 
         // 만약 채팅방에 더 이상 남아있는 사람이 없으면 해당 채팅방은 삭제된다.
-        if (memberNum == 0) {
-            delete(chatroom);
+        if (chatroomMemberRepository.findByChatroomId(chatroom.getId()).isEmpty()) {
+            chatroomRepository.delete(chatroom);
         }
+
         chatroomMemberRepository.delete(chatroomMember);
         return leaveMessage;
     }
 
-    @Transactional
-    protected void delete(Chatroom chatroom) {
-        Set<ChatroomMember> chatroomMembers = chatroom.getChatroomMembers();
-        chatroomMemberRepository.deleteAll(chatroomMembers);
-        chatroomRepository.delete(chatroom);
+    public List<Member> findMembersByChatroomId(Long chatroomId) {
+        List<ChatroomMember> chatrooms = chatroomMemberRepository.findByChatroomId(chatroomId);
+        return chatrooms.stream()
+                .map(ChatroomMember::getMember)
+                .toList();
     }
-
 }
