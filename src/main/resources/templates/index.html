@@ -18,7 +18,7 @@
         <div th:if="${member != null}">
             <h4 th:text="'환영합니다, ' + ${member.name} + ' 님!'" class="mb-3"></h4>
             <p class="mb-3" th:text="'ID : ' + ${member.id} + ' 회원이 로그인된 상태입니다.'"></p>
-            <a href="/logout" class="btn btn-danger mb-2">Logout</a>
+            <a href="/member/logout" class="btn btn-danger mb-2" onclick="logout()">Logout</a>
             <a href="/room" class="btn btn-primary mb-2">채팅 참여하기</a>
         </div>
 
@@ -34,7 +34,23 @@
 <footer class="bg-light text-center py-3 mt-5">
     <p class="mb-0">&copy; 2025 KUchat. All Rights Reserved.</p>
 </footer>
-
+<script>
+    function logout() {
+        fetch('/member/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // CSRF 토큰 (필요 시)
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.href = '/login'; // 로그아웃 후 리다이렉트
+            } else {
+                console.error('Logout failed');
+            }
+        });
+    }
+</script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>

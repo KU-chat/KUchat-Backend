@@ -11,17 +11,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/")
 @Controller
 public class HomeController {
 
     private final JwtTokenService jwtTokenService;
 
-    @GetMapping("")
+    @GetMapping("/")
     public String home(@CookieValue(name = "Authorization", required = false) String token,
                        Model model, HttpServletResponse response) {
         log.info("[home] 홈화면으로 이동");

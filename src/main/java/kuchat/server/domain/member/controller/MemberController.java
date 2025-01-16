@@ -100,23 +100,6 @@ public class MemberController {
         return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
     }
 
-    @Operation(summary = "로그아웃")
-    @SecurityRequirement(name = "JWT")
-    @PostMapping("/logout")
-    public ResponseEntity<BaseResponseStatus> logout(@Auth Member member, HttpServletResponse response) throws IOException {
-        log.info("[logout] memberId = {}", member.getId());
-        memberService.logout(member);
-
-        // 클라이언트 쿠키에서 토큰 제거
-        Cookie cookie = new Cookie("refresh-token", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        response.sendRedirect("/");
-        return ResponseEntity.ok(SUCCESS);
-    }
-
     @Operation(summary = "회원 탈퇴")
     @SecurityRequirement(name = "JWT")
     @GetMapping("/quit")
