@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.enums.*;
+import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
 import lombok.*;
@@ -51,23 +52,17 @@ public class Member extends BaseTime {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @Embedded
+    private Language language;
+
     private LocalDate birthday;
-
-    @Column(name = "setting_language")
-    @Enumerated(EnumType.STRING)
-    private SettingLanguage setLanguage;
-
-    @Column(name = "learn_language1")
-    @Enumerated(EnumType.STRING)
-    private LearnLanguage firstLanguage;
-
-    @Column(name = "learn_language2")
-    @Enumerated(EnumType.STRING)
-    private LearnLanguage secondLanguage;
 
     private String hometown;
 
     private String profileImage;
+
+    @Setter
+    private String aboutMe;         // 한줄 자기소개
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -82,9 +77,6 @@ public class Member extends BaseTime {
     @Column(nullable = false)
     private String providerId;       // 플랫폼에서 제공하는 id
 
-    @Setter
-    private String aboutMe;         // 한줄 자기소개
-
     @Builder
     public Member(String email, Platform platform, String providerId, String profileImage) {
         this.email = email;
@@ -96,9 +88,7 @@ public class Member extends BaseTime {
     }
 
     public void updateInfo(SignupRequest request) {
-        this.setLanguage = SettingLanguage.of(request.getSetLanguage());
-        this.firstLanguage = LearnLanguage.of(request.getFirstLanguage());
-        this.secondLanguage = LearnLanguage.of(request.getSecondLanguage());
+        this.language = new Language(request);
         this.hometown = request.getHometown();
         this.name = request.getName();
         this.birthday = request.getBirthday();
@@ -130,10 +120,12 @@ public class Member extends BaseTime {
     public void updateProfile(ProfileUpdateRequest request) {
         name = request.getName();
         department = request.getDepartment();
-        firstLanguage = LearnLanguage.of(request.getFirstLanguage());
-        secondLanguage = LearnLanguage.of(request.getSecondLanguage());
         profileImage = request.getProfileImage();
         aboutMe = request.getAboutMe();
+        language.update(request);
     }
 
+    public void getLanguage(ProfileResponse response) {
+        language.getLanguages(response);
+    }
 }
