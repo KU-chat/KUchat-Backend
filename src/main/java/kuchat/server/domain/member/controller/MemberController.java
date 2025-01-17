@@ -15,7 +15,7 @@ import kuchat.server.domain.Validator;
 import kuchat.server.domain.enums.LearnLanguage;
 import kuchat.server.domain.enums.SettingLanguage;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.ProfileResponse;
+import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupInfoResponse;
 import kuchat.server.domain.member.dto.SignupRequest;
@@ -72,7 +72,7 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-    private static void validateGuestToken(Member member) {
+    private void validateGuestToken(Member member) {
         if (member == null) {
             log.error("[signup] guest token을 가지고 찾은 멤버가 null인 오류");
             throw new KuchatException(NOT_FOUND_MEMBER);
@@ -82,9 +82,9 @@ public class MemberController {
     @Operation(summary = "나의 프로필 조회")
     @SecurityRequirement(name = "JWT")
     @GetMapping("/my-profile")
-    public ResponseEntity<ProfileResponse> getMyProfile(@Auth Member member) {
+    public ResponseEntity<DetailProfileResponse> getMyProfile(@Auth Member member) {
         log.info("[getMyProfile] 나의 프로필 조회 요청 memberId = {}", member.getId());
-        ProfileResponse response = memberService.getProfile(member);
+        DetailProfileResponse response = memberService.getProfile(member);
         return ResponseEntity.ok(response);
     }
 
@@ -94,37 +94,18 @@ public class MemberController {
     public ResponseEntity<BaseResponseStatus> updateMyProfile(@Auth Member member,
                                                               @Validated @RequestBody ProfileUpdateRequest requestBody,
                                                               BindingResult bindingResult) {
-        log.info("[updateMyProfile] 프로필 수정 요청");
+        log.info("[updateMyProfile] 프로필 수정 요청 = {}", requestBody.toString());
         Validator.validateRequest(bindingResult);
-        log.info("[getMyProfile] 수정할 프로필 기록 = {}", requestBody.toString());
         memberService.updateProfile(member.getId(), requestBody);
         return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
     }
 
-    @Operation(summary = "로그아웃")
-    @SecurityRequirement(name = "JWT")
-    @PostMapping("/logout")
-    public ResponseEntity<BaseResponseStatus> logout(@Auth Member member, HttpServletResponse response) throws IOException {
-        log.info("[logout] memberId = {}", member.getId());
-        memberService.logout(member);
-
-        // 클라이언트 쿠키에서 토큰 제거
-        Cookie cookie = new Cookie("refresh-token", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        response.sendRedirect("/");
-        return ResponseEntity.ok(SUCCESS);
-    }
-
     @Operation(summary = "회원 탈퇴")
     @SecurityRequirement(name = "JWT")
-    @GetMapping("/quit")
-    public ResponseEntity<BaseResponseStatus> quit(@Auth Member member) {
+    @DeleteMapping("/quit")
+    public ResponseEntity<BaseResponse> quit(@Auth Member member) {
         log.info("[quit] memberId = {}", member.getId());
-        BaseResponseStatus response = memberService.quit(member);
-        return ResponseEntity.ok(response);
+        return memberService.quit(member);
     }
 
 }

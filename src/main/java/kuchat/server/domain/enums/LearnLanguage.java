@@ -15,7 +15,7 @@ public enum LearnLanguage {
     JAPANESE("일본어"),
     RUSSIAN("러시아어"),
     VIETNAMESE("베트남어"),
-    INDOMALAYAN("인도네시아어"),        // 인도네시아어
+    INDOMALAYAN("인도네시아어"),
     MONGOLIAN("몽골어");
 
     private String value;
@@ -25,7 +25,6 @@ public enum LearnLanguage {
     }
 
     public static LearnLanguage of(String value) {
-
         return Arrays.stream(values())
                 .filter(language -> value.equals(language.getValue()))
                 .findFirst()

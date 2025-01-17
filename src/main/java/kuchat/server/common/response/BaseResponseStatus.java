@@ -2,10 +2,7 @@ package kuchat.server.common.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -21,11 +18,11 @@ public enum BaseResponseStatus {
     // 2000 번대 : jwt 관련 상태 코드
     MALFORMED_TOKEN(2000, HttpStatus.UNAUTHORIZED, "토큰이 올바르게 구성되지 않았습니다."),
     NOT_FOUND_TOKEN(2001, HttpStatus.NOT_FOUND, "토큰이 존재하지 않습니다. 다시 로그인 해주세요."),
-    UNSUPPORTED_TOKEN(2002, HttpStatus.BAD_REQUEST, "지원하지 않는 토큰 형식입니다."),
+    TOKEN_TYPE_MISMATCH(2002, HttpStatus.BAD_REQUEST, "다른 용도의 토큰입니다."),
     INVALID_TOKEN(2003, HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다. 다시 로그인 해주세요."),
     EXPIRED_TOKEN(2004, HttpStatus.BAD_REQUEST, "유효기간이 만료된 토큰입니다. 다시 로그인 해주세요."),
-    INVALID_SIGNATURE(2005, HttpStatus.BAD_REQUEST, "JWT 토큰의 서명이 유효하지 않습니다."),
     ACCESS_DENIED(2006, HttpStatus.UNAUTHORIZED, "요청을 처리할 권한이 없습니다."),
+    REFRESH_TOKEN_MISMATCH(2007, HttpStatus.BAD_REQUEST, "리프레시 토큰이 일치하지 않습니다. 다시 로그인 해주세요."),
 
     //- 3000 번대 : oauth 관련 상태 코드
     NOT_FOUND_PLATFORM(3000, HttpStatus.NOT_FOUND, "존재하지 않는 플랫폼입니다."),

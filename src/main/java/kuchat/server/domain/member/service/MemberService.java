@@ -6,10 +6,9 @@ import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
-import kuchat.server.domain.chatroom.Chatroom;
-import kuchat.server.domain.chatroom.ChatroomMember;
+import kuchat.server.domain.chatroom.service.ChatroomService;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.ProfileResponse;
+import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
 import kuchat.server.domain.member.dto.SignupResponse;
@@ -19,11 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
@@ -35,6 +29,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenService jwtTokenService;
     private final RedisService redisService;
+    private final ChatroomService chatroomService;
 
     @Transactional
     public ResponseEntity<BaseResponse> signup(Member member, SignupRequest signupRequest) {
@@ -47,8 +42,6 @@ public class MemberService {
         // 엑세스 토큰, 리프레시 토큰 발급
         AuthToken authToken = jwtTokenService.generateAuthToken(member.getRole(), member.getId());
         log.info("[signup] member id : " + member.getId());
-        log.info("[signup] Signup request access token: " + authToken.getAccessToken());
-        log.info("[signup] Signup request refresh token: " + authToken.getRefreshToken());
 
         SignupResponse response = new SignupResponse(
                 SUCCESS,
@@ -67,20 +60,8 @@ public class MemberService {
         });
     }
 
-    public Member findMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-    }
-
-    public List<Member> findMembersByChatroomId(Chatroom chatroom) {
-        Set<ChatroomMember> chatroomMembers = chatroom.getChatroomMembers();
-        return chatroomMembers.stream()
-                .map(ChatroomMember::getMember)
-                .toList();
-    }
-
-    public ProfileResponse getProfile(Member member) {
-        return new ProfileResponse(member);
+    public DetailProfileResponse getProfile(Member member) {
+        return new DetailProfileResponse(member);
     }
 
     @Transactional
@@ -113,11 +94,10 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseResponseStatus quit(Member member) {
+    public ResponseEntity<BaseResponse> quit(Member member) {
         redisService.removeRefreshToken(member.getId());      // 로그아웃 처리
-//        memberRepository.delete(member);                      // 탈퇴 처리
-        member.withdraw();
-        return SUCCESS;
+        memberRepository.delete(member);                      // 탈퇴 처리
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
 }

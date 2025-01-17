@@ -1,8 +1,10 @@
 package kuchat.server.common.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.jwt.JwtTokenInterceptor;
 import kuchat.server.common.oauth.handler.OAuth2LoginFailureHandler;
 import kuchat.server.common.oauth.handler.OAuth2LoginSuccessHandler;
+import kuchat.server.common.oauth.handler.OAuth2LogoutSuccessHandler;
 import kuchat.server.common.oauth.service.OAuth2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,7 @@ public class SecurityConfig {
     private final OAuth2Service oAuth2Service;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final OAuth2LogoutSuccessHandler oAuth2LogoutSuccessHandler;
     private final JwtTokenInterceptor jwtTokenInterceptor;
 
 
@@ -47,6 +50,19 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))            // oauth2 로그인 로직을 담당하는 service 등록
-                ).build();
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/member/logout")
+                        .logoutSuccessUrl("/")
+                        .deleteCookies("Authorization")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .addLogoutHandler((request, response, auth) -> {
+                            // 추가 로그아웃 처리 로직 (선택)
+                            System.out.println("Custom logout handler executed");
+                        })
+                        .logoutSuccessHandler(oAuth2LogoutSuccessHandler)
+                )
+                .build();
     }
 }

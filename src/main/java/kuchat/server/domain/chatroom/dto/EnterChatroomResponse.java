@@ -1,10 +1,14 @@
 package kuchat.server.domain.chatroom.dto;
 
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.MemberInfoResponse;
+import kuchat.server.domain.member.dto.ProfileResponse;
 import kuchat.server.domain.message.dto.MessageResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,28 +17,20 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class EnterChatroomResponse {
+public class EnterChatroomResponse extends BaseResponse {
     private String name;
     private List<MessageResponse> recentMessages;
-    private List<MemberInfoResponse> memberInfos;
-    @Setter
-    private BaseResponseStatus baseResponseStatus;
+    private List<ProfileResponse> memberProfiles;
 
-    public EnterChatroomResponse(String name){
+    public EnterChatroomResponse(String name) {
         this.name = name;
     }
 
-    public void setMemberInfos(List<Member> members) {
-        List<MemberInfoResponse> memberInfos = members.stream()
-                .map(MemberInfoResponse::new)
+    public void setMemberInfos(BaseResponseStatus responseStatus, List<Member> members) {
+        this.responseStatus = responseStatus;
+        this.memberProfiles = members.stream()
+                .map(member -> new ProfileResponse(member.getProfile()))
                 .collect(Collectors.toList());
-        this.memberInfos = memberInfos;
     }
 
-//    public void setRecentMessages(List<Message> messages) {
-//        List<MessageResponse> messageResponses = messages.stream()
-//                .map(MessageResponse::new)
-//                .collect(Collectors.toList());
-//        this.recentMessages = messageResponses;
-//    }
 }

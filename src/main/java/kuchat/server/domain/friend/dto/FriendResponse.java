@@ -1,6 +1,7 @@
 package kuchat.server.domain.friend.dto;
 
 import kuchat.server.domain.member.Member;
+import kuchat.server.domain.member.dto.ProfileResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,35 +15,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class FriendResponse {
     private Long friendId;
-    private String name;
-    private String department;
-    private String gender;
-    private int age;
-    private String aboutMe;
-    private String hometown;
-    private String profileImage;
+    private ProfileResponse profile;
     private LocalDateTime sentTime;
 
     public FriendResponse(Member member, LocalDateTime sentTime) {
         friendId = member.getId();
-        name = member.getName();
-        department = member.getDepartment();
-        gender = member.getGender().toString();
-        age = member.getAge();
-        aboutMe = member.getAboutMe();
-        hometown = member.getHometown();
-        profileImage = member.getProfileImage();
+        this.profile = new ProfileResponse(member.getProfile());
         this.sentTime = sentTime;
     }
 
     public FriendResponse(Member member) {
         friendId = member.getId();
-        name = member.getName();
-        department = member.getDepartment();
-        gender = member.getGender().toString();
-        age = member.getAge();
-        aboutMe = member.getAboutMe();
-        hometown = member.getHometown();
-        profileImage = member.getProfileImage();
+        this.profile = new ProfileResponse(member.getProfile());
     }
 }
