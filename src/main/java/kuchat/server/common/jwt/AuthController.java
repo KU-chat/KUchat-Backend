@@ -21,7 +21,7 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> reissueToken(@RequestHeader(value = "Authorization", required = false) String refreshToken) {
-        Long memberId = jwtTokenService.validatedRefreshToken(refreshToken);
+        Long memberId = jwtTokenService.validateRefreshToken(refreshToken);
         AuthToken authToken = jwtTokenService.generateAuthToken(STUDENT, memberId);
         TokenResponse response = new TokenResponse(BaseResponseStatus.SUCCESS, authToken);
         return ResponseEntity.ok(response);

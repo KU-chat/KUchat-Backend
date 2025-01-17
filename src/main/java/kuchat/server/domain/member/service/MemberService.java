@@ -94,10 +94,10 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseResponseStatus quit(Member member) {
+    public ResponseEntity<BaseResponse> quit(Member member) {
         redisService.removeRefreshToken(member.getId());      // 로그아웃 처리
         memberRepository.delete(member);                      // 탈퇴 처리
-        return SUCCESS;
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
 }

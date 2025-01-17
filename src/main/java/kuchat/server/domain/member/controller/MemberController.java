@@ -102,11 +102,10 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴")
     @SecurityRequirement(name = "JWT")
-    @GetMapping("/quit")
-    public ResponseEntity<BaseResponseStatus> quit(@Auth Member member) {
+    @DeleteMapping("/quit")
+    public ResponseEntity<BaseResponse> quit(@Auth Member member) {
         log.info("[quit] memberId = {}", member.getId());
-        BaseResponseStatus response = memberService.quit(member);
-        return ResponseEntity.ok(response);
+        return memberService.quit(member);
     }
 
 }
