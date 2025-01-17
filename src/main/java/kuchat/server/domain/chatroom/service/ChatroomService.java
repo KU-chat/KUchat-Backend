@@ -39,7 +39,7 @@ public class ChatroomService {
 
     @Transactional
     public ChatroomResponse create(CreateChatroomRequest request) {
-        List<Chatroom> chatrooms = chatroomRepository.findByName(request.getName());
+        List<Chatroom> chatrooms = chatroomRepository.findByNameLike(request.getName());
         if (!chatrooms.isEmpty()) {
             throw new KuchatException(DUPLICATE_CHATROOM_NAME);
         }
@@ -54,7 +54,7 @@ public class ChatroomService {
 
 
     public FindChatroomsResponse findChatrooms(String name) {
-        List<Chatroom> chatrooms = Optional.ofNullable(chatroomRepository.findByName(name))
+        List<Chatroom> chatrooms = Optional.ofNullable(chatroomRepository.findByNameLike(name))
                 .orElse(Collections.emptyList());
         List<FindChatroomResponse> findChatroomResponse = chatrooms.stream()
                 .map(this::toResponse)
@@ -68,7 +68,7 @@ public class ChatroomService {
 
     @Transactional
     public void updateName(Long chatroomId, String newName) {
-        List<Chatroom> chatrooms = chatroomRepository.findByName(newName);
+        List<Chatroom> chatrooms = chatroomRepository.findByNameLike(newName);
         if (!chatrooms.isEmpty()) {
             throw new KuchatException(DUPLICATE_CHATROOM_NAME);
         }

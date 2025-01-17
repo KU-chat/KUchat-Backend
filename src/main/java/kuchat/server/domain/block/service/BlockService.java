@@ -50,7 +50,7 @@ public class BlockService {
     public void release(Member member, Long releaseMemberId) {
         log.info("[release] {} 번 사용자가 차단한 {} 번 사용자를 차단 해제함.", member.getId(), releaseMemberId);
         Member released = getMember(releaseMemberId);
-        Block block = blockRepository.findByMembers(member, released)
+        Block block = blockRepository.findByBlockerAndBlocked(member, released)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_BLOCK));
         blockRepository.delete(block);
     }
@@ -71,8 +71,8 @@ public class BlockService {
     }
 
     public boolean isBlockOrBlocked(Member member1, Member member2){
-        Optional<Block> byMembers1 = blockRepository.findByMembers(member1, member2);
-        Optional<Block> byMembers2 = blockRepository.findByMembers(member2, member2);
+        Optional<Block> byMembers1 = blockRepository.findByBlockerAndBlocked(member1, member2);
+        Optional<Block> byMembers2 = blockRepository.findByBlockerAndBlocked(member2, member2);
         return byMembers1.isPresent() || byMembers2.isPresent();
     }
 }

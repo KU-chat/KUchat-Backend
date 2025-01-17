@@ -14,20 +14,14 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    @Query("select m " +
-            "from Member m " +
-            "where m.platform=:platform and m.providerId=:providerId")
     Optional<Member> findByPlatformAndProviderId(@Param("platform") Platform platform,
                                                  @Param("providerId") String providerId);
 
     Optional<Member> findByStudentId(@Param("studentId") String studentId);
 
-    Optional<Member> findByEmail(@Param("email") String email);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select m from Member m where m.plusId = :plusId and m.status!='WITHDRAWN'")
     List<Member> findAllByPlusIdWithLock(@Param("plusId") String plusId);
 
-    @Query("select m from Member m where m.plusId = :plusId and m.status!='WITHDRAWN'")
     Optional<Member> findByPlusId(@Param("plusId") String plusId);
 }
