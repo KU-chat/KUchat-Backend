@@ -11,6 +11,7 @@
 ### 🏗️ Architecture
 <img width="922" alt="Architecture" src="https://github.com/user-attachments/assets/c0c0c5be-e390-42ce-afc9-1caaf986ddc0">
 
+
 ### 🛠️ Tech Stack
 - language - `Java 17`
 - framework - `spring boot 3.2.3`
@@ -23,3 +24,7 @@
 
 ### 📚 ER Diagram
 <img width="960" alt="ER Diagram" src="https://github.com/user-attachments/assets/b67c9663-5805-4253-82e3-dfd33cf100cb">
+
+
+### 📒 Domain Conceptual Diagram
+<img width="1184" alt="Image" src="https://github.com/user-attachments/assets/4405ec8d-240b-4ff1-bcef-46954e31963d" />
