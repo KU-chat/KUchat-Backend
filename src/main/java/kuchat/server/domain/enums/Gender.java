@@ -9,7 +9,7 @@ public enum Gender {
 
     private String korean;
 
-    Gender(String value) {
+    Gender(String korean) {
         this.korean = korean;
     }
 

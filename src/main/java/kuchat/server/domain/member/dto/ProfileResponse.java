@@ -22,9 +22,12 @@ public class ProfileResponse {
     private String profileImage;
     private String aboutMe;
 
-    public ProfileResponse(Profile profile){
+    public ProfileResponse(Profile profile) {
         this.name = profile.getName();
+        Gender gender1 = profile.getGender();
+        log.info("[ProfileResponse] gender ="+gender1);
         this.gender = profile.getGender().getKorean();
+        log.info("[ProfileResponse] gender" + this.gender);
         this.age = profile.getAge();
         this.department = profile.getDepartment();
         this.hometown = profile.getHometown();

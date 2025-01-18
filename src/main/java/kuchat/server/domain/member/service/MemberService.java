@@ -60,8 +60,8 @@ public class MemberService {
         });
     }
 
-    public DetailProfileResponse getProfile(Member member) {
-        return new DetailProfileResponse(member);
+    public ResponseEntity<DetailProfileResponse> getProfile(Member member) {
+        return ResponseEntity.ok(new DetailProfileResponse(member));
     }
 
     @Transactional

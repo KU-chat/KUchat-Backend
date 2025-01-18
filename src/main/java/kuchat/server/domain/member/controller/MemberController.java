@@ -84,8 +84,7 @@ public class MemberController {
     @GetMapping("/my-profile")
     public ResponseEntity<DetailProfileResponse> getMyProfile(@Auth Member member) {
         log.info("[getMyProfile] 나의 프로필 조회 요청 memberId = {}", member.getId());
-        DetailProfileResponse response = memberService.getProfile(member);
-        return ResponseEntity.ok(response);
+        return memberService.getProfile(member);
     }
 
     @Operation(summary = "나의 프로필 수정")
