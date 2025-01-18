@@ -1,5 +1,6 @@
 package kuchat.server.common.oauth.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,6 +9,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.oauth.CustomOAuth2User;
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;
@@ -17,6 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+
+import static kuchat.server.common.response.BaseResponseStatus.OAUTH2_FAIL;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +35,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Transactional
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         log.info("[onAuthenticationSuccess] 사용자가 로그인 성공 이후!");
 
         try {
@@ -45,14 +51,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
 
-                // 프론트와 api 연동 시 redirect url
-                String url = "http://localhost:3000/signup?guest-token=" + guestToken;
-
-                // 백에서 테스트 시 redirect url
-//                String url = "http://localhost:9000/member/signup?guest-token=" + guestToken;
-
-                log.info("[redirect url] " + url);
-                response.sendRedirect(url);
+                response.sendRedirect("/member/signup?guest-token=" + guestToken);
             }
 
             // 기존 회원인 경우 (Role = STUDENT)
@@ -69,9 +68,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
                         authToken.getAccessToken(), authToken.getRefreshToken());
 
-                // 클라이언트와 API 통신을 하는 경우 (develop 브랜치)
-                response.sendRedirect("http://localhost:3000/user");
-
                 Cookie cookie = new Cookie("Authorization", authToken.getAccessToken());
                 cookie.setHttpOnly(true); // XSS 공격 방지
                 cookie.setSecure(true);   // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
@@ -79,12 +75,23 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 cookie.setMaxAge(60 * 60); // 쿠키 만료 시간 설정 (1시간)
                 response.addCookie(cookie);
 
-                // 서버 단에서 템플릿 엔진을 사용하여 구현하는 경우 (local)
-//                response.sendRedirect("/");
+                response.sendRedirect("/");
+
+
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new KuchatException(BaseResponseStatus.OAUTH2_FAIL);
+            log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생", e.getMessage());
+            BaseResponse error = new BaseResponse(OAUTH2_FAIL);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String errorResponse = objectMapper.writeValueAsString(error);
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(OAUTH2_FAIL.getHttpStatus().value());
+            response.getWriter().write(errorResponse);
+            response.getWriter().flush();
+
+            response.sendRedirect("/");
         }
     }
 }
