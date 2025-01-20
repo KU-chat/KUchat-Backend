@@ -25,4 +25,5 @@ public class ProfileUpdateRequest {
     private String profileImage;
 
     private String aboutMe;
+
 }

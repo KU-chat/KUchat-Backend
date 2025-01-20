@@ -51,7 +51,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
 
-                response.sendRedirect("/member/signup?guest-token=" + guestToken);
+                response.sendRedirect("https://kuchat.netlify.app/member/signup?guest-token=" + guestToken);
             }
 
             // 기존 회원인 경우 (Role = STUDENT)
@@ -76,8 +76,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 response.addCookie(cookie);
 
                 response.sendRedirect("/");
-
-
             }
         } catch (Exception e) {
             log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생", e.getMessage());

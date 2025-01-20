@@ -3,20 +3,14 @@ package kuchat.server.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.jwt.argumentResolver.Auth;
 import kuchat.server.common.jwt.argumentResolver.Guest;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.Validator;
 import kuchat.server.domain.enums.LearnLanguage;
 import kuchat.server.domain.enums.SettingLanguage;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.DetailProfileResponse;
-import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupInfoResponse;
 import kuchat.server.domain.member.dto.SignupRequest;
 import kuchat.server.domain.member.service.MemberService;
@@ -27,12 +21,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MEMBER;
-import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @Tag(name = "Member", description = "회원")
@@ -42,7 +34,6 @@ import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtTokenService jwtTokenService;
 
     // 회원가입 처리하기
     @Operation(summary = "회원가입")
@@ -77,26 +68,6 @@ public class MemberController {
             log.error("[signup] guest token을 가지고 찾은 멤버가 null인 오류");
             throw new KuchatException(NOT_FOUND_MEMBER);
         }
-    }
-
-    @Operation(summary = "나의 프로필 조회")
-    @SecurityRequirement(name = "JWT")
-    @GetMapping("/my-profile")
-    public ResponseEntity<DetailProfileResponse> getMyProfile(@Auth Member member) {
-        log.info("[getMyProfile] 나의 프로필 조회 요청 memberId = {}", member.getId());
-        return memberService.getProfile(member);
-    }
-
-    @Operation(summary = "나의 프로필 수정")
-    @SecurityRequirement(name = "JWT")
-    @PatchMapping("/my-profile")
-    public ResponseEntity<BaseResponseStatus> updateMyProfile(@Auth Member member,
-                                                              @Validated @RequestBody ProfileUpdateRequest requestBody,
-                                                              BindingResult bindingResult) {
-        log.info("[updateMyProfile] 프로필 수정 요청 = {}", requestBody.toString());
-        Validator.validateRequest(bindingResult);
-        memberService.updateProfile(member.getId(), requestBody);
-        return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
     }
 
     @Operation(summary = "회원 탈퇴")

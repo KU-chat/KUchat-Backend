@@ -55,6 +55,7 @@ public class JwtTokenService {
     }
 
     public String generateGuestToken(String platform, String providerId) {
+        log.info("[generateGuestToken]");
         final Claims claims = Jwts.claims();        // claims = jwt token에 들어갈 정보, claim에 email을 넣어줘야 회원 식별 가능
         claims.put("platform", platform);
         claims.put("providerId", providerId);

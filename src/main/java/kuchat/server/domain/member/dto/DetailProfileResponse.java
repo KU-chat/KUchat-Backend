@@ -21,7 +21,7 @@ public class DetailProfileResponse extends BaseResponse {
 
 
     public DetailProfileResponse(Member member) {
-        this.responseStatus = BaseResponseStatus.SUCCESS;
+        super(BaseResponseStatus.SUCCESS);
         plusId = member.getPlusId();
         profile = new ProfileResponse(member.getProfile());
         language = new LanguageResponse(member.getLanguage());
