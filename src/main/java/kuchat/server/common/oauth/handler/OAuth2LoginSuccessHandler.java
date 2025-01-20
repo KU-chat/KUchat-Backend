@@ -51,7 +51,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String guestToken = jwtTokenService.generateGuestToken(platform, providerId);
                 log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
 
-                response.sendRedirect("https://kuchat.netlify.app/member/signup?guest-token=" + guestToken);
+                response.sendRedirect("https://kuchat.netlify.app/signup?guest-token=" + guestToken);
             }
 
             // 기존 회원인 경우 (Role = STUDENT)
