@@ -54,7 +54,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         log.info("[addCorsMappings] CorsMapping 호출");
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:9000", "https://www.kuchat.site")
+                .allowedOrigins("https://kuchat.netlify.app", "http://localhost:9000", "https://www.kuchat.site")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS")
                 .exposedHeaders("location", "Authorization")
                 .allowedHeaders("Content-Type", "Authorization", "X-Requested-With", "Accept")
