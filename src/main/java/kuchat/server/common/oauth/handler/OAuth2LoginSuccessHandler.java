@@ -75,7 +75,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 cookie.setMaxAge(60 * 60); // 쿠키 만료 시간 설정 (1시간)
                 response.addCookie(cookie);
 
-                response.sendRedirect("/");
+                response.sendRedirect("https://kuchat.netlify.app/");
             }
         } catch (Exception e) {
             log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생", e.getMessage());
@@ -89,7 +89,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             response.getWriter().write(errorResponse);
             response.getWriter().flush();
 
-            response.sendRedirect("/");
+            response.sendRedirect("https://kuchat.netlify.app/");
         }
     }
 }
