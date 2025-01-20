@@ -45,17 +45,16 @@ public class Profile {
     }
 
     public void update(SignupRequest request) {
-        this.hometown = request.getHometown();
+        this.hometown = request.getCountry();
         this.name = request.getName();
-        this.department = request.getDepartment();
+        this.department = request.getMajor();
         this.gender = Gender.of(request.getGender());
-        this.birthday = request.getBirthday();
+        this.birthday = request.getBirth();
     }
 
     public void update(ProfileUpdateRequest request) {
         name = request.getName();
         department = request.getDepartment();
-        profileImage = request.getProfileImage();
         aboutMe = request.getAboutMe();
     }
 

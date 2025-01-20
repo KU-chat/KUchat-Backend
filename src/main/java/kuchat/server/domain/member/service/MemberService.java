@@ -29,13 +29,12 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenService jwtTokenService;
     private final RedisService redisService;
-    private final ChatroomService chatroomService;
 
     @Transactional
     public ResponseEntity<BaseResponse> signup(Member member, SignupRequest signupRequest) {
         log.info("[signup] member = {}", member.toString());
 
-        validateStudentId(signupRequest.getStudentId());
+        validateStudentId(signupRequest.getStudentIdNumber());
         member.updateInfo(signupRequest);
         memberRepository.findById(member.getId());
 
@@ -58,34 +57,6 @@ public class MemberService {
             log.error("[error] 이미 존재하는 학번입니다.");
             throw new KuchatException(DUPLICATED_STUDENT_ID);
         });
-    }
-
-    public ResponseEntity<DetailProfileResponse> getProfile(Member member) {
-        return ResponseEntity.ok(new DetailProfileResponse(member));
-    }
-
-    @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateRequest request) {
-        Member member = getMember(memberId);
-        validateAndUpdatePlusId(memberId, request.getPlusId());
-        member.updateProfile(request);
-    }
-
-    private void validateAndUpdatePlusId(Long memberId, String plusId) {
-        Member member = getMember(memberId);
-        memberRepository.findAllByPlusIdWithLock(plusId)
-                .stream().findAny()
-                .ifPresentOrElse(
-                        duplicatedMember -> {
-                            throw new KuchatException(DUPLICATED_PLUSID);
-                        },
-                        () -> member.setPlusId(plusId)
-                );
-    }
-
-    private Member getMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 
     @Transactional

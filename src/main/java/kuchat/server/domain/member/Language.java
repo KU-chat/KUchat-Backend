@@ -32,9 +32,9 @@ public class Language {
     private LearnLanguage secondLanguage;
 
     public Language(SignupRequest request) {
-        this.setLanguage = SettingLanguage.of(request.getSetLanguage());
-        this.firstLanguage = LearnLanguage.of(request.getFirstLanguage());
-        this.secondLanguage = LearnLanguage.of(request.getSecondLanguage());
+        this.setLanguage = SettingLanguage.of(request.getAppLanguage());
+        this.firstLanguage = LearnLanguage.of(request.getFirstStudyLanguage());
+        this.secondLanguage = LearnLanguage.of(request.getSecondStudyLanguage());
     }
 
     public void update(ProfileUpdateRequest request) {

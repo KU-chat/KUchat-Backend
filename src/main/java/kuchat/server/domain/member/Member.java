@@ -78,7 +78,7 @@ public class Member extends BaseTime {
         this.language = new Language(request);
         profile.update(request);
 
-        this.studentId = request.getStudentId();
+        this.studentId = request.getStudentIdNumber();
         this.plusId = generatePlusId(10);
         this.status = Status.ACTIVE;
         this.role = Role.STUDENT;           // 추가정보 받은 후 처리
