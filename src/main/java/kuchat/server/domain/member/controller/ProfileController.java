@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.jwt.argumentResolver.Auth;
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.Validator;
 import kuchat.server.domain.member.Member;
@@ -37,12 +38,11 @@ public class ProfileController {
     @Operation(summary = "나의 프로필 수정")
     @SecurityRequirement(name = "JWT")
     @PutMapping
-    public ResponseEntity<BaseResponseStatus> updateMyProfile(@Auth Member member,
-                                                              @Validated @RequestBody ProfileUpdateRequest requestBody,
-                                                              BindingResult bindingResult) {
+    public ResponseEntity<BaseResponse> updateMyProfile(@Auth Member member,
+                                                        @Validated @RequestBody ProfileUpdateRequest requestBody,
+                                                        BindingResult bindingResult) {
         log.info("[updateMyProfile] 프로필 수정 요청 = {}", requestBody.toString());
         Validator.validateRequest(bindingResult);
-        profileService.updateProfile(member.getId(), requestBody);
-        return ResponseEntity.ok(BaseResponseStatus.SUCCESS);
+        return profileService.updateProfile(member.getId(), requestBody);
     }
 }

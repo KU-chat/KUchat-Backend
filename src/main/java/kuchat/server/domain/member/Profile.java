@@ -52,10 +52,14 @@ public class Profile {
         this.birthday = request.getBirth();
     }
 
-    public void update(ProfileUpdateRequest request) {
+    public void update(ProfileUpdateRequest request, String defaultImage) {
         name = request.getName();
         department = request.getDepartment();
         aboutMe = request.getAboutMe();
+        String profileImage = getProfileImage();
+        if (profileImage == null || profileImage.isBlank()){
+            this.profileImage = defaultImage;
+        }
     }
 
     public int getAge() {
