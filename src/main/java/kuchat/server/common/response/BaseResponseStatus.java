@@ -38,7 +38,9 @@ public enum BaseResponseStatus {
     NOT_SIGNUP_MEMBER(4006, HttpStatus.UNAUTHORIZED, "아직 회원가입 하지 않은 회원입니다. 회원가입 페이지로 이동해 주세요."),
     NOT_FOUND_STATUS(4007, HttpStatus.NOT_FOUND, "사용자 계정 상태가 유효하지 않습니다. 다시 시도해주세요."),
     DATE_BAD_REQUEST(4008, HttpStatus.BAD_REQUEST, "날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식에 맞게 다시 입력해주세요."),
-
+    IMAGE_BAD_REQUEST(4009, HttpStatus.BAD_REQUEST, "이미지 업로드 요청 방식이 올바르지 않습니다. 다시 시도해주세요."),
+    IMAGE_UPLOAD_FAIL(4010, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다. 다시 시도해주세요."),
+    DUPLICATED_IMAGE(4011, HttpStatus.BAD_REQUEST, "기존에 업로"),
 
     //- 5000번대 : 채팅방(chatroom) 관련 코드
     NOT_FOUND_CHATROOM(5000, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),

@@ -1,18 +1,23 @@
 package kuchat.server.domain.member.service;
 
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.response.BaseResponse;
+import kuchat.server.domain.S3Service;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.DetailProfileResponse;
+import kuchat.server.domain.member.dto.ProfileImageUpdateResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
@@ -22,9 +27,13 @@ import static kuchat.server.common.response.BaseResponseStatus.*;
 @Service
 public class ProfileService {
     private final MemberRepository memberRepository;
+    private final S3Service s3Service;
 
-    @Value("${default.image.address}")
+    @Value("${default.profile.address}")
     private String defaultImage;
+
+    @Value("${default.profile.dirName}")
+    private String profileImageDirName;
 
     public ResponseEntity<DetailProfileResponse> getProfile(Member member) {
         return ResponseEntity.ok(new DetailProfileResponse(member));
@@ -38,13 +47,33 @@ public class ProfileService {
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
+    @Transactional
+    public ResponseEntity<BaseResponse> updateProfileImage(Member member, MultipartFile multipartFile) {
+        String oldProfile = member.getProfile().getProfileImage();
+        log.info("[updateProfileImage] 기존 이미지 = {}", oldProfile);
+        String newProfile = uploadAndUpdateImage(member, multipartFile);
+        s3Service.deleteImage(oldProfile);
+        return ResponseEntity.ok(new ProfileImageUpdateResponse(SUCCESS, newProfile));
+    }
+
+    private String uploadAndUpdateImage(Member member, MultipartFile multipartFile) {
+        try {
+            String newProfile = s3Service.uploadImage(multipartFile, profileImageDirName);
+            log.info("[updateProfileImage] 새로운 이미지 = {}", newProfile);
+            member.updateProfileImage(newProfile);
+            return newProfile;
+        } catch (IOException e) {
+            throw new KuchatException(IMAGE_UPLOAD_FAIL);
+        }
+    }
+
     private void validateAndUpdatePlusId(Long memberId, String plusId) {
         Member member = getMember(memberId);
         memberRepository.findAllByPlusIdWithLock(plusId)
                 .stream().findAny()
                 .ifPresentOrElse(
                         duplicatedMember -> {
-                            if(!duplicatedMember.equals(member)){
+                            if (!duplicatedMember.equals(member)) {
                                 throw new KuchatException(DUPLICATED_PLUSID);
                             }
                         },

@@ -102,4 +102,8 @@ public class Member extends BaseTime {
     public String getName() {
         return profile.getName();
     }
+
+    public void updateProfileImage(String newProfile) {
+        profile.updateProfileImage(newProfile);
+    }
 }

@@ -73,11 +73,21 @@ public class Profile {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Profile profile = (Profile) o;
-        return Objects.equals(getName(), profile.getName()) && Objects.equals(getDepartment(), profile.getDepartment()) && Objects.equals(getBirthday(), profile.getBirthday()) && getGender() == profile.getGender() && Objects.equals(getHometown(), profile.getHometown()) && Objects.equals(getProfileImage(), profile.getProfileImage()) && Objects.equals(getAboutMe(), profile.getAboutMe());
+        return Objects.equals(getName(), profile.getName()) &&
+                Objects.equals(getDepartment(), profile.getDepartment()) &&
+                Objects.equals(getBirthday(), profile.getBirthday()) &&
+                getGender() == profile.getGender() &&
+                Objects.equals(getHometown(), profile.getHometown()) &&
+                Objects.equals(getProfileImage(), profile.getProfileImage()) &&
+                Objects.equals(getAboutMe(), profile.getAboutMe());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getDepartment(), getBirthday(), getGender(), getHometown(), getProfileImage(), getAboutMe());
+    }
+
+    public void updateProfileImage(String newProfile) {
+        this.profileImage = newProfile;
     }
 }

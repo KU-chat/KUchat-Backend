@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.jwt.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.Validator;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.DetailProfileResponse;
@@ -17,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Tag(name = "Profile", description = "프로필")
@@ -44,5 +44,14 @@ public class ProfileController {
         log.info("[updateMyProfile] 프로필 수정 요청 = {}", requestBody.toString());
         Validator.validateRequest(bindingResult);
         return profileService.updateProfile(member.getId(), requestBody);
+    }
+
+    @Operation(summary = "나의 프로필 사진 수정")
+    @SecurityRequirement(name = "JWT")
+    @PutMapping("/image")
+    public ResponseEntity<BaseResponse> updateMyProfileImage(@Auth Member member,
+                                                        @RequestParam MultipartFile multipartFile) {
+        log.info("[updateMyProfileImage] 프로필 이미지 수정 요청 = {}", multipartFile.toString());
+        return profileService.updateProfileImage(member, multipartFile);
     }
 }
