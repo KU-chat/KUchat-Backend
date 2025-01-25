@@ -94,12 +94,16 @@ public class Member extends BaseTime {
         return stringBuilder.toString();
     }
 
-    public void updateProfile(ProfileUpdateRequest request) {
-        profile.update(request);
+    public void updateProfile(ProfileUpdateRequest request, String defaultImage) {
+        profile.update(request, defaultImage);
         language.update(request);
     }
 
     public String getName() {
         return profile.getName();
+    }
+
+    public void updateProfileImage(String newProfile) {
+        profile.updateProfileImage(newProfile);
     }
 }

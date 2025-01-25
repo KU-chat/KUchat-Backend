@@ -54,7 +54,7 @@ public class FriendController {
     public ResponseEntity<FriendResponse> getFriendProfile(@Auth Member member,
                                                            @PathVariable("id") Long friendId) {
         log.info("[getFriendProfile] id = {} 인 사용자의 프로필 조회 요청", friendId);
-        FriendResponse response = friendService.getFriendProfile(member, friendId);
+        FriendResponse response = friendService.getFriendProfile(member.getId(), friendId);
         return ResponseEntity.ok(response);
     }
 

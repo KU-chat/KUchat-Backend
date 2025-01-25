@@ -47,7 +47,9 @@ public class Language {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Language language = (Language) o;
-        return getSetLanguage() == language.getSetLanguage() && getFirstLanguage() == language.getFirstLanguage() && getSecondLanguage() == language.getSecondLanguage();
+        return getSetLanguage() == language.getSetLanguage() &&
+                getFirstLanguage() == language.getFirstLanguage() &&
+                getSecondLanguage() == language.getSecondLanguage();
     }
 
     @Override

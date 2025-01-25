@@ -35,8 +35,8 @@ public class FriendService {
         Member friendMember = memberRepository.findById(friendId)
                 .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_MEMBER));
         Friend newFriend = Friend.builder()
-                .follower(member)
-                .followed(friendMember).build();
+                .sender(member)
+                .receiver(friendMember).build();
         friendRepository.save(newFriend);
     }
 
@@ -46,8 +46,8 @@ public class FriendService {
         Member friendMember = memberRepository.findByPlusId(plusId)
                 .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_PLUSID));
         Friend newFriend = Friend.builder()
-                .follower(member)
-                .followed(friendMember).build();
+                .sender(member)
+                .receiver(friendMember).build();
         friendRepository.save(newFriend);
     }
 
@@ -55,21 +55,19 @@ public class FriendService {
         log.info("[getFriendList] 이름에 '{}' 을 포함하는 친구 조회", friendName);
         List<Friend> friendships = friendRepository.findAllByName(member, friendName);
         List<FriendResponse> friendResponse = friendships.stream()
-                .map(Friend::getFollowed)
+                .map(Friend::getReceiver)
                 .map(FriendResponse::new)
                 .toList();
         return new FriendResponses(friendResponse);
     }
 
-    public FriendResponse getFriendProfile(Member member, Long friendId) {
+    public FriendResponse getFriendProfile(Long memberId, Long friendId) {
         log.info("[getFriendProfile] id가 {} 인 친구의 프로필 조회", friendId);
-        Member friendMember = getMember(friendId);
-        // friendId인 멤버를 1. 내가 차단했거나, 2. 상대가 나를 차단한 경우
-        // 예외가 발생해야 한다.
-
-        if (blockService.isBlockOrBlocked(member, friendMember)) {
+        // friendId인 멤버를 1. 내가 차단했거나, 2. 상대가 나를 차단한 경우 예외가 발생해야 한다.
+        if (blockService.isBlockOrBlocked(memberId, friendId)) {
             throw new KuchatException(BLOCKED_MEMBER);
         }
+        Member friendMember = getMember(friendId);
         return new FriendResponse(friendMember);
     }
 

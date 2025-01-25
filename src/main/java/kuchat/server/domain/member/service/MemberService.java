@@ -53,6 +53,7 @@ public class MemberService {
     }
 
     private void validateStudentId(String studentId) {
+        log.info("[validateStudentId] 학번 = {}", studentId);
         memberRepository.findByStudentId(studentId).ifPresent(member -> {
             log.error("[error] 이미 존재하는 학번입니다.");
             throw new KuchatException(DUPLICATED_STUDENT_ID);

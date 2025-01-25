@@ -38,6 +38,11 @@ public enum BaseResponseStatus {
     NOT_SIGNUP_MEMBER(4006, HttpStatus.UNAUTHORIZED, "아직 회원가입 하지 않은 회원입니다. 회원가입 페이지로 이동해 주세요."),
     NOT_FOUND_STATUS(4007, HttpStatus.NOT_FOUND, "사용자 계정 상태가 유효하지 않습니다. 다시 시도해주세요."),
     DATE_BAD_REQUEST(4008, HttpStatus.BAD_REQUEST, "날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식에 맞게 다시 입력해주세요."),
+    IMAGE_BAD_REQUEST(4009, HttpStatus.BAD_REQUEST, "이미지 업로드 요청 방식이 올바르지 않습니다. 다시 시도해주세요."),
+    IMAGE_UPLOAD_FAIL(4010, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다. 다시 시도해주세요."),
+    NOT_FOUND_IMAGE(4011, HttpStatus.BAD_REQUEST, "요청에서 이미지 파일을 찾을 수 없습니다. 다시 시도해주세요."),
+    OVER_SIZE_IMAGE(4012, HttpStatus.BAD_REQUEST, "이미지 파일이 용량을 초과하여 업로드할 수 없습니다. 업로드 가능한 크기는 최대 10MB 입니다."),
+
 
 
     //- 5000번대 : 채팅방(chatroom) 관련 코드
@@ -62,21 +67,14 @@ public enum BaseResponseStatus {
     NOT_FOUND_SESSION(6008, HttpStatus.NOT_FOUND, "사용자의 웹소켓 세션이 존재하지 않습니다. 다시 연결을 시도해주세요."),
 
     //- 7000번대 : 친구 관련 코드
-//    FRIEND_APPLY_SUCCESS(000, HttpStatus.OK, "친구 신청 성공"),
-//    FRIEND_ACCEPT_SUCCESS(6001, HttpStatus.CREATED, "친구 신청 수락 성공"),
-//    FRIEND_APPLY_REFUSE_SUCCESS(6002, HttpStatus.OK, "친구 신청 거절 성공"),
-//    FRIEND_APPLY_LOOKUP_SUCCESS(6003, HttpStatus.OK, "친구 신청 목록 조회 성공"),
-//    FRIEND_DELETE_SUCCESS(6004, HttpStatus.OK, "친구 삭제 성공"),
-//    BLOCK_MEMBER_SUCCESS(6005, HttpStatus.OK, "사용자 차단 성공"),
-//    RELEASE_BLOCK_SUCCESS(6006, HttpStatus.OK, "차단 해제 성공"),
-//    BLOCK_LOOKUP_SUCCESS(6007, HttpStatus.OK, "차단 목록 조회 성공"),
+//    NOT_FOUND_FRIENDSHIP(7000, HttpStatus.NOT_FOUND, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
+    BLOCKED_MEMBER(7000, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
 
-    ALREADY_APPLY(7000, HttpStatus.BAD_REQUEST, "둘 사이에 보낸 요청이 존재합니다."),
-    NOT_FOUND_FRIEND(7001, HttpStatus.NOT_FOUND, "친구가 아닌 사용자입니다."),
-    NOT_FOUND_PLUSID(7002, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
-    NOT_FOUND_BLOCK(7003, HttpStatus.NOT_FOUND, "해당 사용자들 사이에 차단 관계가 존재하지 않습니다."),
-    BLOCKED_MEMBER(7004, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
-    ALREADY_FRIEND(7005, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
+    ALREADY_APPLY(70, HttpStatus.BAD_REQUEST, "둘 사이에 보낸 요청이 존재합니다."),
+    NOT_FOUND_FRIEND(70, HttpStatus.NOT_FOUND, "친구가 아닌 사용자입니다."),
+    NOT_FOUND_PLUSID(70, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
+    NOT_FOUND_BLOCK(70, HttpStatus.NOT_FOUND, "해당 사용자들 사이에 차단 관계가 존재하지 않습니다."),
+    ALREADY_FRIEND(70, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
 
     //- 8000번대 : 알림 관련 코드
 

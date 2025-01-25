@@ -1,6 +1,5 @@
 package kuchat.server.domain.member.dto;
 
-import kuchat.server.domain.enums.Gender;
 import kuchat.server.domain.member.Profile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,10 +23,7 @@ public class ProfileResponse {
 
     public ProfileResponse(Profile profile) {
         this.name = profile.getName();
-        Gender gender1 = profile.getGender();
-        log.info("[ProfileResponse] gender ="+gender1);
         this.gender = profile.getGender().getKorean();
-        log.info("[ProfileResponse] gender" + this.gender);
         this.age = profile.getAge();
         this.department = profile.getDepartment();
         this.hometown = profile.getHometown();

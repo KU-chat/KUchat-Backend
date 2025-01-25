@@ -22,6 +22,8 @@ public class ProfileUpdateRequest {
     @NotBlank
     private String department;
 
+    private String profileImage;
+
     private String aboutMe;
 
 }
