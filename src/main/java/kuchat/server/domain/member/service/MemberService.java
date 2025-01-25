@@ -5,21 +5,19 @@ import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.common.response.BaseResponseStatus;
-import kuchat.server.domain.chatroom.service.ChatroomService;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.DetailProfileResponse;
-import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
 import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static kuchat.server.common.response.BaseResponseStatus.*;
+import static kuchat.server.common.response.BaseResponseStatus.DUPLICATED_STUDENT_ID;
+import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,12 +28,15 @@ public class MemberService {
     private final JwtTokenService jwtTokenService;
     private final RedisService redisService;
 
+    @Value("${default.profile.address}")
+    private String defaultImage;
+
     @Transactional
     public ResponseEntity<BaseResponse> signup(Member member, SignupRequest signupRequest) {
         log.info("[signup] member = {}", member.toString());
 
         validateStudentId(signupRequest.getStudentIdNumber());
-        member.updateInfo(signupRequest);
+        member.updateInfo(signupRequest, defaultImage);
         memberRepository.findById(member.getId());
 
         // 엑세스 토큰, 리프레시 토큰 발급

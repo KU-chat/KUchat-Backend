@@ -74,9 +74,9 @@ public class Member extends BaseTime {
         role = Role.GUEST;
     }
 
-    public void updateInfo(SignupRequest request) {
+    public void updateInfo(SignupRequest request, String defaultImage) {
         this.language = new Language(request);
-        profile.update(request);
+        profile.update(request, defaultImage);
 
         this.studentId = request.getStudentIdNumber();
         this.plusId = generatePlusId(10);
@@ -94,8 +94,8 @@ public class Member extends BaseTime {
         return stringBuilder.toString();
     }
 
-    public void updateProfile(ProfileUpdateRequest request, String defaultImage) {
-        profile.update(request, defaultImage);
+    public void updateProfile(ProfileUpdateRequest request) {
+        profile.update(request);
         language.update(request);
     }
 

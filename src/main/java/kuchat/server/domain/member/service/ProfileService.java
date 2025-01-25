@@ -32,9 +32,6 @@ public class ProfileService {
     private final BlockService blockService;
     private final S3Service s3Service;
 
-    @Value("${default.profile.address}")
-    private String defaultImage;
-
     @Value("${default.profile.dirName}")
     private String profileImageDirName;
 
@@ -45,7 +42,7 @@ public class ProfileService {
     @Transactional
     public ResponseEntity<BaseResponse> updateProfile(Member member, ProfileUpdateRequest request) {
         validateAndUpdatePlusId(member.getId(), request.getPlusId());
-        member.updateProfile(request, defaultImage);
+        member.updateProfile(request);
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 

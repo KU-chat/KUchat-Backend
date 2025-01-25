@@ -44,22 +44,19 @@ public class Profile {
         this.profileImage = profileImage;
     }
 
-    public void update(SignupRequest request) {
+    public void update(SignupRequest request, String defaultImage) {
         this.hometown = request.getCountry();
         this.name = request.getName();
         this.department = request.getMajor();
         this.gender = Gender.of(request.getGender());
         this.birthday = request.getBirth();
+        updateProfileImage(defaultImage);
     }
 
-    public void update(ProfileUpdateRequest request, String defaultImage) {
+    public void update(ProfileUpdateRequest request) {
         name = request.getName();
         department = request.getDepartment();
         aboutMe = request.getAboutMe();
-        String profileImage = getProfileImage();
-        if (profileImage == null || profileImage.isBlank()){
-            this.profileImage = defaultImage;
-        }
     }
 
     public int getAge() {
