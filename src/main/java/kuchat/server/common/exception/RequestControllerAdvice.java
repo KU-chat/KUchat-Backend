@@ -8,21 +8,19 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
-import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_IMAGE;
-import static kuchat.server.common.response.BaseResponseStatus.OVER_SIZE_IMAGE;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RestControllerAdvice
-public class ImageControllerAdvice {
+public class RequestControllerAdvice {
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<BaseResponse> handleMissingImageException(MissingServletRequestParameterException e) {
-        // 클라이언트에서 multipartFile 필드 이름을 잘못 지정했거나, 파일 자체를 전송하지 않은 경우
-
-        log.error("[handleMissingImageException] 클라이언트 요청에서 multipartFile이 누락된 경우");
-        HttpStatus httpStatus = NOT_FOUND_IMAGE.getHttpStatus();
+    public ResponseEntity<BaseResponse> handleMissingParameterException(MissingServletRequestParameterException e) {
+        log.error("[handleMissingParameterException] 클라이언트 요청에서 request parameter가 누락된 경우");
+        HttpStatus httpStatus = PARAMETER_NOT_FOUND.getHttpStatus();
         return ResponseEntity.status(httpStatus)
-                .body(new BaseResponse(NOT_FOUND_IMAGE));
+                .body(new BaseResponse(PARAMETER_NOT_FOUND));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -31,5 +29,13 @@ public class ImageControllerAdvice {
         HttpStatus httpStatus = OVER_SIZE_IMAGE.getHttpStatus();
         return ResponseEntity.status(httpStatus)
                 .body(new BaseResponse(OVER_SIZE_IMAGE));
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<BaseResponse> handleMissingMultipartException(MultipartException e) {
+        log.error("[handleMissingMultipartException] 파일의 용량이 초과된 경우");
+        HttpStatus httpStatus = NOT_FOUND_IMAGE.getHttpStatus();
+        return ResponseEntity.status(httpStatus)
+                .body(new BaseResponse(NOT_FOUND_IMAGE));
     }
 }
