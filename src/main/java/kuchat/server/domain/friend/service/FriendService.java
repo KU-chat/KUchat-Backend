@@ -35,8 +35,8 @@ public class FriendService {
         Member friendMember = memberRepository.findById(friendId)
                 .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_MEMBER));
         Friend newFriend = Friend.builder()
-                .follower(member)
-                .followed(friendMember).build();
+                .sender(member)
+                .receiver(friendMember).build();
         friendRepository.save(newFriend);
     }
 
@@ -46,8 +46,8 @@ public class FriendService {
         Member friendMember = memberRepository.findByPlusId(plusId)
                 .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_PLUSID));
         Friend newFriend = Friend.builder()
-                .follower(member)
-                .followed(friendMember).build();
+                .sender(member)
+                .receiver(friendMember).build();
         friendRepository.save(newFriend);
     }
 
@@ -55,7 +55,7 @@ public class FriendService {
         log.info("[getFriendList] 이름에 '{}' 을 포함하는 친구 조회", friendName);
         List<Friend> friendships = friendRepository.findAllByName(member, friendName);
         List<FriendResponse> friendResponse = friendships.stream()
-                .map(Friend::getFollowed)
+                .map(Friend::getReceiver)
                 .map(FriendResponse::new)
                 .toList();
         return new FriendResponses(friendResponse);

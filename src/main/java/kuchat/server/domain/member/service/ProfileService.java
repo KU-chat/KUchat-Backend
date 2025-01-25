@@ -3,6 +3,8 @@ package kuchat.server.domain.member.service;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.S3Service;
+import kuchat.server.domain.block.service.BlockService;
+import kuchat.server.domain.friend.repository.FriendRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileImageUpdateResponse;
@@ -27,6 +29,7 @@ import static kuchat.server.common.response.BaseResponseStatus.*;
 @Service
 public class ProfileService {
     private final MemberRepository memberRepository;
+    private final BlockService blockService;
     private final S3Service s3Service;
 
     @Value("${default.profile.address}")
@@ -79,6 +82,15 @@ public class ProfileService {
                         },
                         () -> member.setPlusId(plusId)
                 );
+    }
+
+    public ResponseEntity<BaseResponse> getFriendProfile(Member member, Long friendMemberId) {
+        Member friend = getMember(friendMemberId);
+        if (blockService.isBlockOrBlocked(member, friend)) {
+            throw new KuchatException(new BaseResponse(BLOCKED_MEMBER));
+        }
+        DetailProfileResponse friendProfileResponse = new DetailProfileResponse(friend);
+        return ResponseEntity.ok(friendProfileResponse);
     }
 
     private Member getMember(Long memberId) {

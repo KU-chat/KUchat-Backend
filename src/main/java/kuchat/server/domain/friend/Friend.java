@@ -1,6 +1,7 @@
 package kuchat.server.domain.friend;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.member.Member;
 import lombok.Builder;
@@ -19,18 +20,21 @@ public class Friend extends BaseTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "friend_member_id")      // 팔로우 당한 사람 (친구)
-    private Member followed;
+    @JoinColumn(name = "sender_id")            // 팔로우한 사람
+    private Member sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follower_id")            // 팔로우한 사람 (자기 자신)
-    private Member follower;
+    @JoinColumn(name = "receiver_id")           // 팔로우 당한 사람
+    private Member receiver;
+
+    @Column(nullable = false)
+    private boolean acceptance = false;
 
 
     @Builder
-    public Friend(Member follower, Member followed) {
-        this.follower = follower;
-        this.followed = followed;
+    public Friend(Member sender, Member receiver) {
+        this.sender = sender;
+        this.receiver = receiver;
     }
 
 }

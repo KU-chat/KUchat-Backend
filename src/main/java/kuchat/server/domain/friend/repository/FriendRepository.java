@@ -12,10 +12,10 @@ import java.util.Optional;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     @Query("select f from Friend f " +
-            "where (f.follower = :member and f.followed.profile.name like %:name%)")
+            "where (f.sender = :member and f.receiver.profile.name like %:name%)")
     List<Friend> findAllByName(@Param("member") Member member, @Param("name") String name);       // member 의 친구들 검색
 
     @Query("select f from Friend f " +
-            "where (f.follower = :follower and f.followed = :followed)")
-    Optional<Friend> findByMembers(@Param("follower") Member follower, @Param("followed") Member followed);
+            "where (f.sender = :sender and f.receiver = :receiver)")
+    Optional<Friend> findByMembers(@Param("sender") Member follower, @Param("receiver") Member receiver);
 }

@@ -54,4 +54,14 @@ public class ProfileController {
         log.info("[updateMyProfileImage] 프로필 이미지 수정 요청 = {}", multipartFile.toString());
         return profileService.updateProfileImage(member, multipartFile);
     }
+
+    @Operation(summary = "친구의 프로필 조회")
+    @SecurityRequirement(name = "JWT")
+    @GetMapping("/{memberId}")
+    public ResponseEntity<BaseResponse> getFriendProfile(@Auth Member member,
+                                                         @PathVariable("memberId") Long friendMemberId) {
+        log.info("[getFriendProfile] 친구의 프로필 조회 요청 : memberId = {}, 친구의 memberId = {}",
+                member.getId(), friendMemberId);
+        return profileService.getFriendProfile(member, friendMemberId);
+    }
 }
