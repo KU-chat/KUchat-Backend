@@ -61,15 +61,13 @@ public class FriendService {
         return new FriendResponses(friendResponse);
     }
 
-    public FriendResponse getFriendProfile(Member member, Long friendId) {
+    public FriendResponse getFriendProfile(Long memberId, Long friendId) {
         log.info("[getFriendProfile] id가 {} 인 친구의 프로필 조회", friendId);
-        Member friendMember = getMember(friendId);
-        // friendId인 멤버를 1. 내가 차단했거나, 2. 상대가 나를 차단한 경우
-        // 예외가 발생해야 한다.
-
-        if (blockService.isBlockOrBlocked(member, friendMember)) {
+        // friendId인 멤버를 1. 내가 차단했거나, 2. 상대가 나를 차단한 경우 예외가 발생해야 한다.
+        if (blockService.isBlockOrBlocked(memberId, friendId)) {
             throw new KuchatException(BLOCKED_MEMBER);
         }
+        Member friendMember = getMember(friendId);
         return new FriendResponse(friendMember);
     }
 

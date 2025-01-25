@@ -43,9 +43,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public ResponseEntity<BaseResponse> updateProfile(Long memberId, ProfileUpdateRequest request) {
-        Member member = getMember(memberId);
-        validateAndUpdatePlusId(memberId, request.getPlusId());
+    public ResponseEntity<BaseResponse> updateProfile(Member member, ProfileUpdateRequest request) {
+        validateAndUpdatePlusId(member.getId(), request.getPlusId());
         member.updateProfile(request, defaultImage);
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
@@ -84,9 +83,9 @@ public class ProfileService {
                 );
     }
 
-    public ResponseEntity<BaseResponse> getFriendProfile(Member member, Long friendMemberId) {
+    public ResponseEntity<BaseResponse> getFriendProfile(Long memberId, Long friendMemberId) {
         Member friend = getMember(friendMemberId);
-        if (blockService.isBlockOrBlocked(member, friend)) {
+        if (blockService.isBlockOrBlocked(memberId, friendMemberId)) {
             throw new KuchatException(new BaseResponse(BLOCKED_MEMBER));
         }
         DetailProfileResponse friendProfileResponse = new DetailProfileResponse(friend);

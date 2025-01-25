@@ -70,9 +70,8 @@ public class BlockService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 
-    public boolean isBlockOrBlocked(Member member1, Member member2){
-        Optional<Block> byMembers1 = blockRepository.findByBlockerAndBlocked(member1, member2);
-        Optional<Block> byMembers2 = blockRepository.findByBlockerAndBlocked(member2, member2);
-        return byMembers1.isPresent() || byMembers2.isPresent();
+    public boolean isBlockOrBlocked(Long member1Id, Long member2Id){
+        Optional<Block> optionalBlock = blockRepository.findByIds(member1Id, member2Id);
+        return optionalBlock.isPresent();
     }
 }

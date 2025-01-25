@@ -43,7 +43,7 @@ public class ProfileController {
                                                         BindingResult bindingResult) {
         log.info("[updateMyProfile] 프로필 수정 요청 = {}", requestBody.toString());
         Validator.validateRequest(bindingResult);
-        return profileService.updateProfile(member.getId(), requestBody);
+        return profileService.updateProfile(member, requestBody);
     }
 
     @Operation(summary = "나의 프로필 사진 수정")
@@ -62,6 +62,6 @@ public class ProfileController {
                                                          @PathVariable("memberId") Long friendMemberId) {
         log.info("[getFriendProfile] 친구의 프로필 조회 요청 : memberId = {}, 친구의 memberId = {}",
                 member.getId(), friendMemberId);
-        return profileService.getFriendProfile(member, friendMemberId);
+        return profileService.getFriendProfile(member.getId(), friendMemberId);
     }
 }
