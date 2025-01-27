@@ -30,7 +30,6 @@ public class Friend extends BaseTime {
     @Column(nullable = false)
     private boolean acceptance = false;
 
-
     @Builder
     public Friend(Member sender, Member receiver) {
         this.sender = sender;

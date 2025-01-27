@@ -69,15 +69,17 @@ public enum BaseResponseStatus {
     MESSAGE_LENGTH_MISMATCH(6007, HttpStatus.BAD_REQUEST, "메세지의 payload 길이가 일치하지 않습니다."),
     NOT_FOUND_SESSION(6008, HttpStatus.NOT_FOUND, "사용자의 웹소켓 세션이 존재하지 않습니다. 다시 연결을 시도해주세요."),
 
-    //- 7000번대 : 친구 관련 코드
+    //- 7000번대 : 친구, 차단 관련 코드
 //    NOT_FOUND_FRIENDSHIP(7000, HttpStatus.NOT_FOUND, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
-    BLOCKED_MEMBER(7000, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
+    BLOCKED_MEMBER_PROFILE(7000, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
+    ALREADY_FRIEND(7001, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
+    BLOCKED_MEMBER_APPLY(7002, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 사용자는 친구신청을 보낼 수 없습니다."),
+
 
     ALREADY_APPLY(70, HttpStatus.BAD_REQUEST, "둘 사이에 보낸 요청이 존재합니다."),
     NOT_FOUND_FRIEND(70, HttpStatus.NOT_FOUND, "친구가 아닌 사용자입니다."),
     NOT_FOUND_PLUSID(70, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
     NOT_FOUND_BLOCK(70, HttpStatus.NOT_FOUND, "해당 사용자들 사이에 차단 관계가 존재하지 않습니다."),
-    ALREADY_FRIEND(70, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
 
     //- 8000번대 : 알림 관련 코드
 

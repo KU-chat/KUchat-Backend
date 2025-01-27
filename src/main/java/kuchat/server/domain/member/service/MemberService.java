@@ -16,8 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static kuchat.server.common.response.BaseResponseStatus.DUPLICATED_STUDENT_ID;
-import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor

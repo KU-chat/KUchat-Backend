@@ -16,6 +16,14 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     List<Friend> findAllByName(@Param("member") Member member, @Param("name") String name);       // member 의 친구들 검색
 
     @Query("select f from Friend f " +
-            "where (f.sender = :sender and f.receiver = :receiver)")
+            "where (f.sender = :sender and f.receiver = :receiver) " +
+            "or (f.sender = :receiver and f.receiver = :sender)")
     Optional<Friend> findByMembers(@Param("sender") Member follower, @Param("receiver") Member receiver);
+
+    Optional<Friend> findBySenderAndReceiver(Member sender, Member receiver);
+
+//    @Query("select f from Friend f " +
+//            "where (f.sender = :sender and f.receiver = :receiver) " +
+//            "or (f.sender = :receiver and f.receiver = :sender)")
+//    Optional<Friend> findFirstByMembers(Member member, Member friendMember);
 }

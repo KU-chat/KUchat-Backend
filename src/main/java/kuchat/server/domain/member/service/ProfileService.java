@@ -4,7 +4,7 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.S3Service;
 import kuchat.server.domain.block.service.BlockService;
-import kuchat.server.domain.friend.repository.FriendRepository;
+import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileImageUpdateResponse;
@@ -12,7 +12,6 @@ import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -81,9 +80,10 @@ public class ProfileService {
     }
 
     public ResponseEntity<BaseResponse> getFriendProfile(Long memberId, Long friendMemberId) {
+        log.info("[getFriendProfile] id가 {} 인 친구의 프로필 조회", friendMemberId);
         Member friend = getMember(friendMemberId);
         if (blockService.isBlockOrBlocked(memberId, friendMemberId)) {
-            throw new KuchatException(new BaseResponse(BLOCKED_MEMBER));
+            throw new KuchatException(new BaseResponse(BLOCKED_MEMBER_PROFILE));
         }
         DetailProfileResponse friendProfileResponse = new DetailProfileResponse(friend);
         return ResponseEntity.ok(friendProfileResponse);
