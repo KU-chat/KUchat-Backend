@@ -31,22 +31,28 @@ public class FriendController {
         return friendService.applyByPlusId(member, plusId);
     }
 
+    @Operation(summary = "친구신청 수락하기")
+    @PostMapping("/accept/{friendId}")
+    public ResponseEntity<BaseResponse> acceptFriendApply(@Auth Member member,
+                                                    @PathVariable("friendId") Long friendId) {
+        log.info("[acceptFriendApply] friendId = {} 인 친구신청을 {} 가 수락함", friendId, member.getId());
+        return friendService.acceptApply(member.getId(), friendId);
+    }
+
     @Operation(summary = "친구 목록 조회 (이름 검색)")
     @GetMapping("")
-    public ResponseEntity<FriendResponses> getFriendList(@Auth Member member,
+    public ResponseEntity<BaseResponse> getFriendList(@Auth Member member,
                                                          @RequestParam("name") String friendName) {
         log.info("[getFriendList] 친구 목록 검색 및 조회. 검색 문자열 = '{}'", friendName);
-        FriendResponses response = friendService.getFriendList(member, friendName);
-        return ResponseEntity.ok(response);
+        return friendService.getFriendList(member, friendName);
     }
 
     @Operation(summary = "친구 삭제")
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseResponseStatus> deleteFriend(@Auth Member member,
+    public ResponseEntity<BaseResponse> deleteFriend(@Auth Member member,
                                                            @PathVariable("id") Long friendId) {
         log.info("[deleteFriend] member id = {} 인 사용자와의 친구 관계 삭제", friendId);
-        friendService.delete(member, friendId);
-        return ResponseEntity.ok(SUCCESS);
+        return friendService.delete(member, friendId);
     }
 
 }

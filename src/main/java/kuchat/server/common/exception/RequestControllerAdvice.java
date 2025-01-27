@@ -4,6 +4,7 @@ import kuchat.server.common.response.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -37,5 +38,13 @@ public class RequestControllerAdvice {
         HttpStatus httpStatus = NOT_FOUND_IMAGE.getHttpStatus();
         return ResponseEntity.status(httpStatus)
                 .body(new BaseResponse(NOT_FOUND_IMAGE));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<BaseResponse> handleMissingPathVariableException(HttpRequestMethodNotSupportedException e){
+        log.error("[handleMissingPathVariableException] 요청 url에서 path variable이 누락된 경우");
+        HttpStatus httpStatus = PATH_VARIABLE_NOT_FOUND.getHttpStatus();
+        return ResponseEntity.status(httpStatus)
+                .body(new BaseResponse(PATH_VARIABLE_NOT_FOUND));
     }
 }

@@ -16,6 +16,7 @@ public enum BaseResponseStatus {
     WEBSOCKET_CONNECTION_SUCCESS(1001, HttpStatus.OK, "웹소켓 연결 성공"),
 
     PARAMETER_NOT_FOUND(1010, HttpStatus.BAD_REQUEST, "요청 url의 쿼리 파라미터가 누락됐습니다."),
+    PATH_VARIABLE_NOT_FOUND(1011, HttpStatus.BAD_REQUEST, "요청 url의 path variable이 누락됐습니다."),
 
     // 2000 번대 : jwt 관련 상태 코드
     MALFORMED_TOKEN(2000, HttpStatus.UNAUTHORIZED, "토큰이 올바르게 구성되지 않았습니다."),
@@ -74,10 +75,11 @@ public enum BaseResponseStatus {
     BLOCKED_MEMBER_PROFILE(7000, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
     ALREADY_FRIEND(7001, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
     BLOCKED_MEMBER_APPLY(7002, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 사용자는 친구신청을 보낼 수 없습니다."),
+    NOT_FOUND_FRIEND(7003, HttpStatus.NOT_FOUND, "친구가 아닌 사용자들입니다."),
+    NOT_FOUND_APPLY(7004, HttpStatus.NOT_FOUND, "친구 신청이 존재하지 않습니다."),
 
 
     ALREADY_APPLY(70, HttpStatus.BAD_REQUEST, "둘 사이에 보낸 요청이 존재합니다."),
-    NOT_FOUND_FRIEND(70, HttpStatus.NOT_FOUND, "친구가 아닌 사용자입니다."),
     NOT_FOUND_PLUSID(70, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
     NOT_FOUND_BLOCK(70, HttpStatus.NOT_FOUND, "해당 사용자들 사이에 차단 관계가 존재하지 않습니다."),
 

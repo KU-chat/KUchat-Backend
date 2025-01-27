@@ -34,10 +34,10 @@ public class FriendService {
 
     @Transactional
     public ResponseEntity<BaseResponse> applyByPlusId(Member member, String plusId) {
-        log.info("[addByPlusId] member id = {} 인 사용자가 plus id = {} 인 사용자를 친구로 추가함.", member.getId(), plusId);
+        log.info("[applyByPlusId] member id = {} 인 사용자가 plus id = {} 인 사용자를 친구로 추가함.", member.getId(), plusId);
         Member friendMember = getMemberByPlusId(plusId);
-        validateAlreadyFriend(member, friendMember);
-        validateBlock(member, friendMember);
+        validateAlreadyFriend(member.getId(), friendMember.getId());
+        validateBlock(member.getId(), friendMember.getId());
 
         Friend newFriend = Friend.builder()
                 .sender(member)
@@ -47,31 +47,49 @@ public class FriendService {
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
-    private void validateBlock(Member member, Member friendMember) {
-        if (blockService.isBlockOrBlocked(member.getId(), friendMember.getId())){
+    @Transactional
+    public ResponseEntity<BaseResponse> acceptApply(Long memberId, Long friendId) {
+        log.info("[acceptApply] friendId = {} 인 친구신청을 수신자인 {} 가 수락함", friendId, memberId);
+        friendRepository.findByIdAndReceiver_IdAndAcceptance(friendId, memberId, false)
+                .ifPresentOrElse(
+                        Friend::accept,
+                        () -> {
+                            throw new KuchatException(NOT_FOUND_APPLY);
+                        }
+                );
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
+    }
+
+    private void validateBlock(Long memberId, Long friendMemberId) {
+        if (blockService.isBlockOrBlocked(memberId, friendMemberId)) {
             throw new KuchatException(BLOCKED_MEMBER_APPLY);
         }
     }
 
-    private void validateAlreadyFriend(Member member, Member friendMember) {
-        if (friendRepository.findByMembers(member, friendMember).isPresent()){
+    private void validateAlreadyFriend(Long memberId, Long friendMemberId) {
+        if (friendRepository.findByMembers(memberId, friendMemberId).isPresent()) {
             throw new KuchatException(ALREADY_FRIEND);
         }
     }
 
-    public FriendResponses getFriendList(Member member, String friendName) {
+    public ResponseEntity<BaseResponse> getFriendList(Member member, String friendName) {
         log.info("[getFriendList] 이름에 '{}' 을 포함하는 친구 조회", friendName);
         List<Friend> friendships = friendRepository.findAllByName(member, friendName);
         List<FriendResponse> friendResponse = friendships.stream()
                 .map(Friend::getReceiver)
                 .map(FriendResponse::new)
                 .toList();
-        return new FriendResponses(friendResponse);
+        FriendResponses responses = new FriendResponses(SUCCESS, friendResponse);
+        return ResponseEntity.ok(responses);
     }
 
-    public void delete(Member member, Long friendId) {
-        Member friendMember = getMember(friendId);
-        Optional<Friend> friend = friendRepository.findByMembers(member, friendMember);
+    public ResponseEntity<BaseResponse> delete(Member member, Long friendId) {
+        deleteFriendByMembers(member.getId(), friendId);
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
+    }
+
+    public void deleteFriendByMembers(Long memberId, Long friendMemberId) {
+        Optional<Friend> friend = friendRepository.findByMembers(memberId, friendMemberId);
         friend.ifPresentOrElse(
                 friendRepository::delete,
                 () -> {
@@ -80,13 +98,9 @@ public class FriendService {
         );
     }
 
-    private Member getMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-    }
-
     private Member getMemberByPlusId(String plusId) {
         return memberRepository.findByPlusId(plusId)
                 .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_PLUSID));
     }
+
 }

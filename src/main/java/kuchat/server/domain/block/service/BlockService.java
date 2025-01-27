@@ -1,23 +1,25 @@
 package kuchat.server.domain.block.service;
 
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.block.Block;
 import kuchat.server.domain.block.dto.BlockMemberResponse;
 import kuchat.server.domain.block.dto.BlockMemberResponses;
 import kuchat.server.domain.block.repository.BlockRepository;
 import kuchat.server.domain.friend.repository.FriendRepository;
+import kuchat.server.domain.friend.service.FriendService;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_BLOCK;
-import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MEMBER;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 
 @Slf4j
@@ -27,24 +29,14 @@ import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_MEMBER;
 public class BlockService {
 
     private final BlockRepository blockRepository;
-    private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
 
-    public void block(Member member, Long blockMemberId) {
+    public ResponseEntity<BaseResponse> block(Member member, Long blockMemberId) {
         log.info("[block] {} 번 사용자가 {} 번 사용자를 차단함.", member.getId(), blockMemberId);
         Member blocked = getMember(blockMemberId);
-
-        deleteFriend(member, blocked);          // member 가 blocked 를 팔로우한 경우, 제거
-        deleteFriend(blocked, member);          // blocked 가 member 를 팔로우한 경우, 제거
-
         Block block = new Block(member, blocked);
         blockRepository.save(block);
-    }
-
-    // m1 이 m2를 팔로우한 경우, 그 때 생성된 friend 를 제거함
-    private void deleteFriend(Member m1, Member m2) {
-        friendRepository.findByMembers(m1, m2)
-                .ifPresent(friendRepository::delete);
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
     public void release(Member member, Long releaseMemberId) {

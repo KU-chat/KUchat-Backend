@@ -36,4 +36,8 @@ public class Friend extends BaseTime {
         this.receiver = receiver;
     }
 
+    public void accept(){
+        this.acceptance = true;
+    }
+
 }
