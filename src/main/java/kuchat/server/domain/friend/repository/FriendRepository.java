@@ -26,10 +26,9 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     Optional<Friend> findByIdAndReceiver_IdAndAcceptance(Long friendId, Long memberId, boolean acceptance);
 
-    Page<Friend> findAllByReceiverAndAcceptance(Member sender, boolean acceptance, Pageable pageable);
+    @Query("select f from Friend f " +
+            "join fetch f.sender s " +
+            "where f.receiver = :receiver and f.acceptance = :acceptance")
+    Page<Friend> findAllByReceiverAndAcceptance(Member receiver, boolean acceptance, Pageable pageable);
 
-//    @Query("select f from Friend f " +
-//            "where (f.sender = :sender and f.receiver = :receiver) " +
-//            "or (f.sender = :receiver and f.receiver = :sender)")
-//    Optional<Friend> findFirstByMembers(Member member, Member friendMember);
 }
