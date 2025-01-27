@@ -38,6 +38,16 @@ public class ProfileService {
         return ResponseEntity.ok(new DetailProfileResponse(member));
     }
 
+    public ResponseEntity<BaseResponse> getFriendProfile(Long memberId, Long friendMemberId) {
+        log.info("[getFriendProfile] id가 {} 인 친구의 프로필 조회", friendMemberId);
+        Member friend = getMember(friendMemberId);
+        if (blockService.isBlockOrBlocked(memberId, friendMemberId)) {
+            throw new KuchatException(new BaseResponse(BLOCKED_MEMBER_PROFILE));
+        }
+        DetailProfileResponse friendProfileResponse = new DetailProfileResponse(friend);
+        return ResponseEntity.ok(friendProfileResponse);
+    }
+
     @Transactional
     public ResponseEntity<BaseResponse> updateProfile(Member member, ProfileUpdateRequest request) {
         validateAndUpdatePlusId(member.getId(), request.getPlusId());
@@ -79,15 +89,6 @@ public class ProfileService {
                 );
     }
 
-    public ResponseEntity<BaseResponse> getFriendProfile(Long memberId, Long friendMemberId) {
-        log.info("[getFriendProfile] id가 {} 인 친구의 프로필 조회", friendMemberId);
-        Member friend = getMember(friendMemberId);
-        if (blockService.isBlockOrBlocked(memberId, friendMemberId)) {
-            throw new KuchatException(new BaseResponse(BLOCKED_MEMBER_PROFILE));
-        }
-        DetailProfileResponse friendProfileResponse = new DetailProfileResponse(friend);
-        return ResponseEntity.ok(friendProfileResponse);
-    }
 
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)

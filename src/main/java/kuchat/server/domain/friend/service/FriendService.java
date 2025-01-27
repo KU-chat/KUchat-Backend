@@ -83,12 +83,21 @@ public class FriendService {
         return ResponseEntity.ok(responses);
     }
 
-    public ResponseEntity<BaseResponse> delete(Member member, Long friendId) {
-        deleteFriendByMembers(member.getId(), friendId);
+    @Transactional
+    public ResponseEntity<BaseResponse> delete(Member member, Long friendMemberId) {
+        log.info("[deleteFriendByMembers] member={}, friend={} 인 친구 관계 삭제", member.getId(), friendMemberId);
+        Optional<Friend> friend = friendRepository.findByMembers(member.getId(), friendMemberId);
+        friend.ifPresentOrElse(
+                friendRepository::delete,
+                () -> {
+                    throw new KuchatException(NOT_FOUND_MEMBER);
+                }
+        );
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
-    public void deleteFriendByMembers(Long memberId, Long friendMemberId) {
+    private void deleteFriendByMembers(Long memberId, Long friendMemberId) {
+        log.info("[deleteFriendByMembers] member={}, friend={} 인 친구 관계 삭제", memberId, friendMemberId);
         Optional<Friend> friend = friendRepository.findByMembers(memberId, friendMemberId);
         friend.ifPresentOrElse(
                 friendRepository::delete,
@@ -103,4 +112,9 @@ public class FriendService {
                 .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_PLUSID));
     }
 
+    @Transactional
+    public void deleteIfFriend(Long memberId, Long friendMemberId) {
+        friendRepository.findByMembers(memberId, friendMemberId).
+                ifPresent(friendRepository::delete);
+    }
 }

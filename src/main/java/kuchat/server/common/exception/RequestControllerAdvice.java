@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
@@ -35,6 +36,7 @@ public class RequestControllerAdvice {
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<BaseResponse> handleMissingMultipartException(MultipartException e) {
         log.error("[handleMissingMultipartException] 파일의 용량이 초과된 경우");
+        log.error(e.getMessage());
         HttpStatus httpStatus = NOT_FOUND_IMAGE.getHttpStatus();
         return ResponseEntity.status(httpStatus)
                 .body(new BaseResponse(NOT_FOUND_IMAGE));
@@ -43,8 +45,19 @@ public class RequestControllerAdvice {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<BaseResponse> handleMissingPathVariableException(HttpRequestMethodNotSupportedException e){
         log.error("[handleMissingPathVariableException] 요청 url에서 path variable이 누락된 경우");
+        log.error(e.getMessage());
+        log.error(String.valueOf(e.getHeaders()));
         HttpStatus httpStatus = PATH_VARIABLE_NOT_FOUND.getHttpStatus();
         return ResponseEntity.status(httpStatus)
                 .body(new BaseResponse(PATH_VARIABLE_NOT_FOUND));
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<BaseResponse> handlerNotFoundException(NoHandlerFoundException e){
+        log.error("[handlerNotFoundException] 구현되지 않은 API로 요청을 보낸 경우");
+        log.error(e.getMessage());
+        HttpStatus httpStatus = API_NOT_FOUND.getHttpStatus();
+        return ResponseEntity.status(httpStatus)
+                .body(new BaseResponse(API_NOT_FOUND));
     }
 }

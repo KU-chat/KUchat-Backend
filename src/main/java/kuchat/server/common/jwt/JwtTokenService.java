@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
-import static kuchat.server.domain.enums.Role.STUDENT;
 
 @Getter
 @Slf4j
@@ -73,23 +72,15 @@ public class JwtTokenService {
                 .compact();
     }
 
-    private void isExpired(String token) {
-        try {
-            log.info("[isExpired] token: " + token);
-            Jws<Claims> claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token);
-            if (claims.getBody().getExpiration().before(new Date())) {
-                log.info("토큰 만료 시간 = {}", claims.getBody().getExpiration());
-                log.info("현재 시간 = {}", new Date());
-                throw new KuchatException(EXPIRED_TOKEN);
-            }
-        } catch (ExpiredJwtException e) {
+    private void isExpired(String token) throws JwtException {
+        log.info("[isExpired] token: " + token);
+        Jws<Claims> claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token);
+        if (claims.getBody().getExpiration().before(new Date())) {
+            log.info("토큰 만료 시간 = {}", claims.getBody().getExpiration());
+            log.info("현재 시간 = {}", new Date());
             throw new KuchatException(EXPIRED_TOKEN);
-        } catch (MalformedJwtException e) {
-            throw new KuchatException(MALFORMED_TOKEN);
-        } catch (JwtException e) {
-            throw new KuchatException(INVALID_TOKEN);
         }
     }
 
@@ -99,7 +90,7 @@ public class JwtTokenService {
         // redis에 저장된 최신 리프레시 토큰과 일치 여부 확인 -> 토큰 무효화 및 재발급에 중요
         Long memberId = getMemberId(token);
         String stored = redisService.getRefreshToken(memberId);
-        if (token.equals(stored)){
+        if (token.equals(stored)) {
             return memberId;
         }
         throw new KuchatException(REFRESH_TOKEN_MISMATCH);
@@ -156,7 +147,7 @@ public class JwtTokenService {
         }
         String token = rawToken.replaceAll("Bearer ", "");
         isExpired(token);
-        if (!validateTokenType(token, type)){
+        if (!validateTokenType(token, type)) {
             throw new KuchatException(TOKEN_TYPE_MISMATCH);
         }
         return token;
