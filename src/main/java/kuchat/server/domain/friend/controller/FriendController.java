@@ -3,10 +3,14 @@ package kuchat.server.domain.friend.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import kuchat.server.common.jwt.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
+import kuchat.server.domain.friend.dto.FriendApplyResponses;
 import kuchat.server.domain.friend.service.FriendService;
 import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +38,19 @@ public class FriendController {
         return friendService.acceptApply(member.getId(), friendId);
     }
 
+    @Operation(summary = "친구신청 목록 조회")
+    @GetMapping("/apply")
+    public ResponseEntity<FriendApplyResponses> getFriendApplyList(@Auth Member member,
+                                                                   @PageableDefault(size = 20,
+                                                                           sort = "createdDate",
+                                                                           direction = Sort.Direction.DESC)
+                                                                   Pageable pageable) {
+        log.info("[getFriendApplyList] id={} , name={} 가 받은 친구 신청 목록 조회", member.getId(), member.getName());
+        return friendService.getFriendApplyList(member, pageable);
+    }
+
     @Operation(summary = "친구 목록 조회 (이름 검색)")
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<BaseResponse> getFriendList(@Auth Member member,
                                                       @RequestParam("name") String friendName) {
         log.info("[getFriendList] 친구 목록 검색 및 조회. 검색 문자열 = '{}'", friendName);

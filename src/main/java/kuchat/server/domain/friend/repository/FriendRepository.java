@@ -2,6 +2,8 @@ package kuchat.server.domain.friend.repository;
 
 import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.member.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +25,8 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     Optional<Friend> findBySenderAndReceiver(Member sender, Member receiver);
 
     Optional<Friend> findByIdAndReceiver_IdAndAcceptance(Long friendId, Long memberId, boolean acceptance);
+
+    Page<Friend> findAllByReceiverAndAcceptance(Member sender, boolean acceptance, Pageable pageable);
 
 //    @Query("select f from Friend f " +
 //            "where (f.sender = :sender and f.receiver = :receiver) " +

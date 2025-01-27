@@ -5,6 +5,7 @@ import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.block.service.BlockService;
 import kuchat.server.domain.friend.Friend;
+import kuchat.server.domain.friend.dto.FriendApplyResponses;
 import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.repository.FriendRepository;
@@ -12,6 +13,8 @@ import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,5 +119,12 @@ public class FriendService {
     public void deleteIfFriend(Long memberId, Long friendMemberId) {
         friendRepository.findByMembers(memberId, friendMemberId).
                 ifPresent(friendRepository::delete);
+    }
+
+    public ResponseEntity<FriendApplyResponses> getFriendApplyList(Member member, Pageable pageable) {
+        log.info("[getFriendApplyList] 친구신청 목록 조회");
+        Page<Friend> friends = friendRepository.findAllByReceiverAndAcceptance(member, false, pageable);
+        FriendApplyResponses responses = new FriendApplyResponses(SUCCESS, friends);
+        return ResponseEntity.ok(responses);
     }
 }
