@@ -1,7 +1,6 @@
 package kuchat.server.domain.friend;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.member.Member;
 import lombok.Builder;
@@ -36,8 +35,20 @@ public class Friend extends BaseTime {
         this.receiver = receiver;
     }
 
-    public void accept(){
+    public void accept() {
         this.acceptance = true;
+    }
+
+    public void unfollow(Member unfollower, Member follower) {
+        this.acceptance = false;        // 친구신청 수락 비활성화
+        if (unfollower.equals(sender)) {
+            toggleFollowDirection(unfollower, follower);
+        }
+    }
+
+    private void toggleFollowDirection(Member unfollower, Member follower) {
+        this.sender = follower;
+        this.receiver = unfollower;
     }
 
 }

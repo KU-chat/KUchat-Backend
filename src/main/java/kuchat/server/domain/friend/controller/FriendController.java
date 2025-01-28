@@ -38,7 +38,7 @@ public class FriendController {
         return friendService.acceptApply(member.getId(), friendId);
     }
 
-    @Operation(summary = "친구신청 목록 조회")
+    @Operation(summary = "내가 받은 친구신청 목록 조회")
     @GetMapping("/apply")
     public ResponseEntity<FriendApplyResponses> getFriendApplyList(@Auth Member member,
                                                                    @PageableDefault(size = 20,
@@ -49,6 +49,22 @@ public class FriendController {
         return friendService.getFriendApplyList(member, pageable);
     }
 
+    @Operation(summary = "친구신청 삭제")
+    @DeleteMapping("/apply/{memberId}")
+    public ResponseEntity<BaseResponse> deleteFriendApply(@Auth Member member,
+                                                     @PathVariable("memberId") Long friendMemberId) {
+        log.info("[deleteFriend] member id = {} 인 사용자가 보낸 친구신청 삭제", friendMemberId);
+        return friendService.delete(member, friendMemberId, false);
+    }
+
+    @Operation(summary = "친구 삭제")
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<BaseResponse> deleteFriend(@Auth Member member,
+                                                     @PathVariable("memberId") Long friendMemberId) {
+        log.info("[deleteFriend] member id = {} 인 사용자와의 친구 관계 삭제", friendMemberId);
+        return friendService.breakFriendship(member, friendMemberId);
+    }
+
     @Operation(summary = "친구 목록 조회 (이름 검색)")
     @GetMapping
     public ResponseEntity<BaseResponse> getFriendList(@Auth Member member,
@@ -56,13 +72,6 @@ public class FriendController {
         log.info("[getFriendList] 친구 목록 검색 및 조회. 검색 문자열 = '{}'", friendName);
         return friendService.getFriendList(member, friendName);
     }
-
-    @Operation(summary = "친구 삭제")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<BaseResponse> deleteFriend(@Auth Member member,
-                                                     @PathVariable("id") Long friendMemberId) {
-        log.info("[deleteFriend] member id = {} 인 사용자와의 친구 관계 삭제", friendMemberId);
-        return friendService.delete(member, friendMemberId);
-    }
-
+// 친구 신청 받은거 목록 조회
+// 친구 신청 준거 목록 조회
 }

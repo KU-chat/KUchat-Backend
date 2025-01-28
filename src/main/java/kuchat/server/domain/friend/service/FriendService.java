@@ -11,6 +11,7 @@ import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.repository.FriendRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
+import kuchat.server.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
@@ -30,15 +30,15 @@ import static kuchat.server.common.response.BaseResponseStatus.*;
 @Service
 public class FriendService {
 
-    private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
     private final BlockService blockService;
+    private final MemberService memberService;
 
 
     @Transactional
     public ResponseEntity<BaseResponse> applyByPlusId(Member member, String plusId) {
         log.info("[applyByPlusId] member id = {} 인 사용자가 plus id = {} 인 사용자를 친구로 추가함.", member.getId(), plusId);
-        Member friendMember = getMemberByPlusId(plusId);
+        Member friendMember = memberService.getMemberByPlusId(plusId);
         validateAlreadyFriend(member.getId(), friendMember.getId());
         validateBlock(member.getId(), friendMember.getId());
 
@@ -87,32 +87,27 @@ public class FriendService {
     }
 
     @Transactional
-    public ResponseEntity<BaseResponse> delete(Member member, Long friendMemberId) {
+    public ResponseEntity<BaseResponse> delete(Member member, Long friendMemberId, boolean acceptance) {
         log.info("[deleteFriendByMembers] member={}, friend={} 인 친구 관계 삭제", member.getId(), friendMemberId);
-        Optional<Friend> friend = friendRepository.findByMembers(member.getId(), friendMemberId);
-        friend.ifPresentOrElse(
-                friendRepository::delete,
-                () -> {
-                    throw new KuchatException(NOT_FOUND_MEMBER);
-                }
-        );
+        friendRepository.findByMembersAndAcceptance(member.getId(), friendMemberId, acceptance)
+                .ifPresentOrElse(
+                        friendRepository::delete,
+                        () -> {
+                            throw new KuchatException(NOT_FOUND_FRIEND);
+                        }
+                );
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
-    private void deleteFriendByMembers(Long memberId, Long friendMemberId) {
-        log.info("[deleteFriendByMembers] member={}, friend={} 인 친구 관계 삭제", memberId, friendMemberId);
-        Optional<Friend> friend = friendRepository.findByMembers(memberId, friendMemberId);
-        friend.ifPresentOrElse(
-                friendRepository::delete,
-                () -> {
-                    throw new KuchatException(NOT_FOUND_MEMBER);
-                }
-        );
-    }
+    @Transactional
+    public ResponseEntity<BaseResponse> breakFriendship(Member member, Long friendMemberId) {
+        log.info("[breakFriendship] 맞팔 관계를 끊고 일방적인 팔로우 관계로 변경");
+        Friend friend = friendRepository.findByMembersAndAcceptance(member.getId(), friendMemberId, true)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_FRIEND));
+        Member friendMember = memberService.getMemberById(friendMemberId);
+        friend.unfollow(member, friendMember);
 
-    private Member getMemberByPlusId(String plusId) {
-        return memberRepository.findByPlusId(plusId)
-                .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_PLUSID));
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
     @Transactional
@@ -127,4 +122,5 @@ public class FriendService {
         FriendApplyResponses responses = new FriendApplyResponses(SUCCESS, friends);
         return ResponseEntity.ok(responses);
     }
+
 }
