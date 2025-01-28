@@ -3,18 +3,18 @@ package kuchat.server.domain.block.service;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.block.Block;
-import kuchat.server.domain.block.dto.BlockMemberResponse;
 import kuchat.server.domain.block.dto.BlockMemberResponses;
 import kuchat.server.domain.block.repository.BlockRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
@@ -60,14 +60,11 @@ public class BlockService {
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
-    public BlockMemberResponses getblocks(Member member) {
+    public ResponseEntity<BlockMemberResponses> getblocks(Member member, Pageable pageable) {
         log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", member.getId());
-        List<BlockMemberResponse> responses = blockRepository.findByBlocker(member)
-                .stream()
-                .map(Block::getBlocked)
-                .map(BlockMemberResponse::new)
-                .toList();
-        return new BlockMemberResponses(responses);
+        Page<Block> blocks = blockRepository.findByBlocker(member, pageable);
+        BlockMemberResponses response = new BlockMemberResponses(SUCCESS, blocks);
+        return ResponseEntity.ok(response);
     }
 
     private Member getMember(Long memberId) {

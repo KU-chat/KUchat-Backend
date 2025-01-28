@@ -1,5 +1,6 @@
 package kuchat.server.domain.block.dto;
 
+import kuchat.server.domain.block.Block;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.ProfileResponse;
 import lombok.AllArgsConstructor;
@@ -12,13 +13,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlockMemberResponse {
-    private Long friendId;
+    private Long memberId;
     private ProfileResponse profile;
-    private String name;
-    private String profileImage;
 
-    public BlockMemberResponse(Member member) {
-        friendId = member.getId();
+    public BlockMemberResponse(Block block) {
+        Member member = block.getBlocked();
+        memberId = member.getId();
         this.profile = new ProfileResponse(member.getProfile());
     }
 }
