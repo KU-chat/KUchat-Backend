@@ -11,9 +11,13 @@ import org.springframework.http.HttpStatus;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public enum BaseResponseStatus {
-    // 1000 번대 : 요청 성공
+    // 1000 번대 : global 요청 성공/실패
     SUCCESS(1000, HttpStatus.OK, "요청에 성공하였습니다."),
     WEBSOCKET_CONNECTION_SUCCESS(1001, HttpStatus.OK, "웹소켓 연결 성공"),
+
+    PARAMETER_NOT_FOUND(1010, HttpStatus.BAD_REQUEST, "요청 url의 쿼리 파라미터가 누락됐습니다."),
+    PATH_VARIABLE_NOT_FOUND(1011, HttpStatus.BAD_REQUEST, "요청 url의 path variable이 누락됐습니다."),
+    API_NOT_FOUND(1012, HttpStatus.NOT_FOUND, "잘못된 요청입니다. 요청 URL을 확인해주세요."),
 
     // 2000 번대 : jwt 관련 상태 코드
     MALFORMED_TOKEN(2000, HttpStatus.UNAUTHORIZED, "토큰이 올바르게 구성되지 않았습니다."),
@@ -24,9 +28,11 @@ public enum BaseResponseStatus {
     ACCESS_DENIED(2006, HttpStatus.UNAUTHORIZED, "요청을 처리할 권한이 없습니다."),
     REFRESH_TOKEN_MISMATCH(2007, HttpStatus.BAD_REQUEST, "리프레시 토큰이 일치하지 않습니다. 다시 로그인 해주세요."),
 
+
     //- 3000 번대 : oauth 관련 상태 코드
     NOT_FOUND_PLATFORM(3000, HttpStatus.NOT_FOUND, "존재하지 않는 플랫폼입니다."),
     OAUTH2_FAIL(3001, HttpStatus.INTERNAL_SERVER_ERROR, "소셜로그인이 제대로 처리되지 않았습니다. 다시 시도해주세요."),
+
 
     //- 4000 번대 : 회원가입/멤버 관련 상태 코드
     NOT_FOUND_LANGUAGE(4000, HttpStatus.NOT_FOUND, "존재하지 않는 언어입니다."),
@@ -42,7 +48,6 @@ public enum BaseResponseStatus {
     IMAGE_UPLOAD_FAIL(4010, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다. 다시 시도해주세요."),
     NOT_FOUND_IMAGE(4011, HttpStatus.BAD_REQUEST, "요청에서 이미지 파일을 찾을 수 없습니다. 다시 시도해주세요."),
     OVER_SIZE_IMAGE(4012, HttpStatus.BAD_REQUEST, "이미지 파일이 용량을 초과하여 업로드할 수 없습니다. 업로드 가능한 크기는 최대 10MB 입니다."),
-
 
 
     //- 5000번대 : 채팅방(chatroom) 관련 코드
@@ -66,15 +71,19 @@ public enum BaseResponseStatus {
     MESSAGE_LENGTH_MISMATCH(6007, HttpStatus.BAD_REQUEST, "메세지의 payload 길이가 일치하지 않습니다."),
     NOT_FOUND_SESSION(6008, HttpStatus.NOT_FOUND, "사용자의 웹소켓 세션이 존재하지 않습니다. 다시 연결을 시도해주세요."),
 
-    //- 7000번대 : 친구 관련 코드
+    //- 7000번대 : 친구, 차단 관련 코드
 //    NOT_FOUND_FRIENDSHIP(7000, HttpStatus.NOT_FOUND, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
-    BLOCKED_MEMBER(7000, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
+    BLOCKED_MEMBER_PROFILE(7000, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 상대의 프로필을 조회할 수 없습니다."),
+    ALREADY_FRIEND(7001, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
+    BLOCKED_MEMBER_APPLY(7002, HttpStatus.BAD_REQUEST, "차단하거나 차단 당한 사용자는 친구신청을 보낼 수 없습니다."),
+    NOT_FOUND_FRIEND(7003, HttpStatus.NOT_FOUND, "해당 사용자와의 친구 관계가 존재하지 않습니다."),
+    NOT_FOUND_APPLY(7004, HttpStatus.NOT_FOUND, "친구 신청이 존재하지 않습니다."),
+    ALREADY_BLOCK(7005, HttpStatus.BAD_REQUEST, "이미 차단했거나 차단당한 사용자끼리는 차단을 할 수 없습니다."),
+    NOT_FOUND_PLUSID(7006, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
+    NOT_FOUND_BLOCK(7007, HttpStatus.NOT_FOUND, "해당 사용자들 사이에 차단 관계가 존재하지 않습니다."),
 
-    ALREADY_APPLY(70, HttpStatus.BAD_REQUEST, "둘 사이에 보낸 요청이 존재합니다."),
-    NOT_FOUND_FRIEND(70, HttpStatus.NOT_FOUND, "친구가 아닌 사용자입니다."),
-    NOT_FOUND_PLUSID(70, HttpStatus.NOT_FOUND, "해당 plus id를 사용하는 사용자가 존재하지 않습니다."),
-    NOT_FOUND_BLOCK(70, HttpStatus.NOT_FOUND, "해당 사용자들 사이에 차단 관계가 존재하지 않습니다."),
-    ALREADY_FRIEND(70, HttpStatus.BAD_REQUEST, "이미 친구 관계인 사이에서 친구 관계를 중복하여 맺을 수 없습니다"),
+
+//    ALREADY_APPLY(70, HttpStatus.BAD_REQUEST, "둘 사이에 보낸 요청이 존재합니다."),
 
     //- 8000번대 : 알림 관련 코드
 

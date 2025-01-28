@@ -1,31 +1,27 @@
 package kuchat.server.domain.friend.dto;
 
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.ProfileResponse;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
-
-import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Setter
 @ToString
-@AllArgsConstructor
+@Slf4j
 @NoArgsConstructor
 public class FriendResponse {
-    private Long friendId;
-    private ProfileResponse profile;
-    private LocalDateTime sentTime;
+    private Long memberId;
+    private String name;
+    private String profileImage;
+    private String aboutMe;
 
-    public FriendResponse(Member member, LocalDateTime sentTime) {
-        friendId = member.getId();
-        this.profile = new ProfileResponse(member.getProfile());
-        this.sentTime = sentTime;
-    }
-
-    public FriendResponse(Member member) {
-        friendId = member.getId();
-        this.profile = new ProfileResponse(member.getProfile());
+    FriendResponse(Member member) {
+        this.memberId = member.getId();
+        this.name = member.getName();
+        this.profileImage = member.getProfile().getProfileImage();
+        this.aboutMe = member.getProfile().getAboutMe();
     }
 }

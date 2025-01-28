@@ -5,6 +5,7 @@ import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.friend.Friend;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -12,16 +13,17 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 @Getter
+@Setter
 @ToString
 @Slf4j
 @NoArgsConstructor
-public class FriendResponses extends BaseResponse {
-    private List<FriendResponse> responses;
+public class FriendApplyResponses extends BaseResponse {
+    private List<FriendApplyResponse> applyResponses;
 
-    public FriendResponses(BaseResponseStatus responseStatus, Page<Friend> friends) {
+    public FriendApplyResponses(BaseResponseStatus responseStatus, Page<Friend> friends) {
         super(responseStatus);
-        this.responses = friends.stream()
-                .map(friend -> new FriendResponse(friend.getReceiver()))
+        this.applyResponses = friends.stream()
+                .map(FriendApplyResponse::new)
                 .toList();
     }
 

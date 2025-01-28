@@ -1,28 +1,26 @@
-package kuchat.server.domain.member.dto;
+package kuchat.server.domain.friend.dto;
 
-import kuchat.server.common.response.BaseResponse;
-import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.member.Member;
-import lombok.AllArgsConstructor;
+import kuchat.server.domain.member.dto.LanguageResponse;
+import kuchat.server.domain.member.dto.ProfileResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
+
 @Getter
 @ToString
 @Slf4j
-@AllArgsConstructor
 @NoArgsConstructor
-public class DetailProfileResponse extends BaseResponse {
+public class FriendProfile {
     private Long memberId;
     private String plusId;
     private LanguageResponse language;
     private ProfileResponse profile;
 
 
-    public DetailProfileResponse(Member member) {
-        super(BaseResponseStatus.SUCCESS);
+    public FriendProfile(Member member) {
         memberId = member.getId();
         plusId = member.getPlusId();
         profile = new ProfileResponse(member.getProfile());

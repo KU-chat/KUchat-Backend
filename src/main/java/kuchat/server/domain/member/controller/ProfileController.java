@@ -12,11 +12,15 @@ import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_IMAGE;
 
 @Slf4j
 @Tag(name = "Profile", description = "프로필")
@@ -64,4 +68,14 @@ public class ProfileController {
                 member.getId(), friendMemberId);
         return profileService.getFriendProfile(member.getId(), friendMemberId);
     }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<BaseResponse> handleMissingImageException(MissingServletRequestParameterException e) {
+        // 클라이언트에서 multipartFile 필드 이름을 잘못 지정했거나, 파일 자체를 전송하지 않은 경우
+        log.error("[handleMissingImageException] 클라이언트 요청에서 multipartFile이 누락된 경우");
+        HttpStatus httpStatus = NOT_FOUND_IMAGE.getHttpStatus();
+        return ResponseEntity.status(httpStatus)
+                .body(new BaseResponse(NOT_FOUND_IMAGE));
+    }
+
 }

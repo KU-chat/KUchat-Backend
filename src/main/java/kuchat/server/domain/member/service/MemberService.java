@@ -5,6 +5,7 @@ import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.common.response.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.SignupRequest;
 import kuchat.server.domain.member.dto.SignupResponse;
@@ -16,8 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static kuchat.server.common.response.BaseResponseStatus.DUPLICATED_STUDENT_ID;
-import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -73,4 +73,13 @@ public class MemberService {
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
+    public Member getMemberByPlusId(String plusId) {
+        return memberRepository.findByPlusId(plusId)
+                .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_PLUSID));
+    }
+
+    public Member getMemberById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
 }
