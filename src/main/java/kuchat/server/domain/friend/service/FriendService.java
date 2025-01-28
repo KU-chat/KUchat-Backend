@@ -2,15 +2,12 @@ package kuchat.server.domain.friend.service;
 
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.block.service.BlockService;
 import kuchat.server.domain.friend.Friend;
 import kuchat.server.domain.friend.dto.FriendApplyResponses;
-import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.repository.FriendRepository;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.repository.MemberRepository;
 import kuchat.server.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
@@ -75,17 +70,6 @@ public class FriendService {
         }
     }
 
-    public ResponseEntity<BaseResponse> getFriendList(Member member, String friendName) {
-        log.info("[getFriendList] 이름에 '{}' 을 포함하는 친구 조회", friendName);
-        List<Friend> friendships = friendRepository.findAllByName(member, friendName);
-        List<FriendResponse> friendResponse = friendships.stream()
-                .map(Friend::getReceiver)
-                .map(FriendResponse::new)
-                .toList();
-        FriendResponses responses = new FriendResponses(SUCCESS, friendResponse);
-        return ResponseEntity.ok(responses);
-    }
-
     @Transactional
     public ResponseEntity<BaseResponse> delete(Member member, Long friendMemberId, boolean acceptance) {
         log.info("[deleteFriendByMembers] member={}, friend={} 인 친구 관계 삭제", member.getId(), friendMemberId);
@@ -123,4 +107,11 @@ public class FriendService {
         return ResponseEntity.ok(responses);
     }
 
+
+    public ResponseEntity<FriendResponses> getFriendList(Member member, String friendName, Pageable pageable) {
+        log.info("[getFriendList] 이름에 '{}' 을 포함하는 친구 조회", friendName);
+        Page<Friend> friends = friendRepository.findBySenderAndReceiver_Name(member, friendName, pageable);
+        FriendResponses responses = new FriendResponses(SUCCESS, friends);
+        return ResponseEntity.ok(responses);
+    }
 }

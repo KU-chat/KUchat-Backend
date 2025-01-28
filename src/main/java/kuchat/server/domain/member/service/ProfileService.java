@@ -4,7 +4,6 @@ import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.S3Service;
 import kuchat.server.domain.block.service.BlockService;
-import kuchat.server.domain.friend.dto.FriendResponse;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileImageUpdateResponse;

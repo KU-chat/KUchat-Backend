@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import kuchat.server.common.jwt.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.friend.dto.FriendApplyResponses;
+import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.service.FriendService;
 import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
@@ -67,11 +68,10 @@ public class FriendController {
 
     @Operation(summary = "친구 목록 조회 (이름 검색)")
     @GetMapping
-    public ResponseEntity<BaseResponse> getFriendList(@Auth Member member,
-                                                      @RequestParam("name") String friendName) {
+    public ResponseEntity<FriendResponses> getFriendList(@Auth Member member,
+                                                         @RequestParam(value = "name", required = false) String friendName,
+                                                         @PageableDefault(size = 20, sort = "receiver.profile.name") Pageable pageable) {
         log.info("[getFriendList] 친구 목록 검색 및 조회. 검색 문자열 = '{}'", friendName);
-        return friendService.getFriendList(member, friendName);
+        return friendService.getFriendList(member, friendName, pageable);
     }
-// 친구 신청 받은거 목록 조회
-// 친구 신청 준거 목록 조회
 }
