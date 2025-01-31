@@ -23,8 +23,7 @@
 
 
 ### 📚 ER Diagram
-<img width="960" alt="ER Diagram" src="https://github.com/user-attachments/assets/b67c9663-5805-4253-82e3-dfd33cf100cb">
-
+<img width="1277" alt="Image" src="https://github.com/user-attachments/assets/86bd2986-37d5-449d-92f1-bfe4ba738ccd" />
 
 ### 📒 Domain Conceptual Diagram
 <img width="1184" alt="Image" src="https://github.com/user-attachments/assets/4405ec8d-240b-4ff1-bcef-46954e31963d" />
