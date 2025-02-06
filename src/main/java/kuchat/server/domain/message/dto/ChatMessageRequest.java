@@ -9,23 +9,24 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatMessageRequest {
-    private String sender;
-    private String receiver;
+    private String type;        // 메시지 타입 (ENTER, CHAT, LEAVE)
+    private String senderId;
     private String content;
+    private String chatId;      // 채팅방 ID
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (ChatMessageRequest) obj;
-        return Objects.equals(this.sender, that.sender) &&
-                Objects.equals(this.receiver, that.receiver) &&
-                Objects.equals(this.content, that.content);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChatMessageRequest that = (ChatMessageRequest) o;
+        return Objects.equals(getType(), that.getType()) &&
+                Objects.equals(getSenderId(), that.getSenderId()) &&
+                Objects.equals(getContent(), that.getContent()) &&
+                Objects.equals(getChatId(), that.getChatId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sender, receiver, content);
+        return Objects.hash(getType(), getSenderId(), getContent(), getChatId());
     }
-
 }

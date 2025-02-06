@@ -33,7 +33,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         // 클라이언트 → 서버 로 오는 요청
         //      @MessageMapping 메서드가 /msg 으로 시작하는 요청을 처리하도록 한다.
-        mqRegistry.setApplicationDestinationPrefixes("/app");
+        mqRegistry.setApplicationDestinationPrefixes("/ku");
 
         // 서버 → 클라이언트 로 가는 요청
         //      브로커가 자동으로 메시지를 전송해준다.

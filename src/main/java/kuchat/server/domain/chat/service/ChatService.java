@@ -1,6 +1,7 @@
 package kuchat.server.domain.chat.service;
 
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
 import kuchat.server.domain.chat.repository.ChatRepository;
@@ -30,21 +31,16 @@ public class ChatService {
     public ResponseEntity<CreateChatResponse> create(Member member, Long friendId) {
         Optional<Chat> chats = chatRepository.findByMembers(member.getId(), friendId);
         CreateChatResponse response = findOrCreate(member, friendId, chats);
+        /**
+         * TODO 1. 기존에 존재하던 채팅방이면 -> 조회 후 바로 리턴
+         * TODO 2. 새로 만든 채팅방이면 -> 생성, rabbitMQ/STOMP 에서 큐 만들기 -> 큐를 Chat 엔티티에 저장
+         */
         return ResponseEntity.ok(response);
-    }
-
-    /**
-     * blocker가 blocked를 차단했을 때, 둘 사이의 개인 채팅방도 모두 사라진다.
-     */
-    @Transactional
-    public void delete(Member blocker, Member blocked) {
-        Chat chat = getChat(blocker.getId(), blocked.getId());
-        chatRepository.delete(chat);
     }
 
     public Chat getChat(Long member1Id, Long member2Id) {
         return chatRepository.findByMembers(member1Id, member2Id)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
     }
 
     private CreateChatResponse findOrCreate(Member member, Long friendId, Optional<Chat> chats) {
@@ -58,6 +54,16 @@ public class ChatService {
             Chat foundChat = chatRepository.save(chat);
             return new CreateChatResponse(SUCCESS, foundChat.getId());
         });
+    }
+
+    public ResponseEntity<BaseResponse> validateEnter(Member member, Long chatId) {
+        // TODO. 채팅방에 새로운 메시지 읽음 처리
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
+        if (chat.isParticipant(member)){
+            return ResponseEntity.ok(new BaseResponse(SUCCESS));
+        }
+        throw new KuchatException(UNAUTHORIZED_CHAT_MEMBER);
     }
 
 

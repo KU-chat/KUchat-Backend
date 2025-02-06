@@ -30,17 +30,25 @@ public class Chat extends BaseTime {
     @Enumerated(value = EnumType.STRING)
     private ChatState state;
 
-    public Chat(Member member1, Member member2){
+    public Chat(Member member1, Member member2) {
         this.member1 = member1;
         this.member2 = member2;
         this.state = ChatState.ACTIVE;
     }
 
-    public void close(){
+    public void close() {
         state = CLOSED;
     }
 
-    public void open(){
+    public void open() {
         state = ACTIVE;
+    }
+
+    public boolean isActive() {
+        return state == ACTIVE;
+    }
+
+    public boolean isParticipant(Member member) {
+        return member1.equals(member) || member2.equals(member);
     }
 }
