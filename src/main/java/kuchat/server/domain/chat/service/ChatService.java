@@ -1,6 +1,6 @@
 package kuchat.server.domain.chat.service;
 
-import kuchat.server.common.response.BaseResponseStatus;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
 import kuchat.server.domain.chat.repository.ChatRepository;
@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Optional;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
@@ -31,6 +31,20 @@ public class ChatService {
         Optional<Chat> chats = chatRepository.findByMembers(member.getId(), friendId);
         CreateChatResponse response = findOrCreate(member, friendId, chats);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * blocker가 blocked를 차단했을 때, 둘 사이의 개인 채팅방도 모두 사라진다.
+     */
+    @Transactional
+    public void delete(Member blocker, Member blocked) {
+        Chat chat = getChat(blocker.getId(), blocked.getId());
+        chatRepository.delete(chat);
+    }
+
+    public Chat getChat(Long member1Id, Long member2Id) {
+        return chatRepository.findByMembers(member1Id, member2Id)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
     }
 
     private CreateChatResponse findOrCreate(Member member, Long friendId, Optional<Chat> chats) {

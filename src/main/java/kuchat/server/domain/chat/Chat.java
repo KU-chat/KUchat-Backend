@@ -7,6 +7,9 @@ import kuchat.server.domain.member.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static kuchat.server.domain.enums.ChatState.ACTIVE;
+import static kuchat.server.domain.enums.ChatState.CLOSED;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -31,5 +34,13 @@ public class Chat extends BaseTime {
         this.member1 = member1;
         this.member2 = member2;
         this.state = ChatState.ACTIVE;
+    }
+
+    public void close(){
+        state = CLOSED;
+    }
+
+    public void open(){
+        state = ACTIVE;
     }
 }

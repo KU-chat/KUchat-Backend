@@ -50,7 +50,7 @@ public enum BaseResponseStatus {
     OVER_SIZE_IMAGE(4012, HttpStatus.BAD_REQUEST, "이미지 파일이 용량을 초과하여 업로드할 수 없습니다. 업로드 가능한 크기는 최대 10MB 입니다."),
 
 
-    //- 5000번대 : 채팅방(chatroom) 관련 코드
+    //- 5000번대 : 채팅방(chat) 관련 코드
     NOT_FOUND_CHATROOM(5000, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     EXIT_CHATROOM_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),
     MALFORMED_CHATROOM_ID(5002, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
