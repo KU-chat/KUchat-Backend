@@ -5,8 +5,6 @@ import lombok.*;
 
 import java.util.List;
 
-import static kuchat.server.domain.message.service.MessageService.SERVER_ID;
-
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -29,7 +27,7 @@ public class ChatroomJoinRequest {
 
     public ChatroomJoinRequest(Long chatroomId, List<Long> memberIds) {
         this.chatroomId = chatroomId;
-        this.senderId = SERVER_ID;
+        this.senderId = -1L;
         this.messageType = "JOIN";
         this.memberIds = memberIds;
     }

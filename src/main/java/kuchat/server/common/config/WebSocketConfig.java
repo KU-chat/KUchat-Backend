@@ -7,7 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,27 +25,44 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(webSocketInterceptor);
     }
 
+    /**
+     * 메시지 라우팅 설정
+     */
     @Override
-    public void configureMessageBroker (MessageBrokerRegistry mqRegistry){
+    public void configureMessageBroker(MessageBrokerRegistry mqRegistry) {
+
+        // 클라이언트 → 서버 로 오는 요청
+        //      @MessageMapping 메서드가 /msg 으로 시작하는 요청을 처리하도록 한다.
+        mqRegistry.setApplicationDestinationPrefixes("/app");
+
+        // 서버 → 클라이언트 로 가는 요청
+        //      브로커가 자동으로 메시지를 전송해준다.
+        mqRegistry.enableSimpleBroker("/queue", "/topic");      // queue : 개인톡, topic : 단체톡
 
         // enableSimpleBroker : 스프링이 제공하는 인메모리 브로커를 사용하겠다는 의미
-
-        // 이 두 경로가 prefix 에 붙은 경우, messageBroker 가 잡아서 해당 채팅방을 구독하고 있는 클라이언트에게 메시지를 전달해줌
-        // /queue 는 1대1 메시징, /topic 은 1대다 메시징에 주로 사용함
-//        mqRegistry.enableSimpleBroker("/queue", "/topic");     // stomp websocket 연결 end point
-//        mqRegistry.setApplicationDestinationPrefixes("/stomp");     // 클라이언트가 보낸 메시지 경로 맨 앞에 /stomp 가 붙어 있으면 Broker에게 보내짐 (메시지 보낼 때 관련 경로 설정)
-
-        mqRegistry.enableSimpleBroker("/subscribe");
-        mqRegistry.setApplicationDestinationPrefixes("/publish");
     }
 
+    /**
+     * websocket 연결 설정
+     */
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry){
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
         log.info("[registerStompEndpoints] Registering STOMP endpoint at /stomp");
 
-        // 클라이언트에서 websocket을 연결할 때 사용할 API 경로를 설정
+        // 클라이언트가 websocket 연결을 맺기 위해 접속해야 하는 http 엔드포인트
         registry.addEndpoint("/ws-connect")
-                .setAllowedOriginPatterns("*");
+                .setAllowedOrigins("*");
+//                .withSockJS();        // 이 옵션 추가하면 오류가 나는 이유가 뭘까?
+    }
+
+    /**
+     * STOMP websocket 전송 속성
+     */
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.setMessageSizeLimit(32 * 1024);    // 메시지 크기 제한 : 디폴트 64KB 에서 32KB 로 변경
+        registry.setTimeToFirstMessage(30 * 1000);      // 클라이언트가 websocket을 연결한 후 30초 내에 STOMP 메시지를 보내야 함.
+        // 보내지 않으면 서버가 클라이언트 연결 종료
     }
 
 }
