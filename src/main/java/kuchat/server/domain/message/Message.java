@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.enums.MessageType;
-import lombok.*;
+import kuchat.server.domain.message.dto.MessageRequest;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +26,12 @@ public class Message extends BaseTime {
     @JoinColumn(name = "chat_id")
     private Chat chat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_message_id", referencedColumnName = "message_id")
-    private Message parent = null;       // chatroomId 없이 messageId만 가지면 된다.
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "parent_message_id", referencedColumnName = "message_id")
+//    private Message parent = null;       // chatroomId 없이 messageId만 가지면 된다.
 
-    @OneToMany(mappedBy = "parent")
-    private List<Message> children = new ArrayList<>();
+//    @OneToMany(mappedBy = "parent")
+//    private List<Message> children = new ArrayList<>();
 
     @Column(name = "sender_id")
     private Long senderId;
@@ -38,23 +40,13 @@ public class Message extends BaseTime {
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
-    private String text;
+    private String content;
 
-//    public Message(ChatMessage chatMessage, Chat chat) {
-//        this.chat = chat;
-//        this.messageType = chatMessage.getMessageType();
-//        this.senderId = chatMessage.getSenderId();
-//        this.text = chatMessage.getText();
-//    }
-//
-//
-//    // 답장, 번역 메세지처럼 부모가 있는 메세지에 대한 생성자
-//    public Message(ChatMessage chatMessage, Chat chat, Message parent) {
-//        this.chat = chat;
-//        this.messageType = chatMessage.getMessageType();
-//        this.senderId = chatMessage.getSenderId();
-//        this.parent = parent;
-//        this.text = chatMessage.getText();
-//    }
+    public Message(MessageRequest messageRequest, Chat chat) {
+        this.chat = chat;
+        this.messageType = MessageType.fromString(messageRequest.getMessageType());
+        this.senderId = messageRequest.getSenderId();
+        this.content = messageRequest.getContent();
+    }
 
 }

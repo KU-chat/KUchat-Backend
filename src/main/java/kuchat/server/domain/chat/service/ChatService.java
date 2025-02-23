@@ -3,17 +3,23 @@ package kuchat.server.domain.chat.service;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.chat.Chat;
+import kuchat.server.domain.chat.ChatMember;
+import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
+import kuchat.server.domain.chat.repository.ChatMemberRepository;
 import kuchat.server.domain.chat.repository.ChatRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.service.MemberService;
+import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
@@ -25,34 +31,40 @@ import static kuchat.server.common.response.BaseResponseStatus.*;
 public class ChatService {
 
     private final ChatRepository chatRepository;
+    private final ChatMemberRepository chatMemberRepository;
     private final MemberService memberService;
+    private final MessageService messageService;
+
+    @Value("${default.profile.address}")
+    private String defaultImage;
 
     @Transactional
-    public ResponseEntity<CreateChatResponse> create(Member member, Long friendId) {
-        Optional<Chat> chats = chatRepository.findByMembers(member.getId(), friendId);
-        CreateChatResponse response = findOrCreate(member, friendId, chats);
-        /**
-         * TODO 1. 기존에 존재하던 채팅방이면 -> 조회 후 바로 리턴
-         * TODO 2. 새로 만든 채팅방이면 -> 생성, rabbitMQ/STOMP 에서 큐 만들기 -> 큐를 Chat 엔티티에 저장
-         */
-        return ResponseEntity.ok(response);
+    public ResponseEntity<BaseResponse> create(Member creator, CreateChatRequest request) {
+        log.info("[create] {} 멤버가 {} 를 구성원으로 하는 채팅방 생성 요청", creator.getId(), request.getFriends().toString());
+        List<Member> members = getParticipants(creator, request);
+        Chat chat = new Chat(request.getName(), defaultImage);
+        saveChatMembers(members, chat);
+
+        log.info("[create] chat의 chatmembers가 업데이트 됐는지 확인 = {}", chat.getChatMembers().toString());
+        Chat savedChat = chatRepository.save(chat);
+
+        // TODO. 채팅방 생성 알림 보내기
+//        messageService.notifyNewChat(chat, request.getFriends());
+        return ResponseEntity.ok(new CreateChatResponse(SUCCESS, savedChat.getId()));
     }
 
-    public Chat getChat(Long member1Id, Long member2Id) {
-        return chatRepository.findByMembers(member1Id, member2Id)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
+    private List<Member> getParticipants(Member creator, CreateChatRequest request) {
+        List<Member> members = new ArrayList<>(request.getFriends().stream()
+                .map(memberService::getMemberById)
+                .toList());
+        members.add(creator);
+        return members;
     }
 
-    private CreateChatResponse findOrCreate(Member member, Long friendId, Optional<Chat> chats) {
-        return chats.map(
-                chat -> {
-                    return new CreateChatResponse(ALREADY_CHAT, chat.getId());
-                }
-        ).orElseGet(() -> {
-            Member friend = memberService.getMemberById(friendId);
-            Chat chat = new Chat(member, friend);
-            Chat foundChat = chatRepository.save(chat);
-            return new CreateChatResponse(SUCCESS, foundChat.getId());
+    private void saveChatMembers(List<Member> members, Chat chat) {
+        members.forEach(member -> {
+            ChatMember chatMember = new ChatMember(chat, member);
+            chatMemberRepository.save(chatMember);
         });
     }
 
@@ -60,95 +72,11 @@ public class ChatService {
         // TODO. 채팅방에 새로운 메시지 읽음 처리
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
-        if (chat.isParticipant(member)){
-            return ResponseEntity.ok(new BaseResponse(SUCCESS));
-        }
-        throw new KuchatException(UNAUTHORIZED_CHAT_MEMBER);
+
+        chatMemberRepository.findByMemberAndChat(member, chat)
+                .orElseThrow(() -> new KuchatException(UNAUTHORIZED_CHAT_MEMBER));
+
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
-
-//    public FindChatroomsResponse findChatrooms(String name) {
-//        List<Chatroom> chatrooms = Optional.ofNullable(chatRepository.findByNameLike(name))
-//                .orElse(Collections.emptyList());
-//        List<FindChatroomResponse> findChatroomResponse = chatrooms.stream()
-//                .map(this::toResponse)
-//                .collect(Collectors.toList());
-//        return new FindChatroomsResponse(findChatroomResponse, SUCCESS);
-//    }
-//
-//    private FindChatroomResponse toResponse(Chatroom chatroom) {
-//        return new FindChatroomResponse(chatroom.getId(), chatroom.getName());
-//    }
-//
-//    @Transactional
-//    public void updateName(Long chatroomId, String newName) {
-//        List<Chatroom> chatrooms = chatRepository.findByNameLike(newName);
-//        if (!chatrooms.isEmpty()) {
-//            throw new KuchatException(DUPLICATE_CHATROOM_NAME);
-//        }
-//        Chatroom chatroom = getChatroom(chatroomId);
-//        chatroom.setName(newName);
-//        log.info("[updateName] id = {}, 바뀐 채팅방 이름 = {}", chatroom.getId(), chatroom.getName());
-//    }
-//
-//    public Chatroom getChatroom(Long chatroomId) {
-//        Chatroom chatroom = chatRepository.findById(chatroomId)
-//                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHATROOM));
-//        return chatroom;
-//    }
-//
-//    private void join(Chatroom chatroom, List<Long> memberIds) {
-//        List<ChatroomMember> chatroomMembers = new ArrayList<>();
-//        List<Member> joinMembers = memberRepository.findAllById(memberIds);     // for문 대신 한번에 찾는 방법으로 db 접근 횟수 줄이기
-//        validateMemberNum(memberIds, joinMembers);
-//        for (Member member : joinMembers) {
-//            ChatroomMember chatroomMember = new ChatroomMember(member, chatroom);
-//            chatroomMembers.add(chatroomMember);
-//        }
-//        saveAll(chatroomMembers);
-//
-//        String result = chatroomMemberRepository.findByChatroomId(chatroom.getId()).stream()
-//                .map(chatroomMember -> chatroomMember.getMember().getId().toString())
-//                .collect(Collectors.joining(", "));
-//        log.info("[join] 멤버 추가 후 채팅방 멤버 목록 = [{}]", result);
-//    }
-//
-//    private void saveAll(List<ChatroomMember> chatroomMembers) {
-//        try {
-//            chatroomMemberRepository.saveAll(chatroomMembers);      // for문 안에서 한개씩 저장하는 대신 arraylist를 한번에 저장
-//        } catch (DataAccessException e) {
-//            throw new KuchatException(DB_SAVE_FAIL);
-//        }
-//    }
-//
-//    private void validateMemberNum(List<Long> memberIds, List<Member> joinMembers) {
-//        if (memberIds.size() != joinMembers.size()) {
-//            throw new KuchatException(NOT_FOUND_MEMBER);
-//        }
-//    }
-//
-//    @Transactional
-//    public MessageResponse leave(Long chatroomId, Long memberId) {
-//        Chatroom chatroom = getChatroom(chatroomId);
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
-//        MessageResponse leaveMessage = messageService.createLeaveMessage(member, chatroom);
-//        ChatroomMember chatroomMember = chatroomMemberRepository.findByChatroomAndMember(chatroom, member);
-//        chatroomMemberRepository.delete(chatroomMember);
-//
-//        // 만약 채팅방에 더 이상 남아있는 사람이 없으면 해당 채팅방은 삭제된다.
-//        if (chatroomMemberRepository.findByChatroomId(chatroom.getId()).isEmpty()) {
-//            chatRepository.delete(chatroom);
-//        }
-//
-//        chatroomMemberRepository.delete(chatroomMember);
-//        return leaveMessage;
-//    }
-//
-//    public List<Member> findMembersByChatroomId(Long chatroomId) {
-//        List<ChatroomMember> chatrooms = chatroomMemberRepository.findByChatroomId(chatroomId);
-//        return chatrooms.stream()
-//                .map(ChatroomMember::getMember)
-//                .toList();
-//    }
 }

@@ -2,7 +2,7 @@ package kuchat.server.domain.message.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.domain.message.dto.ChatMessageRequest;
+import kuchat.server.domain.message.dto.MessageRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -22,13 +22,13 @@ public class MessageController {
 
     @Operation(summary = "채팅방 구성원이 보낸 메시지 전송")
     @MessageMapping("/chat/{chatroomId}")                   // /pub/chatroom 으로 들어오는 메시지를 처리하는 api
-    public void sendMessage(@Payload ChatMessageRequest messageRequest,
+    public void sendMessage(@Payload MessageRequest messageRequest,
                               @DestinationVariable("chatroomId") Long chatroomId) {
 
         log.info("message request = {}", messageRequest.toString());
         log.info("채팅방 번호 = {}", chatroomId);
 
-        String sender = messageRequest.getSenderId();
+//        String sender = messageRequest.getSenderId();
 
         /** TODO. MessageService 에서 갠톡인지 단톡인지 구분해서 처리
          * 1. Chat 조회

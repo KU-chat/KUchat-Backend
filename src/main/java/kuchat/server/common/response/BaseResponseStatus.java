@@ -54,7 +54,7 @@ public enum BaseResponseStatus {
     NOT_FOUND_CHAT(5000, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     ALREADY_CHAT(5001, HttpStatus.OK, "이미 존재하는 채팅방입니다."),
     UNAUTHORIZED_CHAT_MEMBER(5002, HttpStatus.UNAUTHORIZED, "채팅방에 접근할 수 있는 회원이 아닙니다."),
-
+    NOT_FOUND_CHATMEMBER(5003, HttpStatus.BAD_REQUEST, "채팅방 구성원이 아닙니다."),
 
 
 //    EXIT_CHATROOM_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),

@@ -1,12 +1,17 @@
 package kuchat.server.domain.chat;
 
 import jakarta.persistence.*;
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.BaseTime;
 import kuchat.server.domain.enums.ChatState;
 import kuchat.server.domain.member.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_CHATMEMBER;
 import static kuchat.server.domain.enums.ChatState.ACTIVE;
 import static kuchat.server.domain.enums.ChatState.CLOSED;
 
@@ -19,21 +24,27 @@ public class Chat extends BaseTime {
     @Column(name = "chat_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member1_id")
-    private Member member1;
+    // 양방향 연관 관계(+ 연관관계 편의 메서드)는 필요할 때 만들기
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<ChatMember> chatMembers = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member2_id")
-    private Member member2;
+    private String name;
+
+    private String image;
 
     @Enumerated(value = EnumType.STRING)
     private ChatState state;
 
-    public Chat(Member member1, Member member2) {
-        this.member1 = member1;
-        this.member2 = member2;
-        this.state = ChatState.ACTIVE;
+    public void addChatMember(ChatMember chatMember) {
+        if(!chatMembers.contains(chatMember)){
+            chatMembers.add(chatMember);
+        }
+    }
+
+    public Chat(String name, String image) {
+        this.name = name;
+        this.image = image;
+        this.state = ACTIVE;
     }
 
     public void close() {
@@ -48,7 +59,17 @@ public class Chat extends BaseTime {
         return state == ACTIVE;
     }
 
-    public boolean isParticipant(Member member) {
-        return member1.equals(member) || member2.equals(member);
+    public boolean isGroup() {
+        return chatMembers.size() > 2;
+    }
+
+    @Override
+    public String toString() {
+        return "Chat{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", image='" + image + '\'' +
+                ", state=" + state +
+                '}';
     }
 }

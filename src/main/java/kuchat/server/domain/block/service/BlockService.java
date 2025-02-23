@@ -5,8 +5,6 @@ import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.block.Block;
 import kuchat.server.domain.block.dto.BlockMemberResponses;
 import kuchat.server.domain.block.repository.BlockRepository;
-import kuchat.server.domain.chat.Chat;
-import kuchat.server.domain.chat.service.ChatService;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,6 @@ public class BlockService {
 
     private final BlockRepository blockRepository;
     private final MemberRepository memberRepository;
-    private final ChatService chatService;
 
     @Transactional
     public ResponseEntity<BaseResponse> block(Member member, Long blockMemberId) {
@@ -39,13 +36,7 @@ public class BlockService {
         Member blocked = getMember(blockMemberId);
         Block block = new Block(member, blocked);
         blockRepository.save(block);
-        chatClose(member, blocked);
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
-    }
-
-    private void chatClose(Member member, Member blocked) {
-        Chat chat = chatService.getChat(member.getId(), blocked.getId());
-        chat.close();
     }
 
     private void validateAlreadyBlock(Member member, Long blockMemberId) {
@@ -66,14 +57,9 @@ public class BlockService {
                             throw new KuchatException(NOT_FOUND_BLOCK);
                         }
                 );
-        chatOpen(member, released);
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
-    private void chatOpen(Member member, Member blocked) {
-        Chat chat = chatService.getChat(member.getId(), blocked.getId());
-        chat.open();
-    }
 
     public ResponseEntity<BlockMemberResponses> getblocks(Member member, Pageable pageable) {
         log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", member.getId());

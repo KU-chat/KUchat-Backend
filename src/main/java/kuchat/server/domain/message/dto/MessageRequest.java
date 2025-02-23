@@ -1,5 +1,7 @@
 package kuchat.server.domain.message.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.Objects;
@@ -8,18 +10,25 @@ import java.util.Objects;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessageRequest {
-    private String type;        // 메시지 타입 (ENTER, CHAT, LEAVE)
-    private String senderId;
+public class MessageRequest {
+    @NotBlank
+    private Long chatId;      // 채팅방 ID
+
+    @NotBlank
+    private String messageType;        // 메시지 타입 (ENTER, CHAT, LEAVE)
+
+    @NotBlank
+    private Long senderId;
+
+    @NotNull
     private String content;
-    private String chatId;      // 채팅방 ID
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ChatMessageRequest that = (ChatMessageRequest) o;
-        return Objects.equals(getType(), that.getType()) &&
+        MessageRequest that = (MessageRequest) o;
+        return Objects.equals(getMessageType(), that.getMessageType()) &&
                 Objects.equals(getSenderId(), that.getSenderId()) &&
                 Objects.equals(getContent(), that.getContent()) &&
                 Objects.equals(getChatId(), that.getChatId());
@@ -27,6 +36,6 @@ public class ChatMessageRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getType(), getSenderId(), getContent(), getChatId());
+        return Objects.hash(getMessageType(), getSenderId(), getContent(), getChatId());
     }
 }
