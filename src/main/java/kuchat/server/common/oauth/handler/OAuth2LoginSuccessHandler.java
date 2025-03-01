@@ -69,13 +69,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
                         authToken.getAccessToken(), authToken.getRefreshToken());
 
-                // 프론트엔드 리디렉트 URL 설정 (환경변수 또는 설정값에서 가져오는 것이 권장됨)
                 String redirectUri = "https://kuchat.netlify.app/";
                 String redirectUrl = String.format("%s#access_token=%s&refresh_token=%s",
                         redirectUri,
                         URLEncoder.encode(authToken.getAccessToken(), StandardCharsets.UTF_8),
                         URLEncoder.encode(authToken.getRefreshToken(), StandardCharsets.UTF_8));
                 log.info("[SuccessHandler] Redirecting to: {}", redirectUrl);
+                response.sendRedirect(redirectUrl);
             }
         } catch (Exception e) {
             log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생", e.getMessage());
