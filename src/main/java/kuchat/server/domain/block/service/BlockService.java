@@ -60,6 +60,7 @@ public class BlockService {
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
+
     public ResponseEntity<BlockMemberResponses> getblocks(Member member, Pageable pageable) {
         log.info("[block] {} 번 사용자가 차단한 사용자 목록 조회", member.getId());
         Page<Block> blocks = blockRepository.findByBlocker(member, pageable);

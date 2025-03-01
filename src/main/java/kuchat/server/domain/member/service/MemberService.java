@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
@@ -81,5 +83,9 @@ public class MemberService {
     public Member getMemberById(Long id) {
         return memberRepository.findById(id)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
+    }
+
+    public List<Member> getMembers(List<Long> friends) {
+        return memberRepository.findAllById(friends);
     }
 }

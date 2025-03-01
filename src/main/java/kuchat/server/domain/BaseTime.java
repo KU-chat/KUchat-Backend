@@ -21,5 +21,4 @@ public abstract class BaseTime {
     @Column(name = "modified_at", updatable = false)
     private LocalDateTime modifedDate;
 
-
 }
