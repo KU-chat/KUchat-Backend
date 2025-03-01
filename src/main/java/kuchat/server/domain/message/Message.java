@@ -8,9 +8,6 @@ import kuchat.server.domain.message.dto.MessageRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name = "message")
 @Getter

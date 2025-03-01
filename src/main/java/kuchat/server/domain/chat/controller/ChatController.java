@@ -10,6 +10,7 @@ import kuchat.server.domain.chat.service.ChatService;
 import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -33,9 +34,10 @@ public class ChatController {
         return chatService.create(member, request);
     }
 
-    @Operation(summary = "개인 채팅방 화면으로 들어가기")
+    @Operation(summary = "채팅방 화면으로 들어가기")
     @GetMapping("/{chatId}")
-    public ResponseEntity<BaseResponse> enter(@Auth Member member, @PathVariable("chatId") Long chatId) {
+    public ResponseEntity<BaseResponse> enter(@Auth Member member,
+                                              @PathVariable("chatId") Long chatId) {
         return chatService.validateEnter(member, chatId);
     }
 
