@@ -1,7 +1,6 @@
 package kuchat.server.common.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -13,20 +12,18 @@ import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Map;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import static kuchat.server.common.response.BaseResponseStatus.OAUTH2_FAIL;
-import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -72,25 +69,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
                         authToken.getAccessToken(), authToken.getRefreshToken());
 
-//                Cookie cookie = new Cookie("Authorization", authToken.getAccessToken());
-//                cookie.setHttpOnly(true); // XSS 공격 방지
-//                cookie.setSecure(true);   // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
-//                cookie.setPath("/");      // 쿠키 경로 설정
-//                cookie.setMaxAge(60 * 60); // 쿠키 만료 시간 설정 (1시간)
-//                response.addCookie(cookie);
-
-
-                SignupResponse tokenResponse = new SignupResponse(SUCCESS,
-                        member.getId(),
-                        authToken.getAccessToken(),
-                        authToken.getRefreshToken());
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.setStatus(HttpStatus.OK.value());
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.writeValue(response.getWriter(), tokenResponse);
-                response.sendRedirect("https://kuchat.netlify.app/");
+                // 프론트엔드 리디렉트 URL 설정 (환경변수 또는 설정값에서 가져오는 것이 권장됨)
+                String redirectUri = "https://kuchat.netlify.app/";
+                String redirectUrl = String.format("%s#access_token=%s&refresh_token=%s",
+                        redirectUri,
+                        URLEncoder.encode(authToken.getAccessToken(), StandardCharsets.UTF_8),
+                        URLEncoder.encode(authToken.getRefreshToken(), StandardCharsets.UTF_8));
+                log.info("[SuccessHandler] Redirecting to: {}", redirectUrl);
             }
         } catch (Exception e) {
             log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생", e.getMessage());
