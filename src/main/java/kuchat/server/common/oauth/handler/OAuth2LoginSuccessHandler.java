@@ -94,7 +94,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         Cookie cookie = new Cookie(name, token);
         cookie.setHttpOnly(true); // XSS 공격 방지
         cookie.setSecure(true);   // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
-        cookie.setDomain("https://www.kuchat.site");      // 쿠키 경로 설정
+//        cookie.setDomain("https://www.kuchat.site");      // 쿠키 경로 설정
         cookie.setMaxAge(60 * 60 * 24); // 쿠키 만료 시간 설정 (1시간)
         response.addCookie(cookie);
     }
