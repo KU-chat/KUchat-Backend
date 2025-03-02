@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
@@ -48,15 +50,15 @@ public class OAuthService {
     }
 
     public GoogleTokenResponse requestAccessToken(String code) {
-        log.info("Requesting Google access token for code: {}", code);
+        log.info("[requestAccessToken] google에 토큰을 요청하기 위해 필요한 인가코드 = {}", code);
 
-        Map<String, String> requestBody = Map.of(
-                "code", code,
-                "client_id", CLIENT_ID,
-                "client_secret", CLIENT_SECRET,
-                "redirect_uri", REDIRECT_URI,
-                "grant_type", "authorization_code"
-        );
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("client_id", CLIENT_ID);
+        requestBody.add("client_secret", CLIENT_SECRET);
+        requestBody.add("code", code);
+        requestBody.add("grant_type", "authorization_code");
+        requestBody.add("redirect_uri", REDIRECT_URI);
+        log.info("[requestAccessToken] 요청을 보낼 body = {}", requestBody.toString());
 
         return restClient.post()
                 .uri("/token")
@@ -67,7 +69,7 @@ public class OAuthService {
     }
 
     public GoogleInfoResponse requestUserInfo(String accessToken) {
-        log.info("Requesting Google user info with access token");
+        log.info("[requestUserInfo] 구글에 사용자 정보를 요청하기 위해 필요한 access token = {}", accessToken);
 
         JsonNode userInfoNode = restClient.get()
                 .uri("/oauth2/v2/userinfo")
