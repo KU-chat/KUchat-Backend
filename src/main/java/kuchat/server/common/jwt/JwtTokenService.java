@@ -128,7 +128,7 @@ public class JwtTokenService {
         Platform platform = validatePlatform(body);
         String providerId = body.get("providerId", String.class);
         log.info("[extractMemberByGuestToken] member의 platform = {}, providerId = {}", platform, providerId);
-        return memberRepository.findByPlatformAndProviderId(platform, providerId)
+        return memberRepository.findByPlatformAndProviderId(platform.getValue(), providerId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 

@@ -57,7 +57,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             else {
                 log.info("[SuccessHandler] STUDENT, 이미 쿠챗 회원인 사람");
 
-                Member member = memberRepository.findByPlatformAndProviderId(customOAuth2User.getPlatform(),
+                Member member = memberRepository.findByPlatformAndProviderId(customOAuth2User.getPlatform().getValue(),
                                 customOAuth2User.getProviderId())
                         .orElseThrow(() -> new KuchatException(BaseResponseStatus.NOT_FOUND_MEMBER));
                 log.info("[SuccessHandler] 기존 회원인 경우 platform = {}, provider id = {}",
