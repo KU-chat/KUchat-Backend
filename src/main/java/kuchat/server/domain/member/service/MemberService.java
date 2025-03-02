@@ -120,10 +120,9 @@ public class MemberService {
         AuthToken authToken = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
         log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
                 authToken.getAccessToken(), authToken.getRefreshToken());
-
         setAuthCookie(httpServletResponse, "accessToken", authToken.getAccessToken());
         setAuthCookie(httpServletResponse, "refreshToken", authToken.getRefreshToken());
-        return null;
+        return new AuthTokenResponse(SUCCESS, member.getId(), authToken.getAccessToken(), authToken.getRefreshToken());
     }
 
     private void setAuthCookie(HttpServletResponse response, String name, String token) {
