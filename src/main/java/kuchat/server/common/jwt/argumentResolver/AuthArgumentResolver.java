@@ -1,5 +1,7 @@
 package kuchat.server.common.jwt.argumentResolver;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.util.Arrays;
 
 import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_TOKEN;
 
@@ -26,11 +30,15 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        String token = webRequest.getHeader("Authorization");
-        if (token == null) {
-            throw new KuchatException(NOT_FOUND_TOKEN);
-        }
-        String accessToken = token.replaceAll("Bearer ", "");
+        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+        Cookie[] cookies = request.getCookies();
+        String rawToken = Arrays.stream(cookies)
+                .filter(cookie -> "accessToken".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_TOKEN));
+
+        String accessToken = rawToken.replaceAll("Bearer ", "");
         return jwtTokenService.extractMemberByAccessToken(accessToken);
     }
 
