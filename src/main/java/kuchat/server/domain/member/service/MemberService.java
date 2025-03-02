@@ -97,7 +97,7 @@ public class MemberService {
     }
 
     public Member lookupMemberByGoogleId(String id) {
-        return memberRepository.findByPlatformAndProviderId(GOOGLE, id)
+        return memberRepository.findByPlatformAndProviderId(GOOGLE.getValue(), id)
                 .orElse(null);
     }
 
@@ -107,7 +107,7 @@ public class MemberService {
                                                   HttpServletResponse httpServletResponse) {
         if (member == null || member.getRole() == Role.GUEST) {
             String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), infoResponse.getId());
-            log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
+            log.info("[SuccessHandler] 신규 회원 guest token 생성 = {}", guestToken);
             try {
                 httpServletResponse.sendRedirect("https://kuchat.netlify.app/signup?guest-token=" + guestToken);
             } catch (IOException e) {

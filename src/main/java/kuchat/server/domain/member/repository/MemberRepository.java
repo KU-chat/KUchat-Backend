@@ -14,7 +14,9 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    Optional<Member> findByPlatformAndProviderId(@Param("platform") Platform platform,
+    @Query("select m from Member m " +
+            "where m.platform = :platform and m.providerId = :providerId")
+    Optional<Member> findByPlatformAndProviderId(@Param("platform") String platform,
                                                  @Param("providerId") String providerId);
 
     Optional<Member> findByStudentId(@Param("studentId") String studentId);

@@ -29,6 +29,6 @@ public enum Platform {
     }
 
     public String getValue(){
-        return value.toLowerCase();
+        return value.toUpperCase();
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,7 +51,7 @@ public class OAuth2Service implements OAuth2UserService<OAuth2UserRequest, OAuth
         // 2. 추출한 정보를 가지고
         //      - 기존 멤버라면 repository 에서 가져오기
         //      - 새로운 멤버라면 생성 후 save 하기
-        Member member = memberRepository.findByPlatformAndProviderId(platform, providerId)
+        Member member = memberRepository.findByPlatformAndProviderId(Objects.requireNonNull(platform).getValue(), providerId)
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
                             .platform(platform)
