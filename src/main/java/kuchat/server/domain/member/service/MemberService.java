@@ -1,14 +1,19 @@
 package kuchat.server.domain.member.service;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.jwt.AuthToken;
 import kuchat.server.common.jwt.JwtTokenService;
+import kuchat.server.common.oauth.dto.GoogleInfoResponse;
+import kuchat.server.common.oauth.dto.GoogleTokenResponse;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
+import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;
+import kuchat.server.domain.member.dto.AuthTokenResponse;
 import kuchat.server.domain.member.dto.SignupRequest;
-import kuchat.server.domain.member.dto.SignupResponse;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +22,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
+import static kuchat.server.domain.enums.Platform.GOOGLE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,7 +52,7 @@ public class MemberService {
         AuthToken authToken = jwtTokenService.generateAuthToken(member.getRole(), member.getId());
         log.info("[signup] member id : " + member.getId());
 
-        SignupResponse response = new SignupResponse(
+        AuthTokenResponse response = new AuthTokenResponse(
                 SUCCESS,
                 member.getId(),
                 authToken.getAccessToken(),
@@ -87,5 +94,42 @@ public class MemberService {
 
     public List<Member> getMembers(List<Long> friends) {
         return memberRepository.findAllById(friends);
+    }
+
+    public Member lookupMemberByGoogleId(String id) {
+        return memberRepository.findByPlatformAndProviderId(GOOGLE, id)
+                .orElse(null);
+    }
+
+    public AuthTokenResponse processLoginOrSignup(Member member,
+                                                  GoogleTokenResponse tokenResponse,
+                                                  GoogleInfoResponse infoResponse,
+                                                  HttpServletResponse httpServletResponse) {
+        if (member == null || member.getRole() == Role.GUEST) {
+            String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), infoResponse.getId());
+            log.info("[SuccessHandler] guest token 생성 = {}", guestToken);
+            try {
+                httpServletResponse.sendRedirect("https://kuchat.netlify.app/signup?guest-token=" + guestToken);
+            } catch (IOException e) {
+                log.info("[processLoginOrSignup] 신규 회원 처리 시 IOException = {}", e.getMessage());
+            }
+            return null;
+        }
+        log.info("[SuccessHandler] 기존 회원인 경우, provider id = {}",infoResponse.getId());
+        AuthToken authToken = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
+        log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
+                authToken.getAccessToken(), authToken.getRefreshToken());
+
+        setAuthCookie(httpServletResponse, "accessToken", authToken.getAccessToken());
+        setAuthCookie(httpServletResponse, "refreshToken", authToken.getRefreshToken());
+        return null;
+    }
+
+    private void setAuthCookie(HttpServletResponse response, String name, String token) {
+        Cookie cookie = new Cookie(name, token);
+        cookie.setHttpOnly(true);       // XSS 공격 방지
+        cookie.setSecure(true);         // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
+        cookie.setMaxAge(60 * 60 * 24); // 쿠키 만료 시간 설정 (1시간)
+        response.addCookie(cookie);
     }
 }

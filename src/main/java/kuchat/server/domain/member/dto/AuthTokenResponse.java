@@ -5,12 +5,12 @@ import kuchat.server.common.response.BaseResponseStatus;
 import lombok.Getter;
 
 @Getter
-public class SignupResponse extends BaseResponse {
+public class AuthTokenResponse extends BaseResponse {
     private Long id;
     private String accessToken;
     private String refreshToken;
 
-    public SignupResponse(BaseResponseStatus responseStatus, Long id, String accessToken, String refreshToken) {
+    public AuthTokenResponse(BaseResponseStatus responseStatus, Long id, String accessToken, String refreshToken) {
         this.responseStatus = responseStatus;
         this.id = id;
         this.accessToken = accessToken;

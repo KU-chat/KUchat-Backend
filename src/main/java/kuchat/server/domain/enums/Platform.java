@@ -3,6 +3,8 @@ package kuchat.server.domain.enums;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Locale;
+
 @Slf4j
 @Getter
 public enum Platform {
@@ -24,5 +26,9 @@ public enum Platform {
             }
         }
         return null;
+    }
+
+    public String getValue(){
+        return value.toLowerCase();
     }
 }
