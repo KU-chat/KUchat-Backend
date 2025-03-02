@@ -71,17 +71,11 @@ public class OAuthService {
     public GoogleInfoResponse requestUserInfo(String accessToken) {
         log.info("[requestUserInfo] 구글에 사용자 정보를 요청하기 위해 필요한 access token = {}", accessToken);
 
-        JsonNode userInfoNode = restClient.get()
-                .uri("/oauth2/v2/userinfo")
+        return restClient.get()
+                .uri("https://openidconnect.googleapis.com/v1/userinfo")
                 .headers(headers -> headers.setBearerAuth(accessToken))
                 .retrieve()
-                .body(JsonNode.class);
-
-        return new GoogleInfoResponse(
-                userInfoNode.get("id").asText(),
-                userInfoNode.get("email").asText(),
-                userInfoNode.get("name").asText(),
-                userInfoNode.get("picture").asText()
-        );
+                .toEntity(GoogleInfoResponse.class)
+                .getBody();
     }
 }
