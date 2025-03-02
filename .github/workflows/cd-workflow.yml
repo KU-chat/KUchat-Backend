@@ -5,12 +5,12 @@ on:
     branches:
       - 'develop'
       - 'main'
-      - 'fix/ci-cd'
+      - 'fix/oauth'
   pull_request:
     branches:
       - 'develop'
       - 'main'
-      - 'fix/ci-cd'
+      - 'fix/oauth'
 
 permissions:
   contents: read

@@ -75,7 +75,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 //                response.sendRedirect("https://kuchat.netlify.app/");
             }
         } catch (Exception e) {
-            log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생", e.getMessage());
+            log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생 = {}", e.getMessage());
             BaseResponse error = new BaseResponse(OAUTH2_FAIL);
             ObjectMapper objectMapper = new ObjectMapper();
             String errorResponse = objectMapper.writeValueAsString(error);
