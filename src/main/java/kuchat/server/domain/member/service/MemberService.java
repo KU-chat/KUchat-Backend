@@ -97,7 +97,7 @@ public class MemberService {
     }
 
     public Member lookupMemberByGoogleId(String id) {
-        return memberRepository.findByPlatformAndProviderId(GOOGLE.getValue(), id)
+        return memberRepository.findByPlatformAndProviderId(GOOGLE, id)
                 .orElse(null);
     }
 
