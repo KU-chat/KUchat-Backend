@@ -45,6 +45,7 @@ public class OAuthService {
     public AuthTokenResponse process(String code, HttpServletResponse httpServletResponse) {
         GoogleTokenResponse tokenResponse = requestAccessToken(code);
         GoogleInfoResponse infoResponse = requestUserInfo(tokenResponse.getAccessToken());
+        log.info("[process] 구글에서 제공한 user info = {}", infoResponse);
         Member member = memberService.lookupMemberByGoogleId(infoResponse.getId());
         return memberService.processLoginOrSignup(member, tokenResponse, infoResponse, httpServletResponse);
     }

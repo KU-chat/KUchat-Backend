@@ -106,8 +106,9 @@ public class MemberService {
                                                   GoogleInfoResponse infoResponse,
                                                   HttpServletResponse httpServletResponse) {
         if (member == null || member.getRole() == Role.GUEST) {
+            log.info("[processLoginOrSignup] provider id = {}", infoResponse.getId());
             String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), infoResponse.getId());
-            log.info("[SuccessHandler] 신규 회원 guest token 생성 = {}", guestToken);
+            log.info("[processLoginOrSignup] 신규 회원 guest token 생성 = {}", guestToken);
             try {
                 httpServletResponse.sendRedirect("https://kuchat.netlify.app/signup?guest-token=" + guestToken);
             } catch (IOException e) {
