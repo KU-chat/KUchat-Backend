@@ -70,9 +70,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
                         authToken.getAccessToken(), authToken.getRefreshToken());
 
-                addCookie(response, "accessToken", authToken.getAccessToken());
-                addCookie(response, "refreshToken", authToken.getRefreshToken());
-                response.sendRedirect("https://kuchat.netlify.app/");
+                setAuthCookie(response, "accessToken", authToken.getAccessToken());
+                setAuthCookie(response, "refreshToken", authToken.getRefreshToken());
+//                response.sendRedirect("https://kuchat.netlify.app/");
             }
         } catch (Exception e) {
             log.error("[onAuthenticationSuccess] 로그아웃 처리 중 예외 발생", e.getMessage());
@@ -86,16 +86,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             response.getWriter().write(errorResponse);
             response.getWriter().flush();
 
-            response.sendRedirect("https://kuchat.netlify.app/");
+//            response.sendRedirect("https://kuchat.netlify.app/");
         }
     }
 
-    private void addCookie(HttpServletResponse response, String name, String value) {
-        Cookie cookie = new Cookie(name, value);
+    private void setAuthCookie(HttpServletResponse response, String name, String token) {
+        Cookie cookie = new Cookie(name, token);
         cookie.setHttpOnly(true); // XSS 공격 방지
         cookie.setSecure(true);   // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
-        cookie.setPath("/");      // 쿠키 경로 설정
-        cookie.setMaxAge(60 * 60); // 쿠키 만료 시간 설정 (1시간)
+        cookie.setDomain("https://www.kuchat.site");      // 쿠키 경로 설정
+        cookie.setMaxAge(60 * 60 * 24); // 쿠키 만료 시간 설정 (1시간)
         response.addCookie(cookie);
     }
 }
