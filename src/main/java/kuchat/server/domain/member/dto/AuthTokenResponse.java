@@ -3,8 +3,14 @@ package kuchat.server.domain.member.dto;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+@Setter
 @Getter
+@ToString
+@NoArgsConstructor
 public class AuthTokenResponse extends BaseResponse {
     private Long id;
     private String accessToken;

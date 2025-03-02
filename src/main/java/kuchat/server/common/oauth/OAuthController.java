@@ -20,6 +20,7 @@ public class OAuthController {
                                                       HttpServletResponse response){
         log.info("[callback] 구글 인가코드 발급 완료 = {}", authRequest.getCode());
         AuthTokenResponse authTokenResponse = oAuthService.process(authRequest.getCode(), response);
+        log.info("[callback] 클라이언트에게 줄 response body = {}", authTokenResponse);
         return ResponseEntity.ok(authTokenResponse);
     }
 }
