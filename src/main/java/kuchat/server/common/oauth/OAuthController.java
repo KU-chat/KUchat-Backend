@@ -16,10 +16,14 @@ public class OAuthController {
     private final OAuthService oAuthService;
 
     @PostMapping("/google")
-    public ResponseEntity<AuthTokenResponse> callback(@ModelAttribute AuthRequest authRequest,
+    public ResponseEntity<AuthTokenResponse> callback(@RequestBody AuthRequest authRequest,
+//    public ResponseEntity<AuthTokenResponse> callback(@RequestParam String code,
                                                       HttpServletResponse response){
         log.info("[callback] 구글 인가코드 발급 완료 = {}", authRequest.getCode());
+//        log.info("[callback] 구글 인가코드 발급 완료 = {}", code);
         AuthTokenResponse authTokenResponse = oAuthService.process(authRequest.getCode(), response);
+//        AuthTokenResponse authTokenResponse = oAuthService.process(code, response);
         return ResponseEntity.ok(authTokenResponse);
     }
+    // 4%2F0AQSTgQFPh-pHRCB98D8FvcM_cxJo1eRnWtUN6EM5teF4UuaZiACuin0g4Qwt1sUSujQUFQ
 }
