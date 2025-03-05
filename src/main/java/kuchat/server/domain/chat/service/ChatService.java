@@ -2,16 +2,17 @@ package kuchat.server.domain.chat.service;
 
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chat.Chat;
+import kuchat.server.domain.chat.ChatMember;
+import kuchat.server.domain.chat.dto.ChatMemberResponse;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
+import kuchat.server.domain.chat.dto.ViewChatResponse;
 import kuchat.server.domain.chat.repository.ChatRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.service.MemberService;
-import kuchat.server.domain.message.dto.RecentMessageResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,20 +49,31 @@ public class ChatService {
         return new CreateChatResponse(SUCCESS, savedChat.getId());
     }
 
-
-    public Chat validateEnter(Member member, Long chatId) {
+    public ViewChatResponse validateEnter(Member member, Long chatId) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
-        chatMemberService.getChatMembersByChat(chat).stream()
+        List<ChatMember> chatMembers = chatMemberService.getChatMembersByChat(chat);
+        checkMemberInChat(member, chatMembers, chat);
+        return new ViewChatResponse(SUCCESS, chat, getChatMemberResponses(chatMembers));
+    }
+
+
+    private void checkMemberInChat(Member member, List<ChatMember> chatMembers, Chat chat) {
+        chatMembers.stream()
                 .filter(chatMember -> chatMember.matches(chat, member))
                 .findFirst()
                 .orElseThrow(() -> new KuchatException(UNAUTHORIZED_CHAT_MEMBER));
-        return chat;
     }
 
     private List<Member> getParticipants(Member creator, CreateChatRequest request) {
         List<Member> members = memberService.getMembers(request.getFriends());
         members.add(creator);
         return members;
+    }
+
+    private List<ChatMemberResponse> getChatMemberResponses(List<ChatMember> chatMembers) {
+        return chatMembers.stream()
+                .map(ChatMemberResponse::new)
+                .toList();
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    @Query("select m from Message m where m.chat = :chat")
-    Page<Message> findRecent30MessagesByChat(@Param("chat") Chat chat, Pageable pageable);
+    @Query("select m from Message m " +
+            "where m.chat.id = :chatId")
+    Page<Message> findRecent30MessagesByChat(@Param("chatId") Long chatId, Pageable pageable);
 }
