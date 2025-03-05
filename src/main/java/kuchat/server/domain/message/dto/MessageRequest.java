@@ -10,6 +10,7 @@ import java.util.Objects;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class MessageRequest {
     @NotBlank
     private Long chatId;      // 채팅방 ID
@@ -22,20 +23,4 @@ public class MessageRequest {
 
     @NotNull
     private String content;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MessageRequest that = (MessageRequest) o;
-        return Objects.equals(getMessageType(), that.getMessageType()) &&
-                Objects.equals(getSenderId(), that.getSenderId()) &&
-                Objects.equals(getContent(), that.getContent()) &&
-                Objects.equals(getChatId(), that.getChatId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getMessageType(), getSenderId(), getContent(), getChatId());
-    }
 }

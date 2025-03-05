@@ -1,4 +1,4 @@
-package kuchat.server.common.jwt;
+package kuchat.server.domain.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

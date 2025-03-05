@@ -1,6 +1,7 @@
-package kuchat.server.common.jwt;
+package kuchat.server.domain.auth.controller;
 
-import kuchat.server.common.response.BaseResponseStatus;
+import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.auth.dto.AuthTokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,7 @@ public class AuthController {
     @PostMapping("/refresh-token")
     public ResponseEntity<?> reissueToken(@RequestHeader(value = "Authorization", required = false) String refreshToken) {
         Long memberId = jwtTokenService.validateRefreshToken(refreshToken);
-        AuthToken authToken = jwtTokenService.generateAuthToken(STUDENT, memberId);
-        TokenResponse response = new TokenResponse(BaseResponseStatus.SUCCESS, authToken);
+        AuthTokenResponse response = jwtTokenService.generateAuthToken(STUDENT, memberId);
         return ResponseEntity.ok(response);
     }
 }

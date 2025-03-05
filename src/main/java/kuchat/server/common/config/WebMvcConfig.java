@@ -1,12 +1,11 @@
 package kuchat.server.common.config;
 
-import kuchat.server.common.jwt.argumentResolver.AuthArgumentResolver;
-import kuchat.server.common.jwt.JwtTokenInterceptor;
-import kuchat.server.common.jwt.argumentResolver.GuestArgumentResolver;
+import kuchat.server.domain.auth.JwtTokenInterceptor;
+import kuchat.server.domain.auth.argumentResolver.AuthArgumentResolver;
+import kuchat.server.domain.auth.argumentResolver.GuestArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.view.MustacheViewResolver;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
@@ -19,7 +18,6 @@ import java.util.List;
 @EnableWebMvc
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, HEAD";
     private final AuthArgumentResolver authArgumentResolver;
     private final GuestArgumentResolver guestArgumentResolver;
     private final JwtTokenInterceptor jwtTokenInterceptor;
@@ -42,7 +40,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/member/signup/**")
                 .addPathPatterns("/member/my-profile", "/friend/**", "/block/**", "/chatroom/**");
     }
-
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {

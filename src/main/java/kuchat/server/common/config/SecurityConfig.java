@@ -1,7 +1,7 @@
 package kuchat.server.common.config;
 
-import kuchat.server.common.jwt.JwtTokenInterceptor;
-import kuchat.server.common.oauth.service.OAuth2LogoutSuccessHandler;
+import kuchat.server.domain.auth.JwtTokenInterceptor;
+import kuchat.server.domain.oauth.service.OAuth2LogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;

@@ -1,7 +1,7 @@
 package kuchat.server.domain.friend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import kuchat.server.common.jwt.argumentResolver.Auth;
+import kuchat.server.domain.auth.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.friend.dto.FriendApplyResponses;
 import kuchat.server.domain.friend.dto.FriendResponses;

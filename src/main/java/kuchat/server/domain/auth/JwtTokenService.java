@@ -1,8 +1,9 @@
-package kuchat.server.common.jwt;
+package kuchat.server.domain.auth;
 
 
 import io.jsonwebtoken.*;
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.domain.auth.dto.AuthTokenResponse;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.domain.enums.Platform;
 import kuchat.server.domain.enums.Role;
@@ -43,14 +44,14 @@ public class JwtTokenService {
     private final static String GUEST = "guest";
 
     // GoogleOAuth2UserInfo의 email을 사용하여 token 발급
-    public AuthToken generateAuthToken(Role role, Long memberId) {
+    public AuthTokenResponse generateAuthToken(Role role, Long memberId) {
         final Claims claims = Jwts.claims();        // claims = jwt token에 들어갈 정보, claim에 email을 넣어줘야 회원 식별 가능
         claims.put("role", role.getKey());
         claims.put("memberId", memberId);
         String accessToken = generateToken(claims, accessTokenExpiration, ACCESS);
         String refreshToken = generateToken(claims, refreshTokenExpiration, REFRESH);
         redisService.setRefreshToken(memberId, refreshToken);
-        return new AuthToken(accessToken, refreshToken);
+        return new AuthTokenResponse(SUCCESS, accessToken, refreshToken);
     }
 
     public String generateGuestToken(String platform, String providerId) {

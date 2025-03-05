@@ -1,11 +1,11 @@
-package kuchat.server.common.oauth.service;
+package kuchat.server.domain.oauth.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.jwt.JwtTokenService;
+import kuchat.server.domain.auth.JwtTokenService;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.service.MemberService;

@@ -1,4 +1,4 @@
-package kuchat.server.common.oauth.dto;
+package kuchat.server.domain.oauth.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AuthRequest {
+public class AuthorizationCodeRequest {
     private String code;
 }

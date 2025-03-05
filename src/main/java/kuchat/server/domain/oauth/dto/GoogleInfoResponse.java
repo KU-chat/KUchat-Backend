@@ -1,4 +1,4 @@
-package kuchat.server.common.oauth.dto;
+package kuchat.server.domain.oauth.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

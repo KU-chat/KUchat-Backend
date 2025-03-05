@@ -3,7 +3,7 @@ package kuchat.server.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.common.jwt.argumentResolver.Auth;
+import kuchat.server.domain.auth.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.Validator;
 import kuchat.server.domain.member.Member;

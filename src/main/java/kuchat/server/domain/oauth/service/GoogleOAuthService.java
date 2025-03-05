@@ -1,8 +1,8 @@
-package kuchat.server.common.oauth.service;
+package kuchat.server.domain.oauth.service;
 
 import jakarta.servlet.http.HttpServletResponse;
-import kuchat.server.common.oauth.dto.GoogleInfoResponse;
-import kuchat.server.common.oauth.dto.GoogleTokenResponse;
+import kuchat.server.domain.oauth.dto.GoogleInfoResponse;
+import kuchat.server.domain.oauth.dto.GoogleTokenResponse;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.AuthTokenResponse;
 import kuchat.server.domain.member.service.MemberService;

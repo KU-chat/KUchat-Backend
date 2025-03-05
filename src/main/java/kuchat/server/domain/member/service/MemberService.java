@@ -3,16 +3,15 @@ package kuchat.server.domain.member.service;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.jwt.AuthToken;
-import kuchat.server.common.jwt.JwtTokenService;
-import kuchat.server.common.oauth.dto.GoogleInfoResponse;
-import kuchat.server.common.oauth.dto.GoogleTokenResponse;
+import kuchat.server.domain.auth.dto.AuthTokenResponse;
+import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.oauth.dto.GoogleInfoResponse;
+import kuchat.server.domain.oauth.dto.GoogleTokenResponse;
 import kuchat.server.common.redis.RedisService;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.common.response.BaseResponseStatus;
 import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.AuthTokenResponse;
 import kuchat.server.domain.member.dto.SignupRequest;
 import kuchat.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,14 +48,14 @@ public class MemberService {
         memberRepository.findById(member.getId());
 
         // 엑세스 토큰, 리프레시 토큰 발급
-        AuthToken authToken = jwtTokenService.generateAuthToken(member.getRole(), member.getId());
+        AuthTokenResponse authTokenResponse = jwtTokenService.generateAuthToken(member.getRole(), member.getId());
         log.info("[signup] member id : " + member.getId());
 
-        AuthTokenResponse response = new AuthTokenResponse(
+        kuchat.server.domain.member.dto.AuthTokenResponse response = new kuchat.server.domain.member.dto.AuthTokenResponse(
                 SUCCESS,
                 member.getId(),
-                authToken.getAccessToken(),
-                authToken.getRefreshToken()
+                authTokenResponse.getAccessToken(),
+                authTokenResponse.getRefreshToken()
         );
 
         return ResponseEntity.ok(response);
@@ -101,10 +100,10 @@ public class MemberService {
                 .orElse(null);
     }
 
-    public AuthTokenResponse processLoginOrSignup(Member member,
-                                                  GoogleTokenResponse tokenResponse,
-                                                  GoogleInfoResponse infoResponse,
-                                                  HttpServletResponse httpServletResponse) {
+    public kuchat.server.domain.member.dto.AuthTokenResponse processLoginOrSignup(Member member,
+                                                                                  GoogleTokenResponse tokenResponse,
+                                                                                  GoogleInfoResponse infoResponse,
+                                                                                  HttpServletResponse httpServletResponse) {
         if (member == null || member.getRole() == Role.GUEST) {
             log.info("[processLoginOrSignup] provider id = {}", infoResponse.getId());
             String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), infoResponse.getId());
@@ -117,12 +116,12 @@ public class MemberService {
             return null;
         }
         log.info("[SuccessHandler] 기존 회원인 경우, provider id = {}",infoResponse.getId());
-        AuthToken authToken = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
+        AuthTokenResponse authTokenResponse = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
         log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
-                authToken.getAccessToken(), authToken.getRefreshToken());
-        setAuthCookie(httpServletResponse, "accessToken", authToken.getAccessToken());
-        setAuthCookie(httpServletResponse, "refreshToken", authToken.getRefreshToken());
-        return new AuthTokenResponse(SUCCESS, member.getId(), authToken.getAccessToken(), authToken.getRefreshToken());
+                authTokenResponse.getAccessToken(), authTokenResponse.getRefreshToken());
+        setAuthCookie(httpServletResponse, "accessToken", authTokenResponse.getAccessToken());
+        setAuthCookie(httpServletResponse, "refreshToken", authTokenResponse.getRefreshToken());
+        return new kuchat.server.domain.member.dto.AuthTokenResponse(SUCCESS, member.getId(), authTokenResponse.getAccessToken(), authTokenResponse.getRefreshToken());
     }
 
     private void setAuthCookie(HttpServletResponse response, String name, String token) {
