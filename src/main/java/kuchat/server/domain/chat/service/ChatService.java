@@ -64,10 +64,4 @@ public class ChatService {
         members.add(creator);
         return members;
     }
-
-    public RecentMessageResponses getRecentMessages(Chat chat, Pageable pageable) {
-        // TODO. 채팅방에 새로운 메시지 읽음 처리
-
-        return null;
-    }
 }
