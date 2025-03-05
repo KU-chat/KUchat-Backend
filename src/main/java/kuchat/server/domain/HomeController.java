@@ -3,7 +3,7 @@ package kuchat.server.domain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.auth.service.JwtTokenService;
 import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

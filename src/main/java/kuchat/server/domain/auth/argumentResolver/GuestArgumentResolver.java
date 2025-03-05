@@ -1,7 +1,7 @@
 package kuchat.server.domain.auth.argumentResolver;
 
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.auth.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;

@@ -3,7 +3,7 @@ package kuchat.server.domain.auth.argumentResolver;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.auth.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

@@ -4,7 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.auth.dto.AuthTokenResponse;
-import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.auth.service.JwtTokenService;
 import kuchat.server.domain.oauth.dto.GoogleInfoResponse;
 import kuchat.server.domain.oauth.dto.GoogleTokenResponse;
 import kuchat.server.common.redis.RedisService;

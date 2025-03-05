@@ -3,6 +3,7 @@ package kuchat.server.domain.auth;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
+import kuchat.server.domain.auth.service.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

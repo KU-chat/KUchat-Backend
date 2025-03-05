@@ -1,4 +1,4 @@
-package kuchat.server.domain.auth;
+package kuchat.server.domain.auth.service;
 
 
 import io.jsonwebtoken.*;

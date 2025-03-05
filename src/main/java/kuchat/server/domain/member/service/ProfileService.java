@@ -2,7 +2,7 @@ package kuchat.server.domain.member.service;
 
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.domain.S3Service;
+import kuchat.server.common.s3.S3Service;
 import kuchat.server.domain.block.service.BlockService;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.DetailProfileResponse;

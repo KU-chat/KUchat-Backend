@@ -5,7 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.auth.service.JwtTokenService;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.service.MemberService;

@@ -1,6 +1,6 @@
 package kuchat.server.domain.auth.controller;
 
-import kuchat.server.domain.auth.JwtTokenService;
+import kuchat.server.domain.auth.service.JwtTokenService;
 import kuchat.server.domain.auth.dto.AuthTokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package kuchat.server.domain;
+package kuchat.server.common.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
