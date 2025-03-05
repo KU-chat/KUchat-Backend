@@ -1,4 +1,4 @@
-package kuchat.server.common.oauth;
+package kuchat.server.common.oauth.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

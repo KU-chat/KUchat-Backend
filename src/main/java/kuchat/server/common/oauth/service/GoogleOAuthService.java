@@ -1,6 +1,5 @@
-package kuchat.server.common.oauth;
+package kuchat.server.common.oauth.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.oauth.dto.GoogleInfoResponse;
 import kuchat.server.common.oauth.dto.GoogleTokenResponse;
@@ -15,12 +14,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
-import java.io.IOException;
-import java.util.Map;
-
 @Slf4j
 @Service
-public class OAuthService {
+public class GoogleOAuthService {
 
     private final MemberService memberService;
     private final RestClient restClient;
@@ -35,7 +31,7 @@ public class OAuthService {
     private String REDIRECT_URI;
 
 
-    public OAuthService(MemberService memberService, RestClient.Builder builder) {
+    public GoogleOAuthService(MemberService memberService, RestClient.Builder builder) {
         this.memberService = memberService;
         this.restClient = builder
                 .baseUrl("https://oauth2.googleapis.com")

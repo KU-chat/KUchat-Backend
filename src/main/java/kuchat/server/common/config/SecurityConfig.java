@@ -1,7 +1,7 @@
 package kuchat.server.common.config;
 
 import kuchat.server.common.jwt.JwtTokenInterceptor;
-import kuchat.server.common.oauth.handler.OAuth2LogoutSuccessHandler;
+import kuchat.server.common.oauth.service.OAuth2LogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .clearAuthentication(true)
                         .addLogoutHandler((request, response, auth) -> {
                             // 추가 로그아웃 처리 로직 (선택)
-                            log.info("Custom logout handler executed");
+                            log.info("추가된 Custom logout handler 없음");
                         })
                         .logoutSuccessHandler(oAuth2LogoutSuccessHandler)
                 )
