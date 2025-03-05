@@ -1,19 +1,17 @@
 package kuchat.server.domain.chat.service;
 
 import kuchat.server.common.exception.KuchatException;
-import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
-import kuchat.server.domain.chat.repository.ChatMemberRepository;
 import kuchat.server.domain.chat.repository.ChatRepository;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.service.MemberService;
-import kuchat.server.domain.message.service.MessageService;
+import kuchat.server.domain.message.dto.RecentMessageResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +34,7 @@ public class ChatService {
     private String defaultImage;
 
     @Transactional
-    public ResponseEntity<BaseResponse> create(Member creator, CreateChatRequest request) {
+    public CreateChatResponse create(Member creator, CreateChatRequest request) {
         log.info("[create] {} 멤버가 {} 를 구성원으로 하는 채팅방 생성 요청", creator.getId(), request.getFriends().toString());
         List<Member> members = getParticipants(creator, request);
         Chat chat = new Chat(request.getName(), defaultImage);
@@ -45,9 +43,20 @@ public class ChatService {
         Chat savedChat = chatRepository.save(chat);
         chatMemberService.saveChatMembers(members, chat);
 
-        // TODO. 채팅방 생성 알림 보내기
+//        TODO. 채팅방 생성 알림 보내기
 //        messageService.notifyNewChat(chat, request.getFriends());
-        return ResponseEntity.ok(new CreateChatResponse(SUCCESS, savedChat.getId()));
+        return new CreateChatResponse(SUCCESS, savedChat.getId());
+    }
+
+
+    public Chat validateEnter(Member member, Long chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
+        chatMemberService.getChatMembersByChat(chat).stream()
+                .filter(chatMember -> chatMember.matches(chat, member))
+                .findFirst()
+                .orElseThrow(() -> new KuchatException(UNAUTHORIZED_CHAT_MEMBER));
+        return chat;
     }
 
     private List<Member> getParticipants(Member creator, CreateChatRequest request) {
@@ -56,16 +65,9 @@ public class ChatService {
         return members;
     }
 
-
-    public ResponseEntity<BaseResponse> validateEnter(Member member, Long chatId) {
+    public RecentMessageResponses getRecentMessages(Chat chat, Pageable pageable) {
         // TODO. 채팅방에 새로운 메시지 읽음 처리
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
 
-//        chatMemberRepository.findByMemberAndChat(member, chat)
-//                .orElseThrow(() -> new KuchatException(UNAUTHORIZED_CHAT_MEMBER));
-
-        return ResponseEntity.ok(new BaseResponse(SUCCESS));
+        return null;
     }
-
 }

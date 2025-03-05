@@ -5,11 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.jwt.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.Validator;
+import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.service.ChatService;
 import kuchat.server.domain.member.Member;
+import kuchat.server.domain.message.dto.RecentMessageResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,14 +35,21 @@ public class ChatController {
                                                BindingResult bindingResult) {
         log.info("[create] id = {} 인 사용자가 {} 와 개인 채팅방 생성 요청", member.getId(), request.toString());
         Validator.validateRequest(bindingResult);
-        return chatService.create(member, request);
+        return ResponseEntity.ok(chatService.create(member, request));
     }
 
-    @Operation(summary = "채팅방 화면으로 들어가기")
+    @Operation(summary = "채팅방 화면으로 들어가기 (채팅방 메시지 조회하기)")
     @GetMapping("/{chatId}")
-    public ResponseEntity<BaseResponse> enter(@Auth Member member,
-                                              @PathVariable("chatId") Long chatId) {
-        return chatService.validateEnter(member, chatId);
+    public ResponseEntity<RecentMessageResponses> enter(@Auth Member member,
+                                              @PathVariable("chatId") Long chatId,
+                                              @PageableDefault(
+                                                      size = 50,
+                                                      sort = "createdDate",
+                                                      direction = Sort.Direction.DESC
+                                              ) Pageable pageable) {
+        Chat chat = chatService.validateEnter(member, chatId);
+        RecentMessageResponses responses = chatService.getRecentMessages(chat, pageable);
+        return ResponseEntity.ok(responses);
     }
 
 }

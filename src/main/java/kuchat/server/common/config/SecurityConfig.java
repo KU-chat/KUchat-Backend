@@ -1,12 +1,9 @@
 package kuchat.server.common.config;
 
-import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.jwt.JwtTokenInterceptor;
-import kuchat.server.common.oauth.handler.OAuth2LoginFailureHandler;
-import kuchat.server.common.oauth.handler.OAuth2LoginSuccessHandler;
 import kuchat.server.common.oauth.handler.OAuth2LogoutSuccessHandler;
-import kuchat.server.common.oauth.service.OAuth2Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,14 +13,12 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity          // spring security 기능을 활성화시키는 어노테이션 (스프링 시큐리티 필터가 스프링 필터 체인에 등록됨)
 public class SecurityConfig {
 
-    private final OAuth2Service oAuth2Service;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final OAuth2LogoutSuccessHandler oAuth2LogoutSuccessHandler;
     private final JwtTokenInterceptor jwtTokenInterceptor;
 
@@ -46,11 +41,6 @@ public class SecurityConfig {
 //                                "/member/signup", "/publish/**","/subscribe/**",  "/ws-connect").permitAll()       // 인증 절차 없이 접근 가능해야 하는 페이지 모두 추가하기
 //                        .anyRequest().authenticated()           // 이 외에 모든 페이지는 인증된 사용자만 접근 가능
 //                )
-                .oauth2Login(oauth2Login -> oauth2Login                                      // oauth2 로그인에 관한 다양한 기능 제공
-                        .successHandler(oAuth2LoginSuccessHandler)
-                        .failureHandler(oAuth2LoginFailureHandler)
-                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))            // oauth2 로그인 로직을 담당하는 service 등록
-                )
                 .logout(logout -> logout
                         .logoutUrl("/member/logout")
                         .logoutSuccessUrl("/")
@@ -59,7 +49,7 @@ public class SecurityConfig {
                         .clearAuthentication(true)
                         .addLogoutHandler((request, response, auth) -> {
                             // 추가 로그아웃 처리 로직 (선택)
-                            System.out.println("Custom logout handler executed");
+                            log.info("Custom logout handler executed");
                         })
                         .logoutSuccessHandler(oAuth2LogoutSuccessHandler)
                 )

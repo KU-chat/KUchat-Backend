@@ -40,4 +40,8 @@ public class ChatMember extends BaseTime {
         this.member = member;
         chat.addChatMember(this);       // chat - chatMember 만 양방향 관계니까 이 관계에 대해서만 추가하면 됨
     }
+
+    public boolean matches(Chat chat, Member member) {
+        return this.chat.equals(chat) && this.member.equals(member);
+    }
 }
