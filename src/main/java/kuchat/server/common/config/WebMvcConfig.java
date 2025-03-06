@@ -53,9 +53,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("https://kuchat.netlify.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .exposedHeaders("*")
-                .allowedHeaders("*")
-                .allowCredentials(true);        // 쿠키 허용
+//                .exposedHeaders("*")
+//                .allowedHeaders("*")
+                .exposedHeaders("Authorization", "Set-Cookie")
+                .allowCredentials(true)     // 쿠키 허용
+                .maxAge(3000);      // 원하는 시간만큼 pre-flight 리퀘스트를 캐싱
     }
 
 }

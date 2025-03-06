@@ -50,11 +50,10 @@ public class ChatService {
     }
 
     public ViewChatResponse validateEnter(Member member, Long chatId) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
+        Chat chat = getChatById(chatId);
         List<ChatMember> chatMembers = chatMemberService.getChatMembersByChat(chat);
         checkMemberInChat(member, chatMembers, chat);
-        return new ViewChatResponse(SUCCESS, chat, getChatMemberResponses(chatMembers));
+        return new ViewChatResponse(SUCCESS, chat);
     }
 
 
@@ -75,5 +74,10 @@ public class ChatService {
         return chatMembers.stream()
                 .map(ChatMemberResponse::new)
                 .toList();
+    }
+
+    public Chat getChatById(Long chatId) {
+        return chatRepository.findById(chatId)
+                .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
     }
 }

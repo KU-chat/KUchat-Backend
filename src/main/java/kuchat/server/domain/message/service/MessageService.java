@@ -3,7 +3,7 @@ package kuchat.server.domain.message.service;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
 import kuchat.server.domain.message.Message;
-import kuchat.server.domain.message.dto.RecentMessageResponse;
+import kuchat.server.domain.chat.dto.RecentMessageResponse;
 import kuchat.server.domain.message.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
@@ -47,6 +48,9 @@ public class MessageService {
         Page<Message> recentMessages = messageRepository.findRecent30MessagesByChat(chatId, pageable);
         return recentMessages.stream()
                 .map(RecentMessageResponse::new)
+                .sorted(Comparator.comparing(RecentMessageResponse::getSendTime))
                 .toList();
     }
+
+
 }

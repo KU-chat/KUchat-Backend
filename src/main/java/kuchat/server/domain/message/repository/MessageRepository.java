@@ -1,6 +1,5 @@
 package kuchat.server.domain.message.repository;
 
-import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.message.Message;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    @Query("select m from Message m " +
+    @Query("select m from Message m join fetch m.sender " +
             "where m.chat.id = :chatId")
     Page<Message> findRecent30MessagesByChat(@Param("chatId") Long chatId, Pageable pageable);
 }

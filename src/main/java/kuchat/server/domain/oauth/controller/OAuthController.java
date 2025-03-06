@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/oauth")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://kuchat.netlify.app", allowCredentials = "true")
+//@CrossOrigin(origins = "https://kuchat.netlify.app", allowCredentials = "true")
 public class OAuthController {
 
     private final GoogleOAuthService googleOAuthService;

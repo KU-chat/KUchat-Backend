@@ -9,7 +9,7 @@ import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.ViewChatResponse;
 import kuchat.server.domain.chat.service.ChatService;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.message.dto.RecentMessageResponse;
+import kuchat.server.domain.chat.dto.RecentMessageResponse;
 import kuchat.server.domain.message.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
