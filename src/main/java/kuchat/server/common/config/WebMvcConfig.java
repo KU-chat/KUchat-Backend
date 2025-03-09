@@ -15,7 +15,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
-//@EnableWebMvc
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final AuthArgumentResolver authArgumentResolver;
@@ -45,17 +44,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(authArgumentResolver);
         resolvers.add(guestArgumentResolver);
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        log.info("[addCorsMappings] CorsMapping 호출");
-        registry.addMapping("/**")
-                .allowedOrigins("https://kuchat.netlify.app", "http://localhost:3000")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .exposedHeaders("Authorization", "Set-Cookie")
-                .allowCredentials(true)     // 쿠키 허용
-                .maxAge(3000);      // 원하는 시간만큼 pre-flight 리퀘스트를 캐싱
     }
 
 }

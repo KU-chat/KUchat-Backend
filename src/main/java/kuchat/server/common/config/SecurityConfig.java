@@ -12,6 +12,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(corsCustomizer ->
+                        corsCustomizer.configurationSource(corsConfigurationSource()))
                 .httpBasic(AbstractHttpConfigurer::disable)                               // jwt 토큰을 사용한 bearer 방식을 사용하므로 default 설정 disable
                 .headers(headers -> headers.frameOptions(FrameOptionsConfig::disable))      // h2 콘솔에 접근하기 위해서는 X-Frame-Options Click jacking 공격을 막는 설정 disable
                 .csrf(AbstractHttpConfigurer::disable)                                              // rest api 방식에서는 jwt 또는 oauth2 방식을 사용하여 인증하므로 csrf 보안기능 필요 X
@@ -54,5 +60,18 @@ public class SecurityConfig {
                         .logoutSuccessHandler(oAuth2LogoutSuccessHandler)
                 )
                 .build();
+    }
+
+    private UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("https://kuchat.netlify.app", "http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Set-Cookie"));
+        configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
