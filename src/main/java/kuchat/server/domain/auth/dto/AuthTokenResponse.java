@@ -9,7 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthTokenResponse extends BaseResponse {
-
     private String accessToken;
     private String refreshToken;
 
