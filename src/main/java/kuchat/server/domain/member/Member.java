@@ -11,6 +11,7 @@ import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.enums.Status;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
+import kuchat.server.domain.oauth.dto.GoogleInfoResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -72,6 +73,10 @@ public class Member extends BaseTime {
         this.profile = new Profile(profileImage);
         status = Status.PENDING;
         role = Role.GUEST;
+    }
+
+    public Member(GoogleInfoResponse infoResponse) {
+
     }
 
     public void updateInfo(SignupRequest request, String defaultImage) {

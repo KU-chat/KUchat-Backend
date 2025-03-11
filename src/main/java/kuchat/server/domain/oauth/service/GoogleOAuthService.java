@@ -43,7 +43,7 @@ public class GoogleOAuthService {
         GoogleTokenResponse tokenResponse = requestAccessToken(code);
         GoogleInfoResponse infoResponse = requestUserInfo(tokenResponse.getAccessToken());
         log.info("[process] 구글에서 제공한 user info = {}", infoResponse);
-        Member member = memberService.lookupMemberByGoogleId(infoResponse.getId());
+        Member member = memberService.lookupMemberByGoogleInfo(infoResponse);
         return memberService.processLoginOrSignup(member, infoResponse, httpServletResponse);
     }
 

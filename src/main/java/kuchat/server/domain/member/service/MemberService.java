@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
@@ -94,14 +93,21 @@ public class MemberService {
         return memberRepository.findAllById(friends);
     }
 
-    public Member lookupMemberByGoogleId(String id) {
-        return memberRepository.findByPlatformAndProviderId(GOOGLE, id)
-                .orElse(null);
+    public Member lookupMemberByGoogleInfo(GoogleInfoResponse infoResponse) {
+        return memberRepository.findByPlatformAndProviderId(GOOGLE, infoResponse.getId())
+                .orElseGet(() -> {
+                    Member member = new Member(infoResponse.getEmail(),
+                            GOOGLE,
+                            infoResponse.getId(),
+                            infoResponse.getPicture());
+                    memberRepository.save(member);
+                    return getMemberById(member.getId());
+                });
     }
 
     public BaseResponse processLoginOrSignup(Member member,
-                                                  GoogleInfoResponse infoResponse,
-                                                  HttpServletResponse httpServletResponse) {
+                                             GoogleInfoResponse infoResponse,
+                                             HttpServletResponse httpServletResponse) {
         if (member == null || member.getRole() == Role.GUEST) {
             log.info("[processLoginOrSignup] provider id = {}", infoResponse.getId());
             String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), infoResponse.getId());
@@ -119,7 +125,6 @@ public class MemberService {
 
     private void setAuthCookie(HttpServletResponse response, String name, String token) {
         Cookie cookie = new Cookie(name, token);
-        cookie.setHttpOnly(true);       // XSS 공격 방지
         cookie.setSecure(true);         // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
         cookie.setMaxAge(60 * 60 * 24); // 쿠키 만료 시간 설정 (1시간)
         response.addCookie(cookie);
