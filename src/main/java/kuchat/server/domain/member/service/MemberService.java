@@ -93,6 +93,7 @@ public class MemberService {
         return memberRepository.findAllById(friends);
     }
 
+    @Transactional
     public Member lookupMemberByGoogleInfo(GoogleInfoResponse infoResponse) {
         return memberRepository.findByPlatformAndProviderId(GOOGLE, infoResponse.getId())
                 .orElseGet(() -> {
