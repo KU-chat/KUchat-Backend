@@ -137,6 +137,7 @@ public class JwtTokenService {
         log.info("[extractMemberByAccessToken] accessToken = {} ", accessToken);
         String token = validate(accessToken, ACCESS);
         Long memberId = getMemberId(token);
+        log.info("[extractMemberByAccessToken] member id = {}", memberId);
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
