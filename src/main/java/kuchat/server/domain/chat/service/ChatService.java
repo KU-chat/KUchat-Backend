@@ -3,7 +3,6 @@ package kuchat.server.domain.chat.service;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.ChatMember;
-import kuchat.server.domain.chat.dto.ChatMemberResponse;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
 import kuchat.server.domain.chat.dto.ViewChatResponse;
@@ -49,16 +48,17 @@ public class ChatService {
         return new CreateChatResponse(SUCCESS, savedChat.getId());
     }
 
-    public ViewChatResponse validateEnter(Member member, Long chatId) {
-        Chat chat = getChatById(chatId);
-        List<ChatMember> chatMembers = chatMemberService.getChatMembersByChat(chat);
-        checkMemberInChat(member, chatMembers, chat);
-        return new ViewChatResponse(SUCCESS, chat);
+
+    public ViewChatResponse getChatInfo(Member member, Long chatId) {
+        ChatMember chatMember = checkMemberInChat(member, chatId);
+        return new ViewChatResponse(SUCCESS, chatMember.getChat());
     }
 
 
-    private void checkMemberInChat(Member member, List<ChatMember> chatMembers, Chat chat) {
-        chatMembers.stream()
+    private ChatMember checkMemberInChat(Member member, Long chatId) {
+        Chat chat = getChatById(chatId);
+        List<ChatMember> chatMembers = chatMemberService.getChatMembersByChat(chat);
+        return chatMembers.stream()
                 .filter(chatMember -> chatMember.matches(chat, member))
                 .findFirst()
                 .orElseThrow(() -> new KuchatException(UNAUTHORIZED_CHAT_MEMBER));
@@ -70,14 +70,15 @@ public class ChatService {
         return members;
     }
 
-    private List<ChatMemberResponse> getChatMemberResponses(List<ChatMember> chatMembers) {
-        return chatMembers.stream()
-                .map(ChatMemberResponse::new)
-                .toList();
-    }
-
     public Chat getChatById(Long chatId) {
         return chatRepository.findById(chatId)
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_CHAT));
+    }
+
+    @Transactional
+    public void exit(Member member, Long chatId) {
+        ChatMember chatMember = checkMemberInChat(member, chatId);
+        chatMemberService.remove(chatMember);
+        log.info("[exit] 나가기 처리 완료");
     }
 }

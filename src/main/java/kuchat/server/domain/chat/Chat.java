@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_CHATMEMBER;
 import static kuchat.server.domain.enums.ChatState.ACTIVE;
 import static kuchat.server.domain.enums.ChatState.CLOSED;
 

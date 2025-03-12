@@ -14,5 +14,7 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember, Long> {
     Optional<ChatMember> findByMemberAndChat(Member member, Chat chat);
 
     @Query("select cm from ChatMember cm join fetch cm.member where cm.chat = :chat")
-    List<ChatMember> findByChat(@Param("chat") Chat chat);
+    List<ChatMember> findByChatWithMember(@Param("chat") Chat chat);
+
+
 }

@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static kuchat.server.common.response.BaseResponseStatus.UNAUTHORIZED_CHAT_MEMBER;
+import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,10 +33,19 @@ public class ChatMemberService {
     }
 
     public List<ChatMember> getChatMembersByChat(Chat chat) {
-        List<ChatMember> chatMembers = chatMemberRepository.findByChat(chat);
+        List<ChatMember> chatMembers = chatMemberRepository.findByChatWithMember(chat);
         if (chatMembers.isEmpty()) {
-            throw new KuchatException(UNAUTHORIZED_CHAT_MEMBER);
+            throw new KuchatException(EMPTY_CHAT_MEMBER);
         }
         return chatMembers;
+    }
+
+    public void remove(ChatMember chatMember) {
+        try{
+            chatMemberRepository.delete(chatMember);
+        } catch (IllegalArgumentException e){
+            log.info("[remove] 이미 삭제된 ChatMember 입니다. chatMember id = {}", chatMember.getChat());
+            throw new KuchatException(ALREADY_LEFT_CHAT);
+        }
     }
 }
