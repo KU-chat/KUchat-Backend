@@ -65,7 +65,7 @@ public class ChatService {
     }
 
     private List<Member> getParticipants(Member creator, CreateChatRequest request) {
-        List<Member> members = memberService.getMembers(request.getFriends());
+        List<Member> members = memberService.getMembersByIds(request.getFriends());
         members.add(creator);
         return members;
     }

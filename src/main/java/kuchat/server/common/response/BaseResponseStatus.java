@@ -68,7 +68,7 @@ public enum BaseResponseStatus {
     //- 6000번대 : 메시지(message)/소켓 관련 코드
     WEBSOCKET_CONNECTION_FAIL(6000, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버 접속에 실패했습니다."),
     WEBSOCKET_CLOSE_FAIL(6001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결 종료에 실패했습니다."),
-    MESSAGE_FORMAT_ERROR(6002, HttpStatus.BAD_REQUEST, "클라이언트에서 요청한 메시지 json 객체의 형식이 잘못됐습니다."),
+    MESSAGE_FORMAT_ERROR(6002, HttpStatus.BAD_REQUEST, "메시지에서 하나 이상의 필드가 누락되었습니다. json 데이터를 확인해주세요."),
     CONVERT_TO_JSON_FAIL(6003, HttpStatus.INTERNAL_SERVER_ERROR, "메시지를 json 형태로 바꾸는데 실패했습니다"),
     CONVERT_TO_OBJECT_FAIL(6004, HttpStatus.INTERNAL_SERVER_ERROR, "json을 메세지 객체 형태로 바꾸는데 실패했습니다"),
     MESSAGE_SEND_FAIL(6005, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송에 실패했습니다."),

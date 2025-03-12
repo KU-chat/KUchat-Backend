@@ -34,6 +34,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         mqRegistry.setApplicationDestinationPrefixes("/pub");
         mqRegistry.enableSimpleBroker("/sub");
 
+        // 개인 메시징을 위한 설정 (사실 기본적으로 자동 적용됨)
+        mqRegistry.setUserDestinationPrefix("/user");
+
         // 서버 → 클라이언트 로 가는 요청
         //      브로커가 자동으로 메시지를 전송해준다.
 //        mqRegistry.enableSimpleBroker("/queue", "/topic");      // queue : 개인톡, topic : 단체톡
@@ -53,12 +56,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws-connect")
                 .setAllowedOriginPatterns("*")
                 .addInterceptors(new WebSocketHandshakeInterceptor());
-//                .withSockJS();
 
-        registry.addEndpoint("/ws-connect")
-                .setAllowedOriginPatterns("*")
-                .addInterceptors(new WebSocketHandshakeInterceptor())
-                .withSockJS();
+//        registry.addEndpoint("/ws-connect")
+//                .setAllowedOriginPatterns("*")
+//                .addInterceptors(new WebSocketHandshakeInterceptor())
+//                .withSockJS();
     }
 
     /**
@@ -66,7 +68,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry.setMessageSizeLimit(32 * 1024);    // 메시지 크기 제한 : 디폴트 64KB 에서 32KB 로 변경
+        registry.setMessageSizeLimit(32 * 1024);        // 메시지 크기 제한 : 디폴트 64KB 에서 32KB 로 변경
         registry.setTimeToFirstMessage(30 * 1000);      // 클라이언트가 websocket을 연결한 후 30초 내에 STOMP 메시지를 보내야 함.
         // 보내지 않으면 서버가 클라이언트 연결 종료
     }

@@ -1,4 +1,4 @@
-package kuchat.server.domain;
+package kuchat.server.domain.utils;
 
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.response.Error;
@@ -9,7 +9,7 @@ import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.INFO_BAD_REQUEST;
 
-public class Validator {
+public class ValidatorUtil {
 
     public static void validateRequest(BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

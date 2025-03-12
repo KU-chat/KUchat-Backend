@@ -40,7 +40,7 @@ public class Message extends BaseTime {
 
     public Message(MessageRequest messageRequest, Chat chat, Member sender) {
         this.chat = chat;
-        this.messageType = MessageType.valueOf(messageRequest.getMessageType());
+        this.messageType = messageRequest.getMessageType();
         this.sender = sender;
         this.content = messageRequest.getContent();
     }

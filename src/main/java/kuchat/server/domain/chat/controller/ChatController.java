@@ -3,7 +3,7 @@ package kuchat.server.domain.chat.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.domain.Validator;
+import kuchat.server.domain.utils.ValidatorUtil;
 import kuchat.server.domain.auth.argumentResolver.Auth;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.ViewChatResponse;
@@ -38,7 +38,7 @@ public class ChatController {
     public ResponseEntity<BaseResponse> create(@Auth Member member, @RequestBody @Validated CreateChatRequest request,
                                                BindingResult bindingResult) {
         log.info("[create] id = {} 인 사용자가 {} 와 개인 채팅방 생성 요청", member.getId(), request.toString());
-        Validator.validateRequest(bindingResult);
+        ValidatorUtil.validateRequest(bindingResult);
         return ResponseEntity.ok(chatService.create(member, request));
     }
 
@@ -55,5 +55,7 @@ public class ChatController {
         response.setRecentMessages(recentMessages);
         return ResponseEntity.ok(response);
     }
+
+
 
 }

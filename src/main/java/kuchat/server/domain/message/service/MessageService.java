@@ -1,5 +1,6 @@
 package kuchat.server.domain.message.service;
 
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
 import kuchat.server.domain.member.Member;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 
+import static kuchat.server.common.response.BaseResponseStatus.MESSAGE_FORMAT_ERROR;
 import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 
@@ -50,9 +52,17 @@ public class MessageService {
 
     @Transactional
     public MessageResponse save(MessageRequest messageRequest, Chat chat, Member sender) {
-        Message message = new Message(messageRequest, chat, sender);
+        Message message =  createMessage(messageRequest, chat, sender);
         Message saved = messageRepository.save(message);
         return new MessageResponse(saved);
+    }
+
+    private Message createMessage(MessageRequest messageRequest, Chat chat, Member sender) {
+        try{
+            return new Message(messageRequest, chat, sender);
+        } catch (IllegalArgumentException e){
+            throw new KuchatException(MESSAGE_FORMAT_ERROR);
+        }
     }
 
     public void broadcast(MessageResponse response) {

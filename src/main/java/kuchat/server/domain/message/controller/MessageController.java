@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -27,10 +28,10 @@ public class MessageController {
     private final MessageService messageService;
 
 
-//    @Operation(summary = "채팅방 구성원이 보낸 메시지 전송")
+    @Operation(summary = "채팅방 구성원이 보낸 메시지 전송")
     @MessageMapping("/message")
-    public void createMessage(@Payload MessageRequest messageRequest) {
-        log.info("📩 [sendMessage] : STOMP 메시지 수신 messageRequest = {}", messageRequest);
+    public void createMessage(@Validated @Payload MessageRequest messageRequest) {
+        log.info("[sendMessage] : STOMP 메시지 수신 messageRequest = {}", messageRequest);
 
         Chat chat = chatService.getChatById(messageRequest.getChatId());
         Member sender = memberService.getMemberById(messageRequest.getSenderId());

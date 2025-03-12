@@ -1,13 +1,12 @@
 package kuchat.server.domain.message.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import kuchat.server.domain.enums.MessageType;
 import lombok.*;
 
-import java.util.Objects;
-
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,15 +14,15 @@ import java.util.Objects;
 public class MessageRequest {
 
     @JsonProperty("chatId")
-    @NotBlank
+    @NotNull
     private Long chatId;      // 채팅방 ID
 
     @JsonProperty("messageType")
-    @NotBlank
-    private String messageType;        // 메시지 타입 (ENTER, CHAT, LEAVE)
+    @NotNull
+    private MessageType messageType;        // 메시지 타입 (ENTER, CHAT, LEAVE)
 
     @JsonProperty("senderId")
-    @NotBlank
+    @NotNull
     private Long senderId;
 
     @JsonProperty("content")

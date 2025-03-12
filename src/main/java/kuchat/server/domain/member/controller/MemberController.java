@@ -3,11 +3,14 @@ package kuchat.server.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.auth.argumentResolver.Auth;
 import kuchat.server.domain.auth.argumentResolver.Guest;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.domain.Validator;
+import kuchat.server.domain.utils.CookieUtil;
+import kuchat.server.domain.utils.ValidatorUtil;
+import kuchat.server.domain.auth.dto.AuthTokenResponse;
 import kuchat.server.domain.enums.LearnLanguage;
 import kuchat.server.domain.enums.SettingLanguage;
 import kuchat.server.domain.member.Member;
@@ -40,28 +43,30 @@ public class MemberController {
     @SecurityRequirement(name = "JWT")
     @PostMapping("/signup")
     public ResponseEntity<BaseResponse> signup(@Guest Member member,
+                                               HttpServletResponse response,
                                                @Validated @RequestBody SignupRequest signupRequest,
                                                BindingResult bindingResult) {
         log.info("[signup] 회원가입 요청");
         log.info("[signup] signupRequest = {}", signupRequest.toString());
 
         validateGuestToken(member);
-        Validator.validateRequest(bindingResult);
-        return memberService.signup(member, signupRequest);
+        ValidatorUtil.validateRequest(bindingResult);
+        AuthTokenResponse tokenResponse = memberService.signup(member, signupRequest, response);
+        return CookieUtil.setAuthToken(tokenResponse);
     }
 
-    @GetMapping("/signup")
-    public ResponseEntity<BaseResponse> signup(@RequestParam("guest-token") String token) {
-        log.info("[signup] 토큰이 없어도 회원가입 페이지로 이동 가능");
-        List<String> languages = Arrays.stream(LearnLanguage.values())
-                .map(LearnLanguage::getValue)
-                .toList();
-
-        List<String> settingLanguages = SettingLanguage.getValues();
-        SignupInfoResponse response = new SignupInfoResponse(token, languages, settingLanguages);
-
-        return ResponseEntity.ok(response);
-    }
+//    @GetMapping("/signup")
+//    public ResponseEntity<BaseResponse> signup(@RequestParam("guest-token") String token) {
+//        log.info("[signup] 토큰이 없어도 회원가입 페이지로 이동 가능");
+//        List<String> languages = Arrays.stream(LearnLanguage.values())
+//                .map(LearnLanguage::getValue)
+//                .toList();
+//
+//        List<String> settingLanguages = SettingLanguage.getValues();
+//        SignupInfoResponse response = new SignupInfoResponse(token, languages, settingLanguages);
+//
+//        return ResponseEntity.ok(response);
+//    }
 
     private void validateGuestToken(Member member) {
         if (member == null) {
@@ -75,7 +80,8 @@ public class MemberController {
     @DeleteMapping("/quit")
     public ResponseEntity<BaseResponse> quit(@Auth Member member) {
         log.info("[quit] memberId = {}", member.getId());
-        return memberService.quit(member);
+        memberService.quit(member);
+        return CookieUtil.removeAuthToken();
     }
 
 }

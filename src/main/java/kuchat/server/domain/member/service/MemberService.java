@@ -1,6 +1,5 @@
 package kuchat.server.domain.member.service;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.common.redis.RedisService;
@@ -17,7 +16,6 @@ import kuchat.server.domain.oauth.dto.GoogleInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,31 +30,21 @@ import static kuchat.server.domain.enums.Platform.GOOGLE;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final JwtTokenService jwtTokenService;
     private final RedisService redisService;
+    private final JwtTokenService jwtTokenService;
 
     @Value("${default.profile.address}")
     private String defaultImage;
 
     @Transactional
-    public ResponseEntity<BaseResponse> signup(Member member, SignupRequest signupRequest) {
+    public AuthTokenResponse signup(Member member, SignupRequest signupRequest, HttpServletResponse response) {
         log.info("[signup] member = {}", member.toString());
 
         validateStudentId(signupRequest.getStudentIdNumber());
         member.updateInfo(signupRequest, defaultImage);
         memberRepository.findById(member.getId());
 
-        // 엑세스 토큰, 리프레시 토큰 발급
-        AuthTokenResponse authTokenResponse = jwtTokenService.generateAuthToken(member.getRole(), member.getId());
-        log.info("[signup] member id : " + member.getId());
-
-        AuthTokenResponse response = new AuthTokenResponse(
-                SUCCESS,
-                authTokenResponse.getAccessToken(),
-                authTokenResponse.getRefreshToken()
-        );
-
-        return ResponseEntity.ok(response);
+        return jwtTokenService.generateAuthToken(member.getRole(), member.getId());
     }
 
     private void validateStudentId(String studentId) {
@@ -69,14 +57,14 @@ public class MemberService {
 
     @Transactional
     public void logout(Member member) {
+        log.info("[logout] 로그아웃 요청! 사용자 id = {}, name = {}", member.getId(), member.getName());
         redisService.removeRefreshToken(member.getId());
     }
 
     @Transactional
-    public ResponseEntity<BaseResponse> quit(Member member) {
+    public void quit(Member member) {
         redisService.removeRefreshToken(member.getId());      // 로그아웃 처리
         memberRepository.delete(member);                      // 탈퇴 처리
-        return ResponseEntity.ok(new BaseResponse(SUCCESS));
     }
 
     public Member getMemberByPlusId(String plusId) {
@@ -89,7 +77,7 @@ public class MemberService {
                 .orElseThrow(() -> new KuchatException(NOT_FOUND_MEMBER));
     }
 
-    public List<Member> getMembers(List<Long> friends) {
+    public List<Member> getMembersByIds(List<Long> friends) {
         return memberRepository.findAllById(friends);
     }
 
@@ -106,28 +94,25 @@ public class MemberService {
                 });
     }
 
-    public BaseResponse processLoginOrSignup(Member member,
-                                             GoogleInfoResponse infoResponse,
-                                             HttpServletResponse httpServletResponse) {
-        if (member == null || member.getRole() == Role.GUEST) {
-            log.info("[processLoginOrSignup] provider id = {}", infoResponse.getId());
-            String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), infoResponse.getId());
-            log.info("[processLoginOrSignup] 신규 회원 guest token 생성 = {}", guestToken);
+    public BaseResponse processLoginOrSignup(Member member) {
+        if (member.getRole() == Role.GUEST) {
+            String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), member.getProviderId());
             return new GuestTokenResponse(SUCCESS, guestToken);
         }
-        log.info("[SuccessHandler] 기존 회원인 경우, provider id = {}", infoResponse.getId());
-        AuthTokenResponse authTokenResponse = jwtTokenService.generateAuthToken(Role.STUDENT, member.getId());
-        log.info("[SuccessHandler] 로그인 성공!!! 토큰 발급 완료 access token = {}, refresh token = {}",
-                authTokenResponse.getAccessToken(), authTokenResponse.getRefreshToken());
-        setAuthCookie(httpServletResponse, "accessToken", authTokenResponse.getAccessToken());
-        setAuthCookie(httpServletResponse, "refreshToken", authTokenResponse.getRefreshToken());
-        return new AuthTokenResponse(SUCCESS, authTokenResponse.getAccessToken(), authTokenResponse.getRefreshToken());
+        return jwtTokenService.generateAuthToken(member.getRole(), member.getId());
+
+        // guest-token 응답 시 응답으로 넘기기
+
+        // access token 은 쿠키로 넘겨야함.
     }
 
-    private void setAuthCookie(HttpServletResponse response, String name, String token) {
-        Cookie cookie = new Cookie(name, token);
-        cookie.setSecure(true);         // HTTPS 에서만 전송 (개발 환경에서는 설정 비활성화 가능)
-        cookie.setMaxAge(60 * 60 * 24); // 쿠키 만료 시간 설정 (1시간)
-        response.addCookie(cookie);
+    public GuestTokenResponse handleGuest(Member member){
+        String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), member.getProviderId());
+        return new GuestTokenResponse(SUCCESS, guestToken);
     }
+
+    public AuthTokenResponse handleStudent(Member member){
+        return jwtTokenService.generateAuthToken(member.getRole(), member.getId());
+    }
+
 }
