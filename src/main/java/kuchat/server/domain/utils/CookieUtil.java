@@ -2,11 +2,9 @@ package kuchat.server.domain.utils;
 
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.auth.dto.AuthTokenResponse;
-import kuchat.server.domain.auth.dto.GuestTokenResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
