@@ -96,7 +96,7 @@ public class MemberService {
 
     public BaseResponse processLoginOrSignup(Member member) {
         if (member.getRole() == Role.GUEST) {
-            String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), member.getProviderId());
+            String guestToken = jwtTokenService.generateGuestToken(GOOGLE.name(), member.getProviderId());
             return new GuestTokenResponse(SUCCESS, guestToken);
         }
         return jwtTokenService.generateAuthToken(member.getRole(), member.getId());
@@ -107,7 +107,7 @@ public class MemberService {
     }
 
     public GuestTokenResponse handleGuest(Member member){
-        String guestToken = jwtTokenService.generateGuestToken(GOOGLE.getValue(), member.getProviderId());
+        String guestToken = jwtTokenService.generateGuestToken(GOOGLE.name(), member.getProviderId());
         return new GuestTokenResponse(SUCCESS, guestToken);
     }
 
