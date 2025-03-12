@@ -39,12 +39,9 @@ public class MemberService {
     @Transactional
     public AuthTokenResponse signup(Member member, SignupRequest signupRequest, HttpServletResponse response) {
         log.info("[signup] member = {}", member.toString());
-
         validateStudentId(signupRequest.getStudentIdNumber());
         member.updateInfo(signupRequest, defaultImage);
-        memberRepository.findById(member.getId());
-
-        return jwtTokenService.generateAuthToken(member.getRole(), member.getId());
+        return handleStudent(member);
     }
 
     private void validateStudentId(String studentId) {
@@ -92,18 +89,6 @@ public class MemberService {
                     memberRepository.save(member);
                     return getMemberById(member.getId());
                 });
-    }
-
-    public BaseResponse processLoginOrSignup(Member member) {
-        if (member.getRole() == Role.GUEST) {
-            String guestToken = jwtTokenService.generateGuestToken(GOOGLE.name(), member.getProviderId());
-            return new GuestTokenResponse(SUCCESS, guestToken);
-        }
-        return jwtTokenService.generateAuthToken(member.getRole(), member.getId());
-
-        // guest-token 응답 시 응답으로 넘기기
-
-        // access token 은 쿠키로 넘겨야함.
     }
 
     public GuestTokenResponse handleGuest(Member member){

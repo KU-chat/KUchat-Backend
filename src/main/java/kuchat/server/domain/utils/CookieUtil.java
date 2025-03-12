@@ -25,7 +25,9 @@ public class CookieUtil {
         headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
-        return ResponseEntity.ok().headers(headers).body(response);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new BaseResponse(SUCCESS));
     }
 
     public static ResponseEntity<BaseResponse> removeAuthToken() {
@@ -34,7 +36,9 @@ public class CookieUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, noAccessTokenCookie.toString());
         headers.add(HttpHeaders.SET_COOKIE, noRefreshTokenCookie.toString());
-        return ResponseEntity.ok().headers(headers).body(new BaseResponse(SUCCESS));
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new BaseResponse(SUCCESS));
     }
 
     private static ResponseCookie createCookie(String key, String value, int age) {

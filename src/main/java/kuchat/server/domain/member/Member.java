@@ -82,11 +82,10 @@ public class Member extends BaseTime {
     public void updateInfo(SignupRequest request, String defaultImage) {
         this.language = new Language(request);
         profile.update(request, defaultImage);
-
         this.studentId = request.getStudentIdNumber();
         this.plusId = generatePlusId(10);
         this.status = Status.ACTIVE;
-        this.role = Role.STUDENT;           // 추가정보 받은 후 처리
+        this.role = Role.STUDENT;
     }
 
     public String generatePlusId(int length) {

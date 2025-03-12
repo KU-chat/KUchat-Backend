@@ -46,27 +46,12 @@ public class MemberController {
                                                HttpServletResponse response,
                                                @Validated @RequestBody SignupRequest signupRequest,
                                                BindingResult bindingResult) {
-        log.info("[signup] 회원가입 요청");
-        log.info("[signup] signupRequest = {}", signupRequest.toString());
-
+        log.info("[signup] 회원가입 요청 signupRequest = {}", signupRequest.toString());
         validateGuestToken(member);
         ValidatorUtil.validateRequest(bindingResult);
         AuthTokenResponse tokenResponse = memberService.signup(member, signupRequest, response);
         return CookieUtil.setAuthToken(tokenResponse);
     }
-
-//    @GetMapping("/signup")
-//    public ResponseEntity<BaseResponse> signup(@RequestParam("guest-token") String token) {
-//        log.info("[signup] 토큰이 없어도 회원가입 페이지로 이동 가능");
-//        List<String> languages = Arrays.stream(LearnLanguage.values())
-//                .map(LearnLanguage::getValue)
-//                .toList();
-//
-//        List<String> settingLanguages = SettingLanguage.getValues();
-//        SignupInfoResponse response = new SignupInfoResponse(token, languages, settingLanguages);
-//
-//        return ResponseEntity.ok(response);
-//    }
 
     private void validateGuestToken(Member member) {
         if (member == null) {
