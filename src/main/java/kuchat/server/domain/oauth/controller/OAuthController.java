@@ -1,6 +1,5 @@
 package kuchat.server.domain.oauth.controller;
 
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.auth.dto.AuthTokenResponse;
 import kuchat.server.domain.auth.dto.GuestTokenResponse;
@@ -13,7 +12,10 @@ import kuchat.server.domain.utils.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static kuchat.server.domain.enums.Role.GUEST;
 
@@ -27,11 +29,11 @@ public class OAuthController {
     private final MemberService memberService;
 
     @PostMapping("/google")
-    public ResponseEntity<BaseResponse> callback(@RequestBody AuthorizationCodeRequest authorizationCodeRequest){
+    public ResponseEntity<BaseResponse> callback(@RequestBody AuthorizationCodeRequest authorizationCodeRequest) {
         log.info("[callback] 구글 인가코드 발급 완료 = {}", authorizationCodeRequest.getCode());
         GoogleInfoResponse userInfoResponse = googleOAuthService.getUserInfo(authorizationCodeRequest.getCode());
         Member member = memberService.lookupMemberByGoogleInfo(userInfoResponse);
-        if (member.getRole() == GUEST){
+        if (member.getRole() == GUEST) {
             GuestTokenResponse guestTokenResponse = memberService.handleGuest(member);
             return ResponseEntity.ok(guestTokenResponse);
         }
