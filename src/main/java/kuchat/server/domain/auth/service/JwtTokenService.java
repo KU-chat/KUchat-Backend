@@ -158,6 +158,7 @@ public class JwtTokenService {
     private boolean validateTokenType(String token, String type) {
         Claims claims = getClaims(token);
         String tokenType = claims.get("type", String.class);
+        log.info("[validateTokenType] actual type = {}, expected type = {}", tokenType, type);
         return tokenType.equals(type);
     }
 }

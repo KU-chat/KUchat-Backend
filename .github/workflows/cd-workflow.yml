@@ -5,12 +5,11 @@ on:
     branches:
       - 'develop'
       - 'main'
-      - 'feat/chat'
+      - 'feat/notification'
   pull_request:
     branches:
       - 'develop'
       - 'main'
-      - 'feat/chat'
 
 permissions:
   contents: read
