@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.auth.argumentResolver.Auth;
+import kuchat.server.domain.chat.dto.ChatResponses;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.RecentMessageResponse;
 import kuchat.server.domain.chat.dto.ViewChatResponse;
@@ -53,7 +54,7 @@ public class ChatController {
                                                  @RequestParam(defaultValue = "30") int size,
                                                  @PathVariable("chatId") Long chatId) {
         log.info("[enter] member id = {} 가 chat id = {} 채팅방 조회", member.getId(), chatId);
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdDate");
+        Pageable pageable = PageRequest.of(page, ValidatorUtil.sizeValidator(size), Sort.Direction.DESC, "createdDate");
         ViewChatResponse response = chatService.getChatInfo(member, chatId);
         List<RecentMessageResponse> recentMessages = messageService.getRecentMessages(response.getChatId(), pageable);
         response.setRecentMessages(recentMessages);
@@ -66,6 +67,19 @@ public class ChatController {
         log.info("[exit] member id = {} 가 chat id = {} 채팅방 나가기 요청", member.getId(), chatId);
         chatService.exit(member, chatId);
         return ResponseEntity.ok(new BaseResponse(SUCCESS));
+    }
+
+    @Operation(summary = "채팅방 목록 조회 + 검색 기능")
+    @GetMapping
+    public ResponseEntity<ChatResponses> getChatList(@Auth Member member,
+                                                     @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "30") int size,
+                                                     @RequestParam(defaultValue = "") String name) {
+        log.info("[getChatList] 채팅방 목록 조회 , 검색 키워드 = {}", name);
+        Pageable pageable = PageRequest.of(
+                page, ValidatorUtil.sizeValidator(size), Sort.Direction.DESC, "createdDate");
+        ChatResponses response = chatService.getChatList(member, name, pageable);
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -20,4 +20,11 @@ public class ValidatorUtil {
             throw new KuchatException(errorResponse);
         }
     }
+
+    public static int sizeValidator(int size){
+        if (size > 100){
+            return 50;
+        }
+        return size;
+    }
 }

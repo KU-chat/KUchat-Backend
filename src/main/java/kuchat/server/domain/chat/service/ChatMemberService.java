@@ -7,10 +7,14 @@ import kuchat.server.domain.chat.repository.ChatMemberRepository;
 import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
@@ -47,5 +51,11 @@ public class ChatMemberService {
             log.info("[remove] 이미 삭제된 ChatMember 입니다. chatMember id = {}", chatMember.getChat());
             throw new KuchatException(ALREADY_LEFT_CHAT);
         }
+    }
+
+    public List<Chat> getByMemberAndChatName(Member member, String chatName, Pageable pageable) {
+        return chatMemberRepository.findByMemberAndChatName(member, "%"+chatName+"%", pageable).stream()
+                .map(ChatMember::getChat)
+                .toList();
     }
 }

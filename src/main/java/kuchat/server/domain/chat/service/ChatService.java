@@ -3,15 +3,21 @@ package kuchat.server.domain.chat.service;
 import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.ChatMember;
+import kuchat.server.domain.chat.dto.ChatResponses;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
 import kuchat.server.domain.chat.dto.ViewChatResponse;
 import kuchat.server.domain.chat.repository.ChatRepository;
+import kuchat.server.domain.friend.Friend;
+import kuchat.server.domain.friend.dto.FriendApplyResponses;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,5 +86,11 @@ public class ChatService {
         ChatMember chatMember = checkMemberInChat(member, chatId);
         chatMemberService.remove(chatMember);
         log.info("[exit] 나가기 처리 완료");
+    }
+
+    public ChatResponses getChatList(Member member, String chatName, Pageable pageable) {
+        log.info("[getChatList] 자신이 참여하고 있는 채팅방 목록 조회");
+        List<Chat> chats = chatMemberService.getByMemberAndChatName(member, chatName, pageable);
+        return new ChatResponses(chats);
     }
 }

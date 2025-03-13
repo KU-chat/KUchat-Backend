@@ -7,6 +7,7 @@ import kuchat.server.domain.friend.dto.FriendApplyResponses;
 import kuchat.server.domain.friend.dto.FriendResponses;
 import kuchat.server.domain.friend.service.FriendService;
 import kuchat.server.domain.member.Member;
+import kuchat.server.domain.utils.ValidatorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -45,7 +46,7 @@ public class FriendController {
                                                                    @RequestParam(defaultValue = "0") int page,
                                                                    @RequestParam(defaultValue = "20") int size) {
         log.info("[getFriendApplyList] id={} , name={} 가 받은 친구 신청 목록 조회", member.getId(), member.getName());
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdDate");
+        Pageable pageable = PageRequest.of(page, ValidatorUtil.sizeValidator(size), Sort.Direction.DESC, "createdDate");
         return friendService.getFriendApplyList(member, pageable);
     }
 
@@ -72,7 +73,7 @@ public class FriendController {
                                                          @RequestParam(defaultValue = "20") int size,
                                                          @RequestParam(value = "name", required = false) String friendName) {
         log.info("[getFriendList] 친구 목록 검색 및 조회. 검색 문자열 = '{}'", friendName);
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "receiver.profile.name");
+        Pageable pageable = PageRequest.of(page,  ValidatorUtil.sizeValidator(size), Sort.Direction.ASC, "receiver.profile.name");
         return friendService.getFriendList(member, friendName, pageable);
     }
 }
