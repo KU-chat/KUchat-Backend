@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.auth.argumentResolver.Auth;
+import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.ChatResponses;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
 import kuchat.server.domain.chat.dto.RecentMessageResponse;
@@ -18,11 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
 import java.util.List;
 
 import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
@@ -74,10 +77,10 @@ public class ChatController {
     public ResponseEntity<ChatResponses> getChatList(@Auth Member member,
                                                      @RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "30") int size,
-                                                     @RequestParam(defaultValue = "") String name) {
+                                                     @RequestParam(defaultValue = "") String name){
         log.info("[getChatList] 채팅방 목록 조회 , 검색 키워드 = {}", name);
         Pageable pageable = PageRequest.of(
-                page, ValidatorUtil.sizeValidator(size), Sort.Direction.DESC, "createdDate");
+                page, ValidatorUtil.sizeValidator(size), Sort.Direction.DESC, "modifiedDate");
         ChatResponses response = chatService.getChatList(member, name, pageable);
         return ResponseEntity.ok(response);
     }

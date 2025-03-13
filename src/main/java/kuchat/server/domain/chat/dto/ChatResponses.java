@@ -33,9 +33,9 @@ public class ChatResponses {
     public static class ChatResponse {
         private String name;
         private String profileImage;
+        private LocalDateTime lastSendTime;
 //        private String homeTown;
 //        private String recentMessage;
-        private LocalDateTime lastSendTime;
 //        private int unreadMessageCount;
 
         public ChatResponse(Chat chat){
