@@ -11,12 +11,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.View;
 
 import static kuchat.server.common.response.BaseResponseStatus.*;
 
 @Slf4j
 @RestControllerAdvice
 public class RequestControllerAdvice {
+    private final View error;
+
+    public RequestControllerAdvice(View error) {
+        this.error = error;
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<BaseResponse> handleMissingParameterException(MissingServletRequestParameterException e) {
         log.error("[handleMissingParameterException] 클라이언트 요청에서 request parameter가 누락된 경우");
@@ -43,7 +50,7 @@ public class RequestControllerAdvice {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<BaseResponse> handleMissingPathVariableException(HttpRequestMethodNotSupportedException e){
+    public ResponseEntity<BaseResponse> handleMissingPathVariableException(HttpRequestMethodNotSupportedException e) {
         log.error("[handleMissingPathVariableException] 요청 url에서 path variable이 누락된 경우");
         log.error(e.getMessage());
         log.error(String.valueOf(e.getHeaders()));
@@ -53,7 +60,7 @@ public class RequestControllerAdvice {
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<BaseResponse> handlerNotFoundException(NoHandlerFoundException e){
+    public ResponseEntity<BaseResponse> handlerNotFoundException(NoHandlerFoundException e) {
         log.error("[handlerNotFoundException] 구현되지 않은 API로 요청을 보낸 경우");
         log.error(e.getMessage());
         HttpStatus httpStatus = API_NOT_FOUND.getHttpStatus();

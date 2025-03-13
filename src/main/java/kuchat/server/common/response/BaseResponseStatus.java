@@ -53,22 +53,16 @@ public enum BaseResponseStatus {
     //- 5000번대 : 채팅방(chat) 관련 코드
     NOT_FOUND_CHAT(5000, HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
     ALREADY_CHAT(5001, HttpStatus.OK, "이미 존재하는 채팅방입니다."),
-    UNAUTHORIZED_CHAT_MEMBER(5002, HttpStatus.UNAUTHORIZED, "채팅방에 접근할 수 있는 회원이 아닙니다."),
-    NOT_FOUND_CHATMEMBER(5003, HttpStatus.BAD_REQUEST, "채팅방 구성원이 아닙니다."),
+    UNAUTHORIZED_CHAT_MEMBER(5002, HttpStatus.UNAUTHORIZED, "채팅방에 접근할 수 없는 회원입니다. 권한을 확인해주세요."),
+    EMPTY_CHAT_MEMBER(5003, HttpStatus.BAD_REQUEST, "채팅방 구성원이 없습니다. 다시 시도해주세요."),
+    NOT_FOUND_CHAT_MEMBER(5004, HttpStatus.BAD_REQUEST, "채팅방 구성원이 아닙니다."),
+    ALREADY_LEFT_CHAT(5005, HttpStatus.BAD_REQUEST, "해당 회원은 이미 채팅방을 나갔습니다."),
 
-
-//    EXIT_CHATROOM_FAIL(5001, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 나가기에 실패했습니다."),
-//    MALFORMED_CHATROOM_ID(5002, HttpStatus.BAD_REQUEST, "uri의 채팅방 id가 올바르지 않습니다."),
-//    DUPLICATED_JOIN(5003, HttpStatus.BAD_REQUEST, "이미 참여하고 있는 회원은 초대할 수 없습니다."),
-//    EMPTY_CHATROOM(5004, HttpStatus.BAD_REQUEST, "채팅방 참여 인원이 없어 채팅방을 만들 수 없습니다."),
-//    DUPLICATE_CHATROOM_NAME(5005, HttpStatus.BAD_REQUEST, "이미 존재하는 채팅방 이름입니다. 다른 이름으로 시도해주세요."),
-//    STOMP_ACCESSOR_NULL(5006, HttpStatus.BAD_REQUEST, "받은 요청의 stomp header accessor가 존재하지 않습니다.(null) 다시 시도해주세요."),
-//    CHATROOM_BAD_REQUEST(5007, HttpStatus.BAD_REQUEST, "채팅방 생성/수정 요청이 올바르지 않습니다. 다시 시도해 주세요."),
 
     //- 6000번대 : 메시지(message)/소켓 관련 코드
     WEBSOCKET_CONNECTION_FAIL(6000, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버 접속에 실패했습니다."),
     WEBSOCKET_CLOSE_FAIL(6001, HttpStatus.INTERNAL_SERVER_ERROR, "웹소켓 서버와의 연결 종료에 실패했습니다."),
-    MESSAGE_FORMAT_ERROR(6002, HttpStatus.BAD_REQUEST, "클라이언트에서 요청한 메시지 json 객체의 형식이 잘못됐습니다."),
+    MESSAGE_FORMAT_ERROR(6002, HttpStatus.BAD_REQUEST, "메시지에서 하나 이상의 필드가 누락되었습니다. json 데이터를 확인해주세요."),
     CONVERT_TO_JSON_FAIL(6003, HttpStatus.INTERNAL_SERVER_ERROR, "메시지를 json 형태로 바꾸는데 실패했습니다"),
     CONVERT_TO_OBJECT_FAIL(6004, HttpStatus.INTERNAL_SERVER_ERROR, "json을 메세지 객체 형태로 바꾸는데 실패했습니다"),
     MESSAGE_SEND_FAIL(6005, HttpStatus.INTERNAL_SERVER_ERROR, "메시지 전송에 실패했습니다."),

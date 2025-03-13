@@ -13,6 +13,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import static kuchat.server.common.response.BaseResponseStatus.NOT_FOUND_TOKEN;
 
@@ -31,8 +32,9 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        Cookie[] cookies = request.getCookies();
-        String rawToken = Arrays.stream(cookies)
+
+        String rawToken = Optional.ofNullable(request.getCookies()).stream()
+                .flatMap(Arrays::stream)
                 .filter(cookie -> "accessToken".equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst()

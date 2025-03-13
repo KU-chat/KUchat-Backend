@@ -2,6 +2,8 @@ package kuchat.server.domain.chat.repository;
 
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.member.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

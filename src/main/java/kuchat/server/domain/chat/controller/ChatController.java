@@ -2,16 +2,21 @@ package kuchat.server.domain.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kuchat.server.domain.auth.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.domain.Validator;
+import kuchat.server.domain.auth.argumentResolver.Auth;
 import kuchat.server.domain.chat.Chat;
+import kuchat.server.domain.chat.dto.ChatResponses;
 import kuchat.server.domain.chat.dto.CreateChatRequest;
+import kuchat.server.domain.chat.dto.RecentMessageResponse;
+import kuchat.server.domain.chat.dto.ViewChatResponse;
 import kuchat.server.domain.chat.service.ChatService;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.message.dto.RecentMessageResponses;
+import kuchat.server.domain.member.service.MemberService;
+import kuchat.server.domain.message.service.MessageService;
+import kuchat.server.domain.utils.ValidatorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -19,6 +24,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URLDecoder;
+import java.util.List;
+
+import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 @Slf4j
 @Tag(name = "Chat", description = "1:1 채팅방 + 단체 채팅방 모두에 대한 요청을 받음")
@@ -28,28 +38,51 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
 
     private final ChatService chatService;
+    private final MessageService messageService;
+    private final MemberService memberService;
 
     @Operation(summary = "채팅방 생성 (1:1 채팅, 그룹 채팅 모두 해당)")
     @PostMapping
     public ResponseEntity<BaseResponse> create(@Auth Member member, @RequestBody @Validated CreateChatRequest request,
                                                BindingResult bindingResult) {
         log.info("[create] id = {} 인 사용자가 {} 와 개인 채팅방 생성 요청", member.getId(), request.toString());
-        Validator.validateRequest(bindingResult);
+        ValidatorUtil.validateRequest(bindingResult);
         return ResponseEntity.ok(chatService.create(member, request));
     }
 
     @Operation(summary = "채팅방 화면으로 들어가기 (채팅방 메시지 조회하기)")
     @GetMapping("/{chatId}")
-    public ResponseEntity<RecentMessageResponses> enter(@Auth Member member,
-                                              @PathVariable("chatId") Long chatId,
-                                              @PageableDefault(
-                                                      size = 50,
-                                                      sort = "createdDate",
-                                                      direction = Sort.Direction.DESC
-                                              ) Pageable pageable) {
-        Chat chat = chatService.validateEnter(member, chatId);
-        RecentMessageResponses responses = chatService.getRecentMessages(chat, pageable);
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<ViewChatResponse> view(@Auth Member member,
+                                                 @RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "30") int size,
+                                                 @PathVariable("chatId") Long chatId) {
+        log.info("[enter] member id = {} 가 chat id = {} 채팅방 조회", member.getId(), chatId);
+        Pageable pageable = PageRequest.of(page, ValidatorUtil.sizeValidator(size), Sort.Direction.DESC, "createdDate");
+        ViewChatResponse response = chatService.getChatInfo(member, chatId);
+        List<RecentMessageResponse> recentMessages = messageService.getRecentMessages(response.getChatId(), pageable);
+        response.setRecentMessages(recentMessages);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "채팅방 나가기")
+    @PostMapping("/{chatId}")
+    public ResponseEntity<BaseResponse> exit(@Auth Member member, @PathVariable("chatId") Long chatId) {
+        log.info("[exit] member id = {} 가 chat id = {} 채팅방 나가기 요청", member.getId(), chatId);
+        chatService.exit(member, chatId);
+        return ResponseEntity.ok(new BaseResponse(SUCCESS));
+    }
+
+    @Operation(summary = "채팅방 목록 조회 + 검색 기능")
+    @GetMapping
+    public ResponseEntity<ChatResponses> getChatList(@Auth Member member,
+                                                     @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "30") int size,
+                                                     @RequestParam(defaultValue = "") String name){
+        log.info("[getChatList] 채팅방 목록 조회 , 검색 키워드 = {}", name);
+        Pageable pageable = PageRequest.of(
+                page, ValidatorUtil.sizeValidator(size), Sort.Direction.DESC, "modifiedDate");
+        ChatResponses response = chatService.getChatList(member, name, pageable);
+        return ResponseEntity.ok(response);
     }
 
 }

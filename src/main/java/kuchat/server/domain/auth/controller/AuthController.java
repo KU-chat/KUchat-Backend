@@ -1,7 +1,12 @@
 package kuchat.server.domain.auth.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+import kuchat.server.common.response.BaseResponse;
 import kuchat.server.domain.auth.service.JwtTokenService;
 import kuchat.server.domain.auth.dto.AuthTokenResponse;
+import kuchat.server.domain.member.Member;
+import kuchat.server.domain.member.service.MemberService;
+import kuchat.server.domain.utils.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +24,19 @@ import static kuchat.server.domain.enums.Role.STUDENT;
 public class AuthController {
 
     private final JwtTokenService jwtTokenService;
+    private final MemberService memberService;
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> reissueToken(@RequestHeader(value = "Authorization", required = false) String refreshToken) {
+    public ResponseEntity<AuthTokenResponse> reissueToken(@RequestHeader(value = "Authorization", required = false) String refreshToken) {
         Long memberId = jwtTokenService.validateRefreshToken(refreshToken);
         AuthTokenResponse response = jwtTokenService.generateAuthToken(STUDENT, memberId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<BaseResponse> logout(@RequestHeader("Authorization") String accessToken, HttpServletResponse response) {
+        Member member = jwtTokenService.extractMemberByAccessToken(accessToken);
+        memberService.logout(member);
+        return CookieUtil.removeAuthToken();
     }
 }

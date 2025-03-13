@@ -11,6 +11,7 @@ import kuchat.server.domain.enums.Role;
 import kuchat.server.domain.enums.Status;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
 import kuchat.server.domain.member.dto.SignupRequest;
+import kuchat.server.domain.oauth.dto.GoogleInfoResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -74,14 +75,17 @@ public class Member extends BaseTime {
         role = Role.GUEST;
     }
 
+    public Member(GoogleInfoResponse infoResponse) {
+
+    }
+
     public void updateInfo(SignupRequest request, String defaultImage) {
         this.language = new Language(request);
         profile.update(request, defaultImage);
-
         this.studentId = request.getStudentIdNumber();
         this.plusId = generatePlusId(10);
         this.status = Status.ACTIVE;
-        this.role = Role.STUDENT;           // 추가정보 받은 후 처리
+        this.role = Role.STUDENT;
     }
 
     public String generatePlusId(int length) {

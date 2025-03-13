@@ -9,6 +9,7 @@ import kuchat.server.domain.friend.service.FriendService;
 import kuchat.server.domain.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -45,11 +46,10 @@ public class BlockController {
     @Operation(summary = "내가 차단한 사용자 목록 조회")
     @GetMapping
     public ResponseEntity<BlockMemberResponses> blockMemberList(@Auth Member member,
-                                                                @PageableDefault(size = 20,
-                                                                        sort = "createdDate",
-                                                                        direction = Sort.Direction.DESC)
-                                                                Pageable pageable) {
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "20") int size) {
         log.info("[blockMemberList] {} 가 차단한 사용자들 목록 조회", member.getId());
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdDate");
         return blockService.getblocks(member, pageable);
     }
 }

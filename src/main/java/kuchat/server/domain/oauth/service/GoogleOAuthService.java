@@ -1,14 +1,18 @@
 package kuchat.server.domain.oauth.service;
 
 import jakarta.servlet.http.HttpServletResponse;
+import kuchat.server.common.response.BaseResponse;
+import kuchat.server.common.response.BaseResponseStatus;
+import kuchat.server.domain.auth.dto.AuthTokenResponse;
 import kuchat.server.domain.oauth.dto.GoogleInfoResponse;
 import kuchat.server.domain.oauth.dto.GoogleTokenResponse;
 import kuchat.server.domain.member.Member;
-import kuchat.server.domain.member.dto.AuthTokenResponse;
 import kuchat.server.domain.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -38,12 +42,11 @@ public class GoogleOAuthService {
                 .build();
     }
 
-    public AuthTokenResponse process(String code, HttpServletResponse httpServletResponse) {
+    public GoogleInfoResponse getUserInfo(String code) {
         GoogleTokenResponse tokenResponse = requestAccessToken(code);
         GoogleInfoResponse infoResponse = requestUserInfo(tokenResponse.getAccessToken());
         log.info("[process] 구글에서 제공한 user info = {}", infoResponse);
-        Member member = memberService.lookupMemberByGoogleId(infoResponse.getId());
-        return memberService.processLoginOrSignup(member, tokenResponse, infoResponse, httpServletResponse);
+        return infoResponse;
     }
 
     public GoogleTokenResponse requestAccessToken(String code) {

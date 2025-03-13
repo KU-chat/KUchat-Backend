@@ -1,15 +1,26 @@
 package kuchat.server.domain.message.service;
 
+import kuchat.server.common.exception.KuchatException;
 import kuchat.server.domain.chat.Chat;
 import kuchat.server.domain.chat.dto.CreateChatResponse;
+import kuchat.server.domain.member.Member;
+import kuchat.server.domain.message.Message;
+import kuchat.server.domain.chat.dto.RecentMessageResponse;
+import kuchat.server.domain.message.dto.MessageRequest;
+import kuchat.server.domain.message.dto.MessageResponse;
+import kuchat.server.domain.message.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
+import static kuchat.server.common.response.BaseResponseStatus.MESSAGE_FORMAT_ERROR;
 import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 
 
@@ -20,7 +31,9 @@ import static kuchat.server.common.response.BaseResponseStatus.SUCCESS;
 public class MessageService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final MessageRepository messageRepository;
 
+    @Transactional
     public void notifyNewChat(Chat chat, List<Long> memberIds) {
         if (chat.isGroup()) {
             // 단체 채팅방이면 `/topic/new-chat`으로 전송 (모든 사용자에게 전송)
@@ -35,6 +48,33 @@ public class MessageService {
                         new CreateChatResponse(SUCCESS, chat.getId()));
             }
         }
+    }
+
+    @Transactional
+    public MessageResponse save(MessageRequest messageRequest, Chat chat, Member sender) {
+        Message message =  createMessage(messageRequest, chat, sender);
+        Message saved = messageRepository.save(message);
+        return new MessageResponse(saved);
+    }
+
+    private Message createMessage(MessageRequest messageRequest, Chat chat, Member sender) {
+        try{
+            return new Message(messageRequest, chat, sender);
+        } catch (IllegalArgumentException e){
+            throw new KuchatException(MESSAGE_FORMAT_ERROR);
+        }
+    }
+
+    public void broadcast(MessageResponse response) {
+        simpMessagingTemplate.convertAndSend("/sub/chat/" + response.getChatId(), response);
+    }
+
+    public List<RecentMessageResponse> getRecentMessages(Long chatId, Pageable pageable) {
+        Page<Message> recentMessages = messageRepository.findRecent30MessagesByChat(chatId, pageable);
+        return recentMessages.stream()
+                .map(RecentMessageResponse::new)
+                .sorted(Comparator.comparing(RecentMessageResponse::getSendTime))
+                .toList();
     }
 
 }

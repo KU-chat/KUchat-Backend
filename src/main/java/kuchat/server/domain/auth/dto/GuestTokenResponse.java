@@ -11,13 +11,11 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthTokenResponse extends BaseResponse {
-    private String accessToken;
-    private String refreshToken;
+public class GuestTokenResponse extends BaseResponse {
+    private String guestToken;
 
-    public AuthTokenResponse(BaseResponseStatus responseStatus, String accessToken, String refreshToken) {
+    public GuestTokenResponse(BaseResponseStatus responseStatus, String guestToken) {
         super(responseStatus);
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
+        this.guestToken = guestToken;
     }
 }

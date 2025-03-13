@@ -19,6 +19,6 @@ public abstract class BaseTime {
 
     @LastModifiedDate
     @Column(name = "modified_at", updatable = false)
-    private LocalDateTime modifedDate;
+    private LocalDateTime modifiedDate;
 
 }

@@ -1,26 +1,31 @@
 package kuchat.server.domain.message.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
+import kuchat.server.domain.enums.MessageType;
 import lombok.*;
 
-import java.util.Objects;
-
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 public class MessageRequest {
-    @NotBlank
+
+    @JsonProperty("chatId")
+    @NotNull
     private Long chatId;      // 채팅방 ID
 
-    @NotBlank
-    private String messageType;        // 메시지 타입 (ENTER, CHAT, LEAVE)
+    @JsonProperty("messageType")
+    @NotNull
+    private MessageType messageType;        // 메시지 타입 (ENTER, CHAT, LEAVE)
 
-    @NotBlank
+    @JsonProperty("senderId")
+    @NotNull
     private Long senderId;
 
+    @JsonProperty("content")
     @NotNull
     private String content;
 }

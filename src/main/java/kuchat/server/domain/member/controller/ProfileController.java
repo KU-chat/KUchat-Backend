@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kuchat.server.domain.auth.argumentResolver.Auth;
 import kuchat.server.common.response.BaseResponse;
-import kuchat.server.domain.Validator;
+import kuchat.server.domain.utils.ValidatorUtil;
 import kuchat.server.domain.member.Member;
 import kuchat.server.domain.member.dto.DetailProfileResponse;
 import kuchat.server.domain.member.dto.ProfileUpdateRequest;
@@ -46,7 +46,7 @@ public class ProfileController {
                                                         @Validated @RequestBody ProfileUpdateRequest requestBody,
                                                         BindingResult bindingResult) {
         log.info("[updateMyProfile] 프로필 수정 요청 = {}", requestBody.toString());
-        Validator.validateRequest(bindingResult);
+        ValidatorUtil.validateRequest(bindingResult);
         return profileService.updateProfile(member, requestBody);
     }
 

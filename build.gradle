@@ -39,17 +39,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
-	// oauth2
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// auth
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'		// jwt 생성에 필요한 DatatypeConverter
-	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
 	// chat
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	implementation 'org.webjars:sockjs-client:1.1.2'
-	implementation 'org.webjars:stomp-websocket:2.3.3'
+//	implementation 'org.webjars:sockjs-client:1.5.1'
+	implementation 'org.webjars:stomp-websocket:2.3.4'
+	implementation 'org.springframework:spring-messaging:6.1.4'
+	implementation 'org.springframework.security:spring-security-messaging:6.2.3'
 
 }
 
