@@ -10,10 +10,7 @@ import kuchat.server.domain.utils.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static kuchat.server.domain.enums.Role.STUDENT;
 
@@ -27,7 +24,7 @@ public class AuthController {
     private final MemberService memberService;
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthTokenResponse> reissueToken(@RequestHeader(value = "Authorization", required = false) String refreshToken) {
+    public ResponseEntity<AuthTokenResponse> reissueToken(@CookieValue(name = "refreshToken") String refreshToken) {
         Long memberId = jwtTokenService.validateRefreshToken(refreshToken);
         AuthTokenResponse response = jwtTokenService.generateAuthToken(STUDENT, memberId);
         return ResponseEntity.ok(response);

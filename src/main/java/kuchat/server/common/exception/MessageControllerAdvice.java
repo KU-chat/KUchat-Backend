@@ -21,5 +21,4 @@ public class MessageControllerAdvice {
         log.error("[handleMessageConversionException] 에러 메시지 = {}", e.getMessage());
         return new BaseResponse(MESSAGE_FORMAT_ERROR);
     }
-
 }
