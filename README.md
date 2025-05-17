@@ -9,7 +9,8 @@
 
 
 ### 🏗️ Architecture
-<img width="922" alt="Architecture" src="https://github.com/user-attachments/assets/c0c0c5be-e390-42ce-afc9-1caaf986ddc0">
+<!-- <img width="922" alt="Architecture" src="https://github.com/user-attachments/assets/c0c0c5be-e390-42ce-afc9-1caaf986ddc0"> -->
+<img width="922" alt="Architecture" src="https://github.com/user-attachments/assets/a79caf95-3be4-40c0-8f4c-a260d20835d9" />
 
 
 ### 🛠️ Tech Stack
